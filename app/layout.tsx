@@ -50,9 +50,9 @@ export const metadata: Metadata = {
     images: ['/og/og-image.jpg']
   },
   icons: {
-    icon: '/brand/LinkU_Simbolo_fondo_oscuro.jpg',
-    shortcut: '/brand/LinkU_Simbolo_fondo_oscuro.jpg',
-    apple: '/brand/LinkU_Simbolo_fondo_oscuro.jpg'
+    icon: '/brand/linku-icon.png',
+    shortcut: '/brand/linku-icon.png',
+    apple: '/brand/linku-icon.png'
   },
   appleWebApp: {
     title: 'LINKU SUMMIT 2026',

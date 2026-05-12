@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { Instagram, Linkedin, Mail } from 'lucide-react';
 
 type Props = {
@@ -16,19 +17,12 @@ export default function Footer({ site }: Props) {
         <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr]">
           <div>
             <div className="flex items-center gap-3">
-              <span
-                className="block h-10 w-10 bg-linku-coral"
-                style={{
-                  WebkitMaskImage: 'url(/brand/linku-icon.png)',
-                  WebkitMaskRepeat: 'no-repeat',
-                  WebkitMaskPosition: 'center',
-                  WebkitMaskSize: 'contain',
-                  maskImage: 'url(/brand/linku-icon.png)',
-                  maskRepeat: 'no-repeat',
-                  maskPosition: 'center',
-                  maskSize: 'contain'
-                }}
-                aria-hidden
+              <Image
+                src="/brand/linku-icon.png"
+                alt="LinkU"
+                width={80}
+                height={80}
+                className="h-10 w-10"
               />
               <span className="flex flex-col leading-none">
                 <span className="text-base font-bold tracking-tightish text-linku-text">

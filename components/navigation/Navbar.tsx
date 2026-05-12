@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
 import CoralButton from '@/components/ui/CoralButton';
 import OutlineButton from '@/components/ui/OutlineButton';
@@ -48,19 +49,13 @@ export default function Navbar({ contacts }: Props) {
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:h-20 sm:px-8">
         <Link href="#" className="flex items-center gap-3" aria-label="LinkU Summit 2026">
-          <span
-            className="block h-9 w-9 bg-linku-coral sm:h-10 sm:w-10"
-            style={{
-              WebkitMaskImage: 'url(/brand/linku-icon.png)',
-              WebkitMaskRepeat: 'no-repeat',
-              WebkitMaskPosition: 'center',
-              WebkitMaskSize: 'contain',
-              maskImage: 'url(/brand/linku-icon.png)',
-              maskRepeat: 'no-repeat',
-              maskPosition: 'center',
-              maskSize: 'contain'
-            }}
-            aria-hidden
+          <Image
+            src="/brand/linku-icon.png"
+            alt="LinkU"
+            width={80}
+            height={80}
+            priority
+            className="h-9 w-9 sm:h-10 sm:w-10"
           />
           <span className="flex flex-col leading-none">
             <span className="text-sm font-bold tracking-tightish text-linku-text sm:text-base">
@@ -109,19 +104,12 @@ export default function Navbar({ contacts }: Props) {
       >
         <div className="flex h-16 items-center justify-between px-5 sm:h-20 sm:px-8">
           <div className="flex items-center gap-3">
-            <span
-              className="block h-8 w-8 bg-linku-coral"
-              style={{
-                WebkitMaskImage: 'url(/brand/linku-icon.png)',
-                WebkitMaskRepeat: 'no-repeat',
-                WebkitMaskPosition: 'center',
-                WebkitMaskSize: 'contain',
-                maskImage: 'url(/brand/linku-icon.png)',
-                maskRepeat: 'no-repeat',
-                maskPosition: 'center',
-                maskSize: 'contain'
-              }}
-              aria-hidden
+            <Image
+              src="/brand/linku-icon.png"
+              alt="LinkU"
+              width={64}
+              height={64}
+              className="h-8 w-8"
             />
             <span className="text-sm font-bold tracking-tightish text-linku-text">
               LINKU <span className="text-linku-coral">SUMMIT</span>
