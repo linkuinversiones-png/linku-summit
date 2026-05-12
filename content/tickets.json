@@ -1,0 +1,116 @@
+{
+  "intro": {
+    "title": "Entradas",
+    "lead": "Dos formas de estar en la sala. Ambas pasan por curaduría."
+  },
+  "tiers": [
+    {
+      "id": "early-investor",
+      "name": "Early Investor",
+      "label": "Acceso temprano",
+      "price": "COP $1.500.000",
+      "priceNote": "Tarifa válida hasta agotar primer cupo",
+      "highlight": false,
+      "benefits": [
+        "Pase a los 2 días del summit",
+        "Acceso a feria y stands curados",
+        "Almuerzos por mesa temática",
+        "Cocktail de bienvenida (Día 1)",
+        "App del evento con agenda y networking"
+      ],
+      "ctaLabel": "Comprar entrada",
+      "ctaHref": "mailto:invites@linkusummit.co?subject=Compra Early Investor — LinkU Summit 2026"
+    },
+    {
+      "id": "smart-investor",
+      "name": "Smart Investor",
+      "label": "Acceso completo",
+      "price": "COP $3.000.000",
+      "priceNote": "Cupo limitado. Incluye experiencias VIP.",
+      "highlight": true,
+      "badge": "MÁS POPULAR",
+      "benefits": [
+        "Todo lo del Early Investor",
+        "Acceso al deal room 1:1",
+        "Cena de cierre · solo por invitación",
+        "Curaduría personalizada de 5 reuniones",
+        "Asiento prioritario en escenario principal",
+        "Kit de bienvenida co-branded"
+      ],
+      "ctaLabel": "Comprar entrada",
+      "ctaHref": "mailto:invites@linkusummit.co?subject=Compra Smart Investor — LinkU Summit 2026"
+    }
+  ],
+  "sponsorship": {
+    "tiers": [
+      {
+        "id": "pre-seed",
+        "name": "Pre-Seed",
+        "label": "Presencia",
+        "price": "Consultar",
+        "highlight": false,
+        "benefits": [
+          "Logo en agenda digital",
+          "2 pases al summit",
+          "Mención en 1 pieza de comunicación",
+          "Acceso al networking general"
+        ],
+        "ctaLabel": "Solicitar info",
+        "ctaHref": "mailto:sponsors@linkusummit.co?subject=Pre-Seed Sponsorship — LinkU Summit 2026"
+      },
+      {
+        "id": "seed",
+        "name": "Seed",
+        "label": "Visibilidad",
+        "price": "Consultar",
+        "highlight": false,
+        "benefits": [
+          "Stand estándar en la feria (24 m²)",
+          "5 pases + 1 invitación VIP",
+          "Branding en escenario secundario",
+          "Intro formal a 5 inversionistas curados",
+          "Logo en home del sitio web"
+        ],
+        "ctaLabel": "Solicitar info",
+        "ctaHref": "mailto:sponsors@linkusummit.co?subject=Seed Sponsorship — LinkU Summit 2026"
+      },
+      {
+        "id": "series-a",
+        "name": "Series A",
+        "label": "Liderazgo",
+        "price": "Consultar",
+        "highlight": true,
+        "badge": "MÁS POPULAR",
+        "benefits": [
+          "Stand premium 48 m² + branding físico",
+          "15 pases incluyendo VIP dinner",
+          "Slot en escenario principal (panel o keynote)",
+          "Curaduría personalizada de 15 reuniones 1:1",
+          "Branding dominante en todo el venue",
+          "Co-branding en comunicaciones post-evento"
+        ],
+        "ctaLabel": "Hablar con el equipo",
+        "ctaHref": "mailto:sponsors@linkusummit.co?subject=Series A Sponsorship — LinkU Summit 2026"
+      }
+    ],
+    "essential": {
+      "name": "Branding Esencial",
+      "price": "Desde COP $3M + IVA",
+      "description": "Para marcas aliadas que quieren estar en el summit sin el compromiso de un tier principal.",
+      "benefits": [
+        "Logo en la libreta oficial del summit",
+        "Logo en las escarapelas de asistentes",
+        "Presencia digital (agenda + app)",
+        "2 pases generales incluidos",
+        "Mención en comunicación post-evento"
+      ]
+    },
+    "addons": [
+      { "name": "Naming del lounge de networking",   "tag": "Exclusivo · alto impacto" },
+      { "name": "Patrocinio del cocktail de cierre", "tag": "Activación de marca en vivo" },
+      { "name": "Kit de bienvenida co-branded",      "tag": "Regalo para cada asistente" },
+      { "name": "Naming de una sala VIP 1:1",        "tag": "Visibilidad en cierres de deals" },
+      { "name": "Contenido co-creado post-evento",   "tag": "Paper + video con la marca" }
+    ]
+  }
+}

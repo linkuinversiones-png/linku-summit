@@ -1,0 +1,74 @@
+[
+  {
+    "id": "alejandro-pardo",
+    "name": "Alejandro Pardo",
+    "role": "Fundador",
+    "company": "Satto",
+    "track": "Desarrollo inmobiliario",
+    "avatar": "/speakers/alejandro-pardo.jpg",
+    "confirmed": true
+  },
+  {
+    "id": "harold-calderon",
+    "name": "Harold Calderón",
+    "role": "Gestor profesional",
+    "company": "",
+    "track": "Venture Capital",
+    "avatar": "/speakers/harold-calderon.jpg",
+    "confirmed": true
+  },
+  {
+    "id": "camilo-merino",
+    "name": "Camilo Merino",
+    "role": "Estructuración legal de fondos",
+    "company": "",
+    "track": "Legal & compliance",
+    "avatar": "/speakers/camilo-merino.jpg",
+    "confirmed": true
+  },
+  {
+    "id": "juan-fernando-velez",
+    "name": "Juan Fernando Vélez",
+    "role": "Head of Investment",
+    "company": "Family Office de artistas",
+    "track": "Family office",
+    "avatar": "/speakers/juan-fernando-velez.jpg",
+    "confirmed": true
+  },
+  {
+    "id": "mauricio-restrepo",
+    "name": "Mauricio Restrepo del Toro",
+    "role": "Principal",
+    "company": "Family Office",
+    "track": "Family office",
+    "avatar": "/speakers/mauricio-restrepo.jpg",
+    "confirmed": true
+  },
+  {
+    "id": "sergio-mejia",
+    "name": "Sergio Mejía",
+    "role": "Pro Investments",
+    "company": "",
+    "track": "Inversión en deportistas",
+    "avatar": "/speakers/sergio-mejia.jpg",
+    "confirmed": true
+  },
+  {
+    "id": "johnatan-combeau",
+    "name": "Johnatan Combeau",
+    "role": "VP Wealth Management",
+    "company": "Credicorp",
+    "track": "Wealth Management",
+    "avatar": "/speakers/johnatan-combeau.jpg",
+    "confirmed": true
+  },
+  {
+    "id": "keynote-internacional",
+    "name": "Por confirmar",
+    "role": "Keynote internacional",
+    "company": "",
+    "track": "Cierre del summit",
+    "avatar": null,
+    "confirmed": false
+  }
+]

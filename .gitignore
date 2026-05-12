@@ -1,0 +1,32 @@
+# dependencies
+node_modules/
+
+# next.js build
+.next/
+out/
+next-env.d.ts
+
+# typescript
+*.tsbuildinfo
+
+# environment
+.env
+.env*.local
+
+# vercel
+.vercel/
+
+# logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# editor / IDE
+.vscode/
+.idea/
+
+# claude code internal
+.claude/

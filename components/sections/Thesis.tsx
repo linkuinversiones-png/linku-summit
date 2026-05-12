@@ -1,0 +1,65 @@
+import SectionHeading from '@/components/ui/SectionHeading';
+import Reveal from '@/components/ui/Reveal';
+import {
+  Building2,
+  TrendingUp,
+  Briefcase,
+  Trophy,
+  Landmark,
+  Sparkles,
+  type LucideIcon
+} from 'lucide-react';
+
+type Thesis = { icon: string; title: string; desc: string };
+
+const ICON_MAP: Record<string, LucideIcon> = {
+  building: Building2,
+  'trending-up': TrendingUp,
+  briefcase: Briefcase,
+  trophy: Trophy,
+  landmark: Landmark,
+  sparkles: Sparkles
+};
+
+export default function ThesisSection({ items }: { items: Thesis[] }) {
+  return (
+    <section id="tesis" className="relative">
+      <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
+        <Reveal>
+          <SectionHeading
+            eyebrow="Tesis multi-activo"
+            title={
+              <>
+                Seis clases de activo.
+                <br />
+                <span className="text-linku-coral">Una sola sala.</span>
+              </>
+            }
+            lead="No elegimos una vertical. Elegimos a los que están construyendo la siguiente generación de cada una."
+          />
+        </Reveal>
+
+        <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((item, i) => {
+            const Icon = ICON_MAP[item.icon] ?? Sparkles;
+            return (
+              <Reveal key={item.title} delay={i * 0.05}>
+                <article className="linku-card flex h-full flex-col p-7 sm:p-8">
+                  <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-linku-coral/10 text-linku-coral">
+                    <Icon size={22} strokeWidth={1.75} />
+                  </span>
+                  <h3 className="mt-5 text-xl font-bold tracking-tightish text-linku-text">
+                    {item.title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-relaxed text-linku-text-muted sm:text-base">
+                    {item.desc}
+                  </p>
+                </article>
+              </Reveal>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}

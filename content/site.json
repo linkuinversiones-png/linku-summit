@@ -1,0 +1,94 @@
+{
+  "eventName": "LinkU Summit 2026",
+  "tagline": "Donde el capital real se encuentra con las oportunidades que mueven a Latinoamérica",
+  "city": "Medellín",
+  "country": "Colombia",
+  "venue": "Por confirmar",
+  "startDate": "2026-10-15T08:30:00-05:00",
+  "endDate": "2026-10-16T20:00:00-05:00",
+  "dateLabel": "Octubre 2026 · 2 días",
+  "heroPill": "+300 inversionistas confirmados",
+  "stats": [
+    { "value": "300+", "label": "asistentes por invitación" },
+    { "value": "6",    "label": "clases de activo" },
+    { "value": "2",    "label": "días de alto impacto" },
+    { "value": "30+",  "label": "stands en feria" },
+    { "value": "8",    "label": "keynotes confirmados" },
+    { "value": "100%", "label": "curado" }
+  ],
+  "about": {
+    "title": "El evento",
+    "lead": "No es un evento masivo. Es una sala cuidadosamente construida.",
+    "body": "Dos días en Medellín donde se encuentran 300 inversionistas, family offices, fund managers y founders con mandato activo. Seis clases de activo en la misma sala: real estate, venture capital, private equity, deportes, deuda privada y sectores emergentes. Sin pendones improvisados. Sin observadores. Cada asiento está curado."
+  },
+  "whyNow": [
+    {
+      "title": "Geopolítica",
+      "body": "El nearshoring redibuja el mapa del capital. Latam pasó de margen a centro de tesis para fondos globales."
+    },
+    {
+      "title": "Capital",
+      "body": "Las tasas altas hicieron volver al inversionista al activo real. Real estate, deuda privada y deportes ganan tracción."
+    },
+    {
+      "title": "Medellín",
+      "body": "La ciudad concentra hoy el ecosistema más activo de la región: founders, family offices, fund managers y desarrolladores."
+    }
+  ],
+  "thesis": [
+    { "icon": "building",     "title": "Real Estate",       "desc": "El núcleo patrimonial latinoamericano. Multifamily, BTR y vehículos cross-border." },
+    { "icon": "trending-up",  "title": "Venture Capital",   "desc": "Early y growth en Latam. Fondos activos, tickets disciplinados, founders ejecutando." },
+    { "icon": "briefcase",    "title": "Private Equity",    "desc": "Buyouts medianos, co-inversiones y secundarios para family offices y HNWI." },
+    { "icon": "trophy",       "title": "Deportes",          "desc": "Inversión en atletas, clubes y carreras. Una clase de activo joven con retornos asimétricos." },
+    { "icon": "landmark",     "title": "Deuda Privada",     "desc": "Direct lending y venture debt con yields atractivos en moneda fuerte." },
+    { "icon": "sparkles",     "title": "Emerging Sectors",  "desc": "Tokenización, energía distribuida y nuevos vehículos alternativos." }
+  ],
+  "audience": {
+    "title": "La audiencia",
+    "lead": "Calidad, no volumen. 300 asistentes vs. 3.000.",
+    "splits": [
+      { "value": "60%", "label": "LPs, family offices y wealth" },
+      { "value": "25%", "label": "Fund managers y GPs" },
+      { "value": "15%", "label": "Founders en ronda activa" }
+    ],
+    "filters": [
+      "Mandato de inversión activo",
+      "Track record verificable",
+      "Tesis clara y comunicable",
+      "Capacidad de cierre real"
+    ]
+  },
+  "experience": [
+    { "icon": "mic",            "title": "Escenario",  "desc": "8 keynotes y paneles cortos, sin filler. Todo lo que se dice se puede ejecutar." },
+    { "icon": "users",          "title": "Networking", "desc": "Mesas asignadas, deal rooms 1:1 y un comité que hace las introducciones que importan." },
+    { "icon": "store",          "title": "Feria",      "desc": "30+ stands curados. Real estate, fondos y proyectos en una sola sala." },
+    { "icon": "wine",           "title": "Premium",    "desc": "Cocktail de bienvenida, almuerzos por mesa temática y cena de cierre solo por invitación." }
+  ],
+  "whyLinkU": [
+    { "title": "Curaduría real",      "body": "Cada asistente pasa por comité. Si no aporta a la sala, no entra." },
+    { "title": "Multi-activo en serio", "body": "Seis clases de activo en el mismo espacio. La conversación cruzada es el producto." },
+    { "title": "Sin observadores",     "body": "Solo gente con mandato, ticket o proyecto. Cero turistas." },
+    { "title": "Volumen correcto",     "body": "300 personas. Suficiente para cerrar deals, no tanto como para perderse." },
+    { "title": "Operado por un fondo", "body": "LinkU Ventures organiza. La óptica es de inversionista, no de productora de eventos." },
+    { "title": "Latam en el centro",   "body": "Medellín como punto de encuentro. Sin pretender que el mundo gira alrededor de Bogotá o São Paulo." }
+  ],
+  "finalCTA": {
+    "title": "Octubre 2026.",
+    "highlight": "Medellín decide quién está en la sala.",
+    "actions": [
+      { "label": "Patrocinar",          "tag": "sponsors@linkusummit.co", "href": "mailto:sponsors@linkusummit.co?subject=Patrocinio LinkU Summit 2026" },
+      { "label": "Asistir",             "tag": "invites@linkusummit.co",  "href": "mailto:invites@linkusummit.co?subject=Invitación LinkU Summit 2026" },
+      { "label": "Aliarse",             "tag": "partners@linkusummit.co", "href": "mailto:partners@linkusummit.co?subject=Alianza LinkU Summit 2026" }
+    ]
+  },
+  "contacts": {
+    "sponsors": "sponsors@linkusummit.co",
+    "invites":  "invites@linkusummit.co",
+    "partners": "partners@linkusummit.co"
+  },
+  "social": {
+    "instagram": "https://instagram.com/linkuventures",
+    "linkedin":  "https://linkedin.com/company/linkuventures",
+    "website":   "https://linkusummit.co"
+  }
+}
