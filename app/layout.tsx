@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://linkusummit.co'),
+  metadataBase: new URL('https://linkusummit.com'),
   title: 'LINKU SUMMIT 2026 — La cumbre de inversión multi-activo en Medellín',
   description:
     'Octubre 2026 · Medellín. 300+ inversionistas, 6 clases de activo, 2 días donde se mueve capital real en Latinoamérica.',
@@ -24,11 +24,11 @@ export const metadata: Metadata = {
     'Latinoamérica'
   ],
   authors: [{ name: 'LinkU Ventures' }],
-  alternates: { canonical: 'https://linkusummit.co' },
+  alternates: { canonical: 'https://linkusummit.com' },
   openGraph: {
     type: 'website',
     locale: 'es_CO',
-    url: 'https://linkusummit.co',
+    url: 'https://linkusummit.com',
     siteName: 'LINKU SUMMIT 2026',
     title: 'LINKU SUMMIT 2026 — Donde el capital real se encuentra',
     description:
@@ -69,6 +69,44 @@ export default function RootLayout({
     <html lang="es-CO" className={inter.variable}>
       <body className="min-h-screen bg-linku-bg font-sans antialiased">
         {children}
+
+        {/*
+          Filtro SVG duotono LinkU — usado por las fotos de speakers.
+          Mapea sombras → navy (#050814) y brillos → coral (#FF5A5F).
+          Render invisible, solo expone el filtro para CSS.
+        */}
+        <svg
+          aria-hidden
+          focusable="false"
+          style={{
+            position: 'absolute',
+            width: 0,
+            height: 0,
+            overflow: 'hidden',
+            pointerEvents: 'none'
+          }}
+        >
+          <defs>
+            <filter id="linku-duotone" colorInterpolationFilters="sRGB">
+              {/* Convierte a escala de grises usando luminancia humana */}
+              <feColorMatrix
+                type="matrix"
+                values="
+                  0.299 0.587 0.114 0 0
+                  0.299 0.587 0.114 0 0
+                  0.299 0.587 0.114 0 0
+                  0     0     0     1 0
+                "
+              />
+              {/* Remapea negro→navy y blanco→coral */}
+              <feComponentTransfer>
+                <feFuncR tableValues="0.0196 1" />
+                <feFuncG tableValues="0.0314 0.3529" />
+                <feFuncB tableValues="0.0784 0.3725" />
+              </feComponentTransfer>
+            </filter>
+          </defs>
+        </svg>
       </body>
     </html>
   );

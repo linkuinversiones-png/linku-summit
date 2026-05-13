@@ -19,7 +19,7 @@
         "App del evento con agenda y networking"
       ],
       "ctaLabel": "Comprar entrada",
-      "ctaHref": "mailto:invites@linkusummit.co?subject=Compra Early Investor — LinkU Summit 2026"
+      "ctaHref": "mailto:invites@linkusummit.com?subject=Compra Early Investor — LinkU Summit 2026"
     },
     {
       "id": "smart-investor",
@@ -38,7 +38,7 @@
         "Kit de bienvenida co-branded"
       ],
       "ctaLabel": "Comprar entrada",
-      "ctaHref": "mailto:invites@linkusummit.co?subject=Compra Smart Investor — LinkU Summit 2026"
+      "ctaHref": "mailto:invites@linkusummit.com?subject=Compra Smart Investor — LinkU Summit 2026"
     }
   ],
   "sponsorship": {
@@ -56,7 +56,7 @@
           "Acceso al networking general"
         ],
         "ctaLabel": "Solicitar info",
-        "ctaHref": "mailto:sponsors@linkusummit.co?subject=Pre-Seed Sponsorship — LinkU Summit 2026"
+        "ctaHref": "mailto:sponsors@linkusummit.com?subject=Pre-Seed Sponsorship — LinkU Summit 2026"
       },
       {
         "id": "seed",
@@ -72,7 +72,7 @@
           "Logo en home del sitio web"
         ],
         "ctaLabel": "Solicitar info",
-        "ctaHref": "mailto:sponsors@linkusummit.co?subject=Seed Sponsorship — LinkU Summit 2026"
+        "ctaHref": "mailto:sponsors@linkusummit.com?subject=Seed Sponsorship — LinkU Summit 2026"
       },
       {
         "id": "series-a",
@@ -90,7 +90,7 @@
           "Co-branding en comunicaciones post-evento"
         ],
         "ctaLabel": "Hablar con el equipo",
-        "ctaHref": "mailto:sponsors@linkusummit.co?subject=Series A Sponsorship — LinkU Summit 2026"
+        "ctaHref": "mailto:sponsors@linkusummit.com?subject=Series A Sponsorship — LinkU Summit 2026"
       }
     ],
     "essential": {

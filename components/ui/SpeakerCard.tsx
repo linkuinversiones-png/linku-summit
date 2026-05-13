@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
+import { getImageUrl } from '@/lib/storage';
 
 type Speaker = {
   id: string;
@@ -22,7 +23,8 @@ function initials(name: string) {
 
 export default function SpeakerCard({ speaker }: { speaker: Speaker }) {
   const [imgFailed, setImgFailed] = useState(false);
-  const showPlaceholder = !speaker.avatar || !speaker.confirmed || imgFailed;
+  const resolvedAvatar = getImageUrl(speaker.avatar);
+  const showPlaceholder = !resolvedAvatar || !speaker.confirmed || imgFailed;
 
   return (
     <article className="linku-card group overflow-hidden">
@@ -58,11 +60,11 @@ export default function SpeakerCard({ speaker }: { speaker: Speaker }) {
           </div>
         ) : (
           <Image
-            src={speaker.avatar as string}
+            src={resolvedAvatar as string}
             alt={speaker.name}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            className="object-cover transition duration-500 group-hover:scale-[1.03] group-hover:brightness-110"
+            className="object-cover transition-all duration-500 [filter:url(#linku-duotone)] group-hover:scale-[1.03] group-hover:[filter:none]"
             onError={() => setImgFailed(true)}
           />
         )}

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, UserCircle2 } from 'lucide-react';
 import CoralButton from '@/components/ui/CoralButton';
 import OutlineButton from '@/components/ui/OutlineButton';
 
@@ -18,9 +18,10 @@ const NAV_LINKS = [
 
 type Props = {
   contacts: { sponsors: string; invites: string; partners: string };
+  isLoggedIn?: boolean;
 };
 
-export default function Navbar({ contacts }: Props) {
+export default function Navbar({ contacts, isLoggedIn = false }: Props) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -80,9 +81,13 @@ export default function Navbar({ contacts }: Props) {
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
-          <OutlineButton href={`mailto:${contacts.invites}?subject=Solicito invitación — LinkU Summit 2026`}>
-            Solicitar invitación
-          </OutlineButton>
+          {isLoggedIn ? (
+            <OutlineButton href="/me">
+              <UserCircle2 size={16} /> Mi cuenta
+            </OutlineButton>
+          ) : (
+            <OutlineButton href="/login">Iniciar sesión</OutlineButton>
+          )}
           <CoralButton href="#tickets">Comprar entrada</CoralButton>
         </div>
 
@@ -136,12 +141,15 @@ export default function Navbar({ contacts }: Props) {
             </a>
           ))}
           <div className="mt-6 flex flex-col gap-3">
-            <OutlineButton
-              href={`mailto:${contacts.invites}?subject=Solicito invitación — LinkU Summit 2026`}
-              size="lg"
-            >
-              Solicitar invitación
-            </OutlineButton>
+            {isLoggedIn ? (
+              <OutlineButton href="/me" size="lg">
+                <UserCircle2 size={18} /> Mi cuenta
+              </OutlineButton>
+            ) : (
+              <OutlineButton href="/login" size="lg">
+                Iniciar sesión
+              </OutlineButton>
+            )}
             <CoralButton href="#tickets" size="lg">
               Comprar entrada
             </CoralButton>

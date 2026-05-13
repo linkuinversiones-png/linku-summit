@@ -1,31 +1,173 @@
 {
+  "intro": {
+    "lead": "Dos días pensados para entregar valor accionable. No catedra, no filler — expertos por clase de activo, paneles de debate y espacios curados de relacionamiento."
+  },
   "day1": {
-    "label": "Día 1 — Contexto · Tesis · Conocerse",
+    "label": "Día 1 — Contexto, estrategia y especialización",
     "date": "2026-10-15",
+    "tagline": "Leer el mundo, entender el patrimonio, especializarse por activo.",
     "items": [
-      { "time": "08:30", "type": "registro",   "title": "Registro + welcome coffee",                    "desc": "Check-in y activación de la app del summit." },
-      { "time": "09:30", "type": "keynote",    "title": "Opening keynote — Estado del capital",         "desc": "Lectura macro 2026-2030 para Latam." },
-      { "time": "10:30", "type": "panel",      "title": "Panel: Real Estate como núcleo patrimonial",   "desc": "Desarrolladores + family offices + wealth." },
-      { "time": "11:45", "type": "feria",      "title": "Visita curada a la feria · bloque 1",          "desc": "Rotaciones guiadas por el comité." },
-      { "time": "13:00", "type": "comida",     "title": "Almuerzo (asignado por mesa temática)",        "desc": "Cada mesa tiene un tema y un facilitador." },
-      { "time": "14:30", "type": "panel",      "title": "Panel: VC en Latam — qué está funcionando",    "desc": "Fund managers activos + founders." },
-      { "time": "15:45", "type": "keynote",    "title": "Keynote: Wealth Management 2030",              "desc": "Estrategia intergeneracional de portafolios." },
-      { "time": "17:00", "type": "networking", "title": "Cocktail de bienvenida",                       "desc": "Música en vivo. Dress code business casual." }
+      {
+        "time": "08:00",
+        "endTime": "09:00",
+        "type": "registro",
+        "title": "Registro y café de bienvenida",
+        "desc": "Check-in y activación de la app del summit."
+      },
+      {
+        "time": "09:00",
+        "endTime": "09:20",
+        "type": "apertura",
+        "title": "Apertura LinkU Ventures",
+        "speaker": "Equipo LinkU Ventures",
+        "desc": "Bienvenida, tesis del Summit y mapa de los dos días."
+      },
+      {
+        "time": "09:20",
+        "endTime": "10:00",
+        "type": "charla",
+        "title": "Geopolítica y la oportunidad Colombia–Venezuela",
+        "speaker": "Juliana [apellido por confirmar] — ex Vicepresidenta de ProColombia",
+        "desc": "Reapertura de Venezuela, reconfiguración regional, sectores con mayor upside y riesgos reales de la transición. Cómo se posiciona Colombia frente a esta nueva ventana."
+      },
+      {
+        "time": "10:00",
+        "endTime": "10:40",
+        "type": "charla",
+        "title": "Contexto macroeconómico global y su impacto en LatAm",
+        "speaker": "Daniel Belandia (por confirmar)",
+        "desc": "Tasas, dólar, inflación, escenarios 2026–2027 y lectura para el inversionista latinoamericano."
+      },
+      {
+        "time": "10:40",
+        "endTime": "11:00",
+        "type": "break",
+        "title": "Coffee break",
+        "desc": "Networking abierto en el lobby."
+      },
+      {
+        "time": "11:00",
+        "endTime": "11:40",
+        "type": "panel",
+        "title": "Family Offices: cómo invierten los patrimonios de élite",
+        "speaker": "4 panelistas + moderador",
+        "desc": "Gestor de patrimonios de artistas · Gestor de patrimonios de futbolistas · Family Office multifamily tradicional · Single Family Office UHNW. Conversación honesta sobre allocation real, oportunidades y retos."
+      },
+      {
+        "time": "11:40",
+        "endTime": "12:20",
+        "type": "panel",
+        "title": "Wealth Management y Asset Allocation estratégica",
+        "speaker": "3 speakers + moderador",
+        "desc": "Cómo construir y rebalancear un portafolio multi-asset hoy, en qué activos sobreponderar o subponderar, y marcos de decisión patrimonial."
+      },
+      {
+        "time": "12:20",
+        "endTime": "13:00",
+        "type": "charla",
+        "title": "Estructuración patrimonial transfronteriza",
+        "speaker": "Speaker por confirmar",
+        "desc": "Jurisdicciones, vehículos, planeación sucesoria y cumplimiento en un entorno de mayor transparencia fiscal."
+      },
+      {
+        "time": "13:00",
+        "endTime": "14:00",
+        "type": "comida",
+        "title": "Almuerzo networking",
+        "desc": "Mesas asignadas por afinidad temática."
+      },
+      {
+        "time": "14:00",
+        "endTime": "16:00",
+        "type": "salones",
+        "title": "Salones especializados — elige tu track",
+        "desc": "Operación en paralelo durante 2 horas. 2 charlas de ~40 min con expertos por clase de activo, más espacio de preguntas.",
+        "subItems": [
+          { "code": "A", "name": "Venture Capital y Private Equity", "tag": "Crecimiento y capital privado" },
+          { "code": "B", "name": "Renta Fija y Renta Variable", "tag": "Mercados líquidos" },
+          { "code": "C", "name": "Alternativos: hedge funds, commodities, oro", "tag": "Descorrelación de portafolio" },
+          { "code": "D", "name": "Real Estate y activos reales", "tag": "Patrimonio tangible" },
+          { "code": "E", "name": "Cripto y activos digitales", "tag": "Frontera digital" }
+        ]
+      },
+      {
+        "time": "16:00",
+        "endTime": "17:00",
+        "type": "pitch",
+        "title": "Elevator Pitches — proyectos por clase de activo",
+        "desc": "Formato rápido: 5–7 minutos por proyecto, distribuidos por categoría (VC, RF/RV, alternativos, real estate, cripto). Inversionistas en sala y networking dirigido."
+      },
+      {
+        "time": "17:00",
+        "endTime": "19:30",
+        "type": "networking",
+        "title": "Cocktail de networking",
+        "desc": "Música en vivo. Dress code business casual."
+      }
     ]
   },
   "day2": {
-    "label": "Día 2 — Deals · Sectores profundos · Cierre",
+    "label": "Día 2 — Inspiración y relacionamiento",
     "date": "2026-10-16",
+    "tagline": "Cargar de visión a la audiencia y abrir el espacio para hacer negocios.",
     "items": [
-      { "time": "08:30", "type": "networking", "title": "Breakfast roundtables",                         "desc": "Mesas temáticas: PE, deportes, real estate." },
-      { "time": "09:30", "type": "panel",      "title": "Panel: Deportes como clase de activo",          "desc": "Inversión en atletas, clubes y carreras." },
-      { "time": "10:45", "type": "feria",      "title": "Visita curada a la feria · bloque 2",           "desc": "Speed-dating de proyectos con inversionistas." },
-      { "time": "12:00", "type": "keynote",    "title": "Keynote: Family Office del futuro",             "desc": "Gobernanza, sucesión y activos alternativos." },
-      { "time": "13:00", "type": "comida",     "title": "Almuerzo — deal room abierto",                  "desc": "Salas VIP habilitadas para cierres 1:1." },
-      { "time": "14:30", "type": "panel",      "title": "Panel: Estructuración legal de fondos",         "desc": "Vehículos, jurisdicciones y compliance." },
-      { "time": "15:45", "type": "pitch",      "title": "Pitch stage — 6 founders seleccionados",        "desc": "3 min + Q&A con LPs en sala." },
-      { "time": "17:30", "type": "keynote",    "title": "Closing keynote",                               "desc": "Invitado internacional. Cierre del summit." },
-      { "time": "19:00", "type": "vip",        "title": "Cena de cierre · solo por invitación",          "desc": "Speakers, sponsors principales y curaduría." }
+      {
+        "time": "08:00",
+        "endTime": "08:30",
+        "type": "registro",
+        "title": "Café de bienvenida",
+        "desc": "Recepción y activación de agendas 1:1 del día."
+      },
+      {
+        "time": "08:30",
+        "endTime": "09:15",
+        "type": "keynote",
+        "title": "Charla inspiracional · I",
+        "speaker": "Speaker de alto perfil — por confirmar",
+        "desc": "Visión de largo plazo, legado y propósito del capital."
+      },
+      {
+        "time": "09:15",
+        "endTime": "10:00",
+        "type": "keynote",
+        "title": "Charla inspiracional · II",
+        "speaker": "Caso de éxito o figura referente — por confirmar",
+        "desc": "Conexión emocional con la audiencia patrimonial."
+      },
+      {
+        "time": "10:00",
+        "endTime": "10:20",
+        "type": "break",
+        "title": "Coffee break",
+        "desc": ""
+      },
+      {
+        "time": "10:20",
+        "endTime": "12:30",
+        "type": "relacionamiento",
+        "title": "Bloque de relacionamiento",
+        "desc": "Operación en paralelo, con agendas coordinadas vía la app del summit.",
+        "subItems": [
+          { "code": "1:1", "name": "Reuniones agendadas", "tag": "Inversionistas ↔ gestores" },
+          { "code": "Feria", "name": "Stands de gestores, fondos y proyectos", "tag": "Recorrido libre" },
+          { "code": "Speed", "name": "Speed-meetings dirigidos por perfil", "tag": "Family office ↔ GP · retail ↔ wealth" }
+        ]
+      },
+      {
+        "time": "12:30",
+        "endTime": "13:00",
+        "type": "apertura",
+        "title": "Cierre LinkU Ventures",
+        "speaker": "Equipo LinkU Ventures",
+        "desc": "Síntesis del Summit, takeaways y próximos pasos."
+      },
+      {
+        "time": "13:00",
+        "endTime": "15:00",
+        "type": "comida",
+        "title": "Almuerzo de cierre",
+        "desc": "Mesas mixtas, cierre con los speakers principales."
+      }
     ]
   }
 }

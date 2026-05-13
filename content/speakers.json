@@ -5,7 +5,7 @@
     "role": "Fundador",
     "company": "Satto",
     "track": "Desarrollo inmobiliario",
-    "avatar": "/speakers/alejandro-pardo.jpg",
+    "avatar": "speakers/alejandro-pardo.jpg",
     "confirmed": true
   },
   {
@@ -14,7 +14,7 @@
     "role": "Gestor profesional",
     "company": "",
     "track": "Venture Capital",
-    "avatar": "/speakers/harold-calderon.jpg",
+    "avatar": "speakers/harold-calderon.jpg",
     "confirmed": true
   },
   {
@@ -23,7 +23,7 @@
     "role": "Estructuración legal de fondos",
     "company": "",
     "track": "Legal & compliance",
-    "avatar": "/speakers/camilo-merino.jpg",
+    "avatar": "speakers/camilo-merino.jpg",
     "confirmed": true
   },
   {
@@ -32,7 +32,7 @@
     "role": "Head of Investment",
     "company": "Family Office de artistas",
     "track": "Family office",
-    "avatar": "/speakers/juan-fernando-velez.jpg",
+    "avatar": "speakers/juan-fernando-velez.jpg",
     "confirmed": true
   },
   {
@@ -41,7 +41,7 @@
     "role": "Principal",
     "company": "Family Office",
     "track": "Family office",
-    "avatar": "/speakers/mauricio-restrepo.jpg",
+    "avatar": "speakers/mauricio-restrepo-del-toro.jpg",
     "confirmed": true
   },
   {
@@ -50,7 +50,7 @@
     "role": "Pro Investments",
     "company": "",
     "track": "Inversión en deportistas",
-    "avatar": "/speakers/sergio-mejia.jpg",
+    "avatar": "speakers/sergio-mejia.jpg",
     "confirmed": true
   },
   {
@@ -59,7 +59,16 @@
     "role": "VP Wealth Management",
     "company": "Credicorp",
     "track": "Wealth Management",
-    "avatar": "/speakers/johnatan-combeau.jpg",
+    "avatar": "speakers/jonathan-combeau.png",
+    "confirmed": true
+  },
+  {
+    "id": "matias-gonzalez",
+    "name": "Matías González",
+    "role": "Por confirmar",
+    "company": "",
+    "track": "Por confirmar",
+    "avatar": "speakers/matias-gonzalez.png",
     "confirmed": true
   },
   {

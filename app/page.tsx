@@ -6,11 +6,11 @@ import agendaData from '@/content/agenda.json';
 import ticketsData from '@/content/tickets.json';
 import faqData from '@/content/faq.json';
 
+import { createClient } from '@/lib/supabase/server';
 import Navbar from '@/components/navigation/Navbar';
 import Footer from '@/components/navigation/Footer';
 
 import Hero from '@/components/sections/Hero';
-import Stats from '@/components/sections/Stats';
 import About from '@/components/sections/About';
 import ForWhom from '@/components/sections/ForWhom';
 import WhyNow from '@/components/sections/WhyNow';
@@ -27,21 +27,25 @@ import WhyLinkU from '@/components/sections/WhyLinkU';
 import FinalCTA from '@/components/sections/FinalCTA';
 import FAQ from '@/components/sections/FAQ';
 
-export default function HomePage() {
+export default async function HomePage() {
+  const supabase = createClient();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
   return (
     <>
-      <Navbar contacts={siteData.contacts} />
+      <Navbar contacts={siteData.contacts} isLoggedIn={!!user} />
       <main>
         <Hero site={siteData} />
-        <Stats stats={siteData.stats} />
+        <Speakers speakers={speakersData} />
+        <Agenda agenda={agendaData} />
         <About about={siteData.about} site={siteData} />
         <ForWhom contacts={siteData.contacts} />
         <WhyNow items={siteData.whyNow} />
         <Thesis items={siteData.thesis} />
         <Audience audience={siteData.audience} />
         <Experience items={siteData.experience} />
-        <Agenda agenda={agendaData} />
-        <Speakers speakers={speakersData} />
         <Partners partners={partnersData} />
         <Tickets tickets={ticketsData} />
         <Sponsorship sponsorship={ticketsData.sponsorship} />

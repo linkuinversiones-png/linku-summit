@@ -76,19 +76,19 @@
     "title": "Octubre 2026.",
     "highlight": "Medellín decide quién está en la sala.",
     "actions": [
-      { "label": "Patrocinar",          "tag": "sponsors@linkusummit.co", "href": "mailto:sponsors@linkusummit.co?subject=Patrocinio LinkU Summit 2026" },
-      { "label": "Asistir",             "tag": "invites@linkusummit.co",  "href": "mailto:invites@linkusummit.co?subject=Invitación LinkU Summit 2026" },
-      { "label": "Aliarse",             "tag": "partners@linkusummit.co", "href": "mailto:partners@linkusummit.co?subject=Alianza LinkU Summit 2026" }
+      { "label": "Patrocinar",          "tag": "sponsors@linkusummit.com", "href": "mailto:sponsors@linkusummit.com?subject=Patrocinio LinkU Summit 2026" },
+      { "label": "Asistir",             "tag": "invites@linkusummit.com",  "href": "mailto:invites@linkusummit.com?subject=Invitación LinkU Summit 2026" },
+      { "label": "Aliarse",             "tag": "partners@linkusummit.com", "href": "mailto:partners@linkusummit.com?subject=Alianza LinkU Summit 2026" }
     ]
   },
   "contacts": {
-    "sponsors": "sponsors@linkusummit.co",
-    "invites":  "invites@linkusummit.co",
-    "partners": "partners@linkusummit.co"
+    "sponsors": "sponsors@linkusummit.com",
+    "invites":  "invites@linkusummit.com",
+    "partners": "partners@linkusummit.com"
   },
   "social": {
     "instagram": "https://instagram.com/linkuventures",
     "linkedin":  "https://linkedin.com/company/linkuventures",
-    "website":   "https://linkusummit.co"
+    "website":   "https://linkusummit.com"
   }
 }
