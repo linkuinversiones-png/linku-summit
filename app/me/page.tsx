@@ -1,7 +1,15 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Ticket, User, Building2, Briefcase, Mail, ArrowRight } from 'lucide-react';
+import {
+  Ticket,
+  User,
+  Building2,
+  Briefcase,
+  Mail,
+  ArrowRight,
+  type LucideIcon
+} from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import SignOutButton from './SignOutButton';
 
@@ -159,7 +167,7 @@ function ProfileField({
   label,
   value
 }: {
-  icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>;
+  icon: LucideIcon;
   label: string;
   value: string;
 }) {
