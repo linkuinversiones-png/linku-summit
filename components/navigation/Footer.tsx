@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { Instagram, Linkedin, Mail } from 'lucide-react';
+import type { UiContent } from '@/lib/i18n/content';
 
 type Props = {
   site: {
@@ -7,9 +8,10 @@ type Props = {
     contacts: { sponsors: string; invites: string; partners: string };
     social: { instagram: string; linkedin: string; website: string };
   };
+  ui: UiContent['footer'];
 };
 
-export default function Footer({ site }: Props) {
+export default function Footer({ site, ui }: Props) {
   const year = new Date().getFullYear();
   return (
     <footer className="border-t border-linku-border bg-linku-bg">
@@ -29,19 +31,18 @@ export default function Footer({ site }: Props) {
                   LINKU <span className="text-linku-coral">SUMMIT</span>
                 </span>
                 <span className="mt-1 text-[10px] font-medium uppercase tracking-[0.2em] text-linku-coral/70">
-                  Powered by LinkU Ventures
+                  {ui.poweredBy}
                 </span>
               </span>
             </div>
             <p className="mt-5 max-w-md text-sm leading-relaxed text-linku-text-muted">
-              {site.eventName} es el espacio donde el capital real se encuentra con las oportunidades
-              que mueven a Latinoamérica. Octubre 2026 · Medellín.
+              {site.eventName} {ui.tagline}
             </p>
           </div>
 
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-[0.2em] text-linku-text-dim">
-              Contacto
+              {ui.contactTitle}
             </h4>
             <ul className="mt-5 space-y-3 text-sm">
               <li>
@@ -73,7 +74,7 @@ export default function Footer({ site }: Props) {
 
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-[0.2em] text-linku-text-dim">
-              Síguenos
+              {ui.socialTitle}
             </h4>
             <ul className="mt-5 space-y-3 text-sm">
               <li>
@@ -101,8 +102,8 @@ export default function Footer({ site }: Props) {
         </div>
 
         <div className="mt-12 flex flex-col items-start justify-between gap-3 border-t border-linku-border pt-6 text-xs text-linku-text-dim sm:flex-row sm:items-center">
-          <span>© {year} LinkU Ventures. Todos los derechos reservados.</span>
-          <span>Hecho en Medellín.</span>
+          <span>© {year} LinkU Ventures. {ui.rights}</span>
+          <span>{ui.madeIn}</span>
         </div>
       </div>
     </footer>

@@ -4,8 +4,15 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { LogOut, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { localizePath, type Locale } from '@/lib/i18n/config';
 
-export default function SignOutButton() {
+export default function SignOutButton({
+  locale,
+  label
+}: {
+  locale: Locale;
+  label: string;
+}) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -14,7 +21,7 @@ export default function SignOutButton() {
     const supabase = createClient();
     await supabase.auth.signOut();
     router.refresh();
-    router.push('/');
+    router.push(localizePath('/', locale));
   }
 
   return (
@@ -29,7 +36,7 @@ export default function SignOutButton() {
       ) : (
         <LogOut size={14} />
       )}
-      <span className="hidden sm:inline">Cerrar sesión</span>
+      <span className="hidden sm:inline">{label}</span>
     </button>
   );
 }

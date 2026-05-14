@@ -3,10 +3,20 @@
 import { useState, type FormEvent } from 'react';
 import { Loader2, Mail, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { localizePath, type Locale } from '@/lib/i18n/config';
+import type { UiContent } from '@/lib/i18n/content';
 
 type Status = 'idle' | 'sending' | 'sent' | 'error';
 
-export default function LoginForm({ nextPath }: { nextPath?: string }) {
+export default function LoginForm({
+  nextPath,
+  locale,
+  t
+}: {
+  nextPath?: string;
+  locale: Locale;
+  t: UiContent['login'];
+}) {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<Status>('idle');
   const [errorMsg, setErrorMsg] = useState('');
@@ -18,7 +28,8 @@ export default function LoginForm({ nextPath }: { nextPath?: string }) {
     setErrorMsg('');
 
     const supabase = createClient();
-    const redirectTo = `${window.location.origin}/auth/callback${
+    const callbackPath = localizePath('/auth/callback', locale);
+    const redirectTo = `${window.location.origin}${callbackPath}${
       nextPath ? `?next=${encodeURIComponent(nextPath)}` : ''
     }`;
 
@@ -43,11 +54,10 @@ export default function LoginForm({ nextPath }: { nextPath?: string }) {
       <div className="rounded-xl border border-linku-coral/30 bg-linku-coral/5 p-5 text-center">
         <CheckCircle2 size={28} className="mx-auto text-linku-coral" strokeWidth={1.75} />
         <p className="mt-3 text-base font-semibold text-linku-text">
-          Revisa tu email
+          {t.sentTitle}
         </p>
         <p className="mt-2 text-sm text-linku-text-muted">
-          Te enviamos un enlace mágico a <span className="text-linku-text">{email}</span>.
-          Ábrelo desde el mismo dispositivo para continuar.
+          {t.sentBody.replace('{email}', email)}
         </p>
         <button
           type="button"
@@ -57,7 +67,7 @@ export default function LoginForm({ nextPath }: { nextPath?: string }) {
           }}
           className="mt-5 text-xs font-medium uppercase tracking-[0.18em] text-linku-coral hover:text-linku-coral-soft"
         >
-          Usar otro email
+          {t.useOther}
         </button>
       </div>
     );
@@ -67,7 +77,7 @@ export default function LoginForm({ nextPath }: { nextPath?: string }) {
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <label className="flex flex-col gap-2">
         <span className="text-xs font-semibold uppercase tracking-[0.18em] text-linku-text-muted">
-          Tu email
+          {t.emailLabel}
         </span>
         <div className="relative">
           <Mail
@@ -80,7 +90,7 @@ export default function LoginForm({ nextPath }: { nextPath?: string }) {
             inputMode="email"
             autoComplete="email"
             autoCapitalize="none"
-            placeholder="tu@email.com"
+            placeholder={t.emailPlaceholder}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={status === 'sending'}
@@ -103,11 +113,11 @@ export default function LoginForm({ nextPath }: { nextPath?: string }) {
         {status === 'sending' ? (
           <>
             <Loader2 size={16} className="animate-spin" />
-            Enviando…
+            {t.submitting}
           </>
         ) : (
           <>
-            Enviar enlace
+            {t.submit}
             <ArrowRight size={16} />
           </>
         )}

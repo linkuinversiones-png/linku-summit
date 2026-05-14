@@ -2,16 +2,19 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
+import { localizePath, type Locale } from '@/lib/i18n/config';
+import { getContent } from '@/lib/i18n/content';
 import LoginForm from './LoginForm';
 
 export const metadata = {
-  title: 'Iniciar sesión · LINKU SUMMIT 2026',
-  description: 'Accede a tu cuenta del LinkU Summit 2026.'
+  title: 'LINKU SUMMIT 2026'
 };
 
 export default async function LoginPage({
+  params,
   searchParams
 }: {
+  params: { locale: Locale };
   searchParams: { next?: string };
 }) {
   const supabase = createClient();
@@ -20,8 +23,10 @@ export default async function LoginPage({
   } = await supabase.auth.getUser();
 
   if (user) {
-    redirect(searchParams.next ?? '/me');
+    redirect(searchParams.next ?? localizePath('/me', params.locale));
   }
+
+  const t = getContent(params.locale).ui.login;
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-linku-bg px-5 py-12 sm:px-8">
@@ -30,7 +35,11 @@ export default async function LoginPage({
         aria-hidden
       />
       <div className="relative w-full max-w-md">
-        <Link href="/" className="mb-10 flex items-center justify-center gap-3" aria-label="Volver al inicio">
+        <Link
+          href={localizePath('/', params.locale)}
+          className="mb-10 flex items-center justify-center gap-3"
+          aria-label={t.backHome}
+        >
           <Image
             src="/brand/linku-icon.png"
             alt="LinkU"
@@ -51,18 +60,18 @@ export default async function LoginPage({
 
         <div className="linku-card p-7 sm:p-9">
           <h1 className="text-2xl font-bold tracking-tightish text-linku-text sm:text-3xl">
-            Inicia sesión
+            {t.title}
           </h1>
           <p className="mt-3 text-sm leading-relaxed text-linku-text-muted sm:text-base">
-            Te enviamos un enlace mágico a tu email. Click en el enlace y entras directo, sin contraseñas.
+            {t.lead}
           </p>
           <div className="mt-7">
-            <LoginForm nextPath={searchParams.next} />
+            <LoginForm nextPath={searchParams.next} locale={params.locale} t={t} />
           </div>
         </div>
 
         <p className="mt-6 text-center text-xs text-linku-text-dim">
-          Si todavía no tienes cuenta, te creamos una automáticamente al iniciar.
+          {t.noAccount}
         </p>
       </div>
     </main>

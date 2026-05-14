@@ -2,6 +2,7 @@ import SectionHeading from '@/components/ui/SectionHeading';
 import Reveal from '@/components/ui/Reveal';
 import SponsorTier from '@/components/ui/SponsorTier';
 import { Check } from 'lucide-react';
+import type { UiContent } from '@/lib/i18n/content';
 
 type Tier = {
   id: string;
@@ -27,9 +28,10 @@ type Props = {
     };
     addons: { name: string; tag: string }[];
   };
+  ui: UiContent['sponsorship'];
 };
 
-export default function Sponsorship({ sponsorship }: Props) {
+export default function Sponsorship({ sponsorship, ui }: Props) {
   const ordered = [...sponsorship.tiers].sort((a, b) => {
     const order = ['pre-seed', 'seed', 'series-a'];
     return order.indexOf(a.id) - order.indexOf(b.id);
@@ -41,15 +43,15 @@ export default function Sponsorship({ sponsorship }: Props) {
       <div className="relative mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
         <Reveal>
           <SectionHeading
-            eyebrow="Sponsorship"
+            eyebrow={ui.eyebrow}
             title={
               <>
-                Pon tu marca donde
+                {ui.titleA}
                 <br />
-                <span className="text-linku-coral">se mueve el capital.</span>
+                <span className="text-linku-coral">{ui.titleB}</span>
               </>
             }
-            lead="Tres tiers principales más Branding Esencial y add-ons. Armamos el paquete a medida."
+            lead={ui.lead}
           />
         </Reveal>
 
@@ -61,12 +63,11 @@ export default function Sponsorship({ sponsorship }: Props) {
           ))}
         </div>
 
-        {/* Branding Esencial */}
         <Reveal>
           <div className="mt-14 grid gap-8 lg:grid-cols-[1.2fr_1fr] lg:gap-12">
             <div className="linku-card p-7 sm:p-10">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-linku-coral">
-                Branding Esencial
+                {ui.essentialEyebrow}
               </p>
               <h3 className="mt-3 text-2xl font-bold tracking-tightish text-linku-text sm:text-3xl">
                 {sponsorship.essential.name}
@@ -89,10 +90,10 @@ export default function Sponsorship({ sponsorship }: Props) {
 
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-linku-coral">
-                Add-ons
+                {ui.addonsEyebrow}
               </p>
               <h3 className="mt-3 text-xl font-bold tracking-tightish text-linku-text sm:text-2xl">
-                Activaciones a medida.
+                {ui.addonsTitle}
               </h3>
               <ul className="mt-6 space-y-3">
                 {sponsorship.addons.map((a) => (

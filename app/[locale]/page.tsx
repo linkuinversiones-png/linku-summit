@@ -1,0 +1,123 @@
+import { createClient } from '@/lib/supabase/server';
+import type { Locale } from '@/lib/i18n/config';
+import { getContent } from '@/lib/i18n/content';
+import { getActiveTiers } from '@/lib/tickets';
+
+// El landing siempre se renderiza fresh contra DB (tiers, sesión Supabase).
+// Sin esto Next puede servir una versión cacheada después de un edit en admin.
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+import {
+  eventJsonLd,
+  faqJsonLd,
+  organizationJsonLd
+} from '@/lib/seo/structured-data';
+import JsonLd from '@/components/seo/JsonLd';
+import Navbar from '@/components/navigation/Navbar';
+import Footer from '@/components/navigation/Footer';
+
+import Hero from '@/components/sections/Hero';
+import About from '@/components/sections/About';
+import ForWhom from '@/components/sections/ForWhom';
+import WhyNow from '@/components/sections/WhyNow';
+import Thesis from '@/components/sections/Thesis';
+import Audience from '@/components/sections/Audience';
+import Experience from '@/components/sections/Experience';
+import Agenda from '@/components/sections/Agenda';
+import Speakers from '@/components/sections/Speakers';
+import Partners from '@/components/sections/Partners';
+import Tickets from '@/components/sections/Tickets';
+import Sponsorship from '@/components/sections/Sponsorship';
+import SponsorsConfirmed from '@/components/sections/SponsorsConfirmed';
+import WhyLinkU from '@/components/sections/WhyLinkU';
+import FinalCTA from '@/components/sections/FinalCTA';
+import FAQ from '@/components/sections/FAQ';
+
+async function getCurrentUser() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    return null;
+  }
+  try {
+    const supabase = createClient();
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+    return user;
+  } catch {
+    return null;
+  }
+}
+
+export default async function HomePage({
+  params
+}: {
+  params: { locale: Locale };
+}) {
+  const [user, dbTiers] = await Promise.all([
+    getCurrentUser(),
+    getActiveTiers(params.locale)
+  ]);
+  const c = getContent(params.locale);
+  const ui = c.ui;
+
+  // Combinamos: intro y sponsorship vienen del JSON; tiers vienen de DB.
+  const ticketsForView = {
+    intro: c.tickets.intro,
+    tiers: dbTiers,
+    sponsorship: c.tickets.sponsorship
+  };
+
+  const eventLd = eventJsonLd(
+    {
+      eventName: c.site.eventName,
+      startDate: c.site.startDate,
+      endDate: c.site.endDate,
+      city: c.site.city,
+      country: c.site.country,
+      venue: c.site.venue,
+      tagline: c.site.tagline
+    },
+    dbTiers.map((t) => ({
+      id: t.id,
+      name: t.name,
+      price: t.price,
+      ctaHref: t.ctaHref
+    })),
+    params.locale
+  );
+  const faqLd = faqJsonLd(c.faq);
+  const orgLd = organizationJsonLd();
+
+  return (
+    <>
+      <JsonLd data={eventLd} />
+      <JsonLd data={faqLd} />
+      <JsonLd data={orgLd} />
+      <Navbar
+        contacts={c.site.contacts}
+        isLoggedIn={!!user}
+        locale={params.locale}
+        ui={ui.nav}
+      />
+      <main>
+        <Hero site={c.site} ui={ui.hero} countdownLabels={ui.countdown} />
+        <Speakers speakers={c.speakers} ui={ui.speakers} />
+        <Agenda agenda={c.agenda} ui={ui.agenda} />
+        <About about={c.site.about} site={c.site} ui={ui.about} />
+        <ForWhom contacts={c.site.contacts} ui={ui.forWhom} />
+        <WhyNow items={c.site.whyNow} ui={ui.whyNow} />
+        <Thesis items={c.site.thesis} ui={ui.thesis} />
+        <Audience audience={c.site.audience} ui={ui.audience} />
+        <Experience items={c.site.experience} ui={ui.experience} />
+        <Partners partners={c.partners} ui={ui.partners} />
+        <Tickets tickets={ticketsForView} ui={ui.tickets} />
+        <Sponsorship sponsorship={c.tickets.sponsorship} ui={ui.sponsorship} />
+        <SponsorsConfirmed sponsors={c.sponsors} ui={ui.sponsorsConfirmed} />
+        <WhyLinkU items={c.site.whyLinkU} ui={ui.whyLinkU} />
+        <FinalCTA finalCTA={c.site.finalCTA} />
+        <FAQ items={c.faq} ui={ui.faq} />
+      </main>
+      <Footer site={c.site} ui={ui.footer} />
+    </>
+  );
+}

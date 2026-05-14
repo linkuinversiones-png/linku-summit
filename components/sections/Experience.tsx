@@ -1,6 +1,7 @@
 import SectionHeading from '@/components/ui/SectionHeading';
 import Reveal from '@/components/ui/Reveal';
 import { Mic, Users, Store, Wine, type LucideIcon } from 'lucide-react';
+import type { UiContent } from '@/lib/i18n/content';
 
 type Item = { icon: string; title: string; desc: string };
 
@@ -11,18 +12,23 @@ const ICON_MAP: Record<string, LucideIcon> = {
   wine: Wine
 };
 
-export default function Experience({ items }: { items: Item[] }) {
+type Props = {
+  items: Item[];
+  ui: UiContent['experience'];
+};
+
+export default function Experience({ items, ui }: Props) {
   return (
     <section className="relative">
       <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
         <Reveal>
           <SectionHeading
-            eyebrow="Experiencia"
+            eyebrow={ui.eyebrow}
             title={
               <>
-                Lo que vas a vivir
+                {ui.titleA}
                 <br />
-                <span className="text-linku-coral">en el venue.</span>
+                <span className="text-linku-coral">{ui.titleB}</span>
               </>
             }
           />

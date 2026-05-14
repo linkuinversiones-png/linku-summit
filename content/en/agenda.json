@@ -1,0 +1,173 @@
+{
+  "intro": {
+    "lead": "Two days designed to deliver actionable value. No lectures, no filler — asset-class experts, debate panels and curated relationship-building spaces."
+  },
+  "day1": {
+    "label": "Day 1 — Context, strategy and specialization",
+    "date": "2026-10-15",
+    "tagline": "Read the world, understand wealth, specialize by asset.",
+    "items": [
+      {
+        "time": "08:00",
+        "endTime": "09:00",
+        "type": "registro",
+        "title": "Registration & welcome coffee",
+        "desc": "Check-in and summit app activation."
+      },
+      {
+        "time": "09:00",
+        "endTime": "09:20",
+        "type": "apertura",
+        "title": "LinkU Ventures opening",
+        "speaker": "LinkU Ventures team",
+        "desc": "Welcome, summit thesis and roadmap of the two days."
+      },
+      {
+        "time": "09:20",
+        "endTime": "10:00",
+        "type": "charla",
+        "title": "Geopolitics and the Colombia–Venezuela opportunity",
+        "speaker": "Juliana [last name TBC] — former Vice President of ProColombia",
+        "desc": "Venezuela reopening, regional reconfiguration, sectors with the biggest upside and real risks of the transition. How Colombia positions itself in this new window."
+      },
+      {
+        "time": "10:00",
+        "endTime": "10:40",
+        "type": "charla",
+        "title": "Global macroeconomic context and its impact on LatAm",
+        "speaker": "Daniel Belandia (TBC)",
+        "desc": "Rates, dollar, inflation, 2026–2027 scenarios and the read for the Latin American investor."
+      },
+      {
+        "time": "10:40",
+        "endTime": "11:00",
+        "type": "break",
+        "title": "Coffee break",
+        "desc": "Open networking in the lobby."
+      },
+      {
+        "time": "11:00",
+        "endTime": "11:40",
+        "type": "panel",
+        "title": "Family Offices: how elite wealth invests",
+        "speaker": "4 panelists + moderator",
+        "desc": "Wealth manager for artists · Wealth manager for footballers · Traditional multifamily office · UHNW single family office. Honest conversation about real allocation, opportunities and challenges."
+      },
+      {
+        "time": "11:40",
+        "endTime": "12:20",
+        "type": "panel",
+        "title": "Wealth Management & Strategic Asset Allocation",
+        "speaker": "3 speakers + moderator",
+        "desc": "How to build and rebalance a multi-asset portfolio today, which assets to over or underweight, and wealth decision frameworks."
+      },
+      {
+        "time": "12:20",
+        "endTime": "13:00",
+        "type": "charla",
+        "title": "Cross-border wealth structuring",
+        "speaker": "Speaker TBC",
+        "desc": "Jurisdictions, vehicles, succession planning and compliance in an environment of greater fiscal transparency."
+      },
+      {
+        "time": "13:00",
+        "endTime": "14:00",
+        "type": "comida",
+        "title": "Networking lunch",
+        "desc": "Tables assigned by topic affinity."
+      },
+      {
+        "time": "14:00",
+        "endTime": "16:00",
+        "type": "salones",
+        "title": "Specialized tracks — pick yours",
+        "desc": "Running in parallel for 2 hours. 2 ~40-min talks with asset-class experts plus Q&A.",
+        "subItems": [
+          { "code": "A", "name": "Venture Capital & Private Equity", "tag": "Growth and private capital" },
+          { "code": "B", "name": "Fixed Income & Equities", "tag": "Liquid markets" },
+          { "code": "C", "name": "Alternatives: hedge funds, commodities, gold", "tag": "Portfolio decorrelation" },
+          { "code": "D", "name": "Real Estate & real assets", "tag": "Tangible wealth" },
+          { "code": "E", "name": "Crypto & digital assets", "tag": "Digital frontier" }
+        ]
+      },
+      {
+        "time": "16:00",
+        "endTime": "17:00",
+        "type": "pitch",
+        "title": "Elevator Pitches — projects by asset class",
+        "desc": "Fast format: 5–7 minutes per project, split by category (VC, FI/Equities, alternatives, real estate, crypto). Investors in the room and directed networking."
+      },
+      {
+        "time": "17:00",
+        "endTime": "19:30",
+        "type": "networking",
+        "title": "Networking cocktail",
+        "desc": "Live music. Dress code business casual."
+      }
+    ]
+  },
+  "day2": {
+    "label": "Day 2 — Inspiration and relationship-building",
+    "date": "2026-10-16",
+    "tagline": "Fuel the audience with vision and open the space to do business.",
+    "items": [
+      {
+        "time": "08:00",
+        "endTime": "08:30",
+        "type": "registro",
+        "title": "Welcome coffee",
+        "desc": "Reception and 1:1 agenda activation for the day."
+      },
+      {
+        "time": "08:30",
+        "endTime": "09:15",
+        "type": "keynote",
+        "title": "Inspirational talk · I",
+        "speaker": "High-profile speaker — TBC",
+        "desc": "Long-term vision, legacy and purpose of capital."
+      },
+      {
+        "time": "09:15",
+        "endTime": "10:00",
+        "type": "keynote",
+        "title": "Inspirational talk · II",
+        "speaker": "Success story or reference figure — TBC",
+        "desc": "Emotional connection with the wealth audience."
+      },
+      {
+        "time": "10:00",
+        "endTime": "10:20",
+        "type": "break",
+        "title": "Coffee break",
+        "desc": ""
+      },
+      {
+        "time": "10:20",
+        "endTime": "12:30",
+        "type": "relacionamiento",
+        "title": "Relationship-building block",
+        "desc": "Running in parallel, with agendas coordinated through the summit app.",
+        "subItems": [
+          { "code": "1:1", "name": "Scheduled meetings", "tag": "Investors ↔ managers" },
+          { "code": "Expo", "name": "Manager, fund and project booths", "tag": "Open walkthrough" },
+          { "code": "Speed", "name": "Profile-targeted speed meetings", "tag": "Family office ↔ GP · retail ↔ wealth" }
+        ]
+      },
+      {
+        "time": "12:30",
+        "endTime": "13:00",
+        "type": "apertura",
+        "title": "LinkU Ventures closing",
+        "speaker": "LinkU Ventures team",
+        "desc": "Summit synthesis, takeaways and next steps."
+      },
+      {
+        "time": "13:00",
+        "endTime": "15:00",
+        "type": "comida",
+        "title": "Closing lunch",
+        "desc": "Mixed tables, closing with main speakers."
+      }
+    ]
+  }
+}

@@ -1,17 +1,23 @@
 import SectionHeading from '@/components/ui/SectionHeading';
 import Reveal from '@/components/ui/Reveal';
 import FaqItem from '@/components/ui/FaqItem';
+import type { UiContent } from '@/lib/i18n/content';
 
 type Item = { q: string; a: string };
 
-export default function FAQ({ items }: { items: Item[] }) {
+type Props = {
+  items: Item[];
+  ui: UiContent['faq'];
+};
+
+export default function FAQ({ items, ui }: Props) {
   return (
     <section id="faq" className="relative">
       <div className="mx-auto max-w-4xl px-5 py-20 sm:px-8 sm:py-28">
         <Reveal>
           <SectionHeading
-            eyebrow="Preguntas frecuentes"
-            title="Lo que la gente nos pregunta antes de entrar."
+            eyebrow={ui.eyebrow}
+            title={ui.title}
             align="center"
           />
         </Reveal>

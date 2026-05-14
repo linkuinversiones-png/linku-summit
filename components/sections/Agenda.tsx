@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import SectionHeading from '@/components/ui/SectionHeading';
 import Reveal from '@/components/ui/Reveal';
+import type { UiContent } from '@/lib/i18n/content';
 
 type SubItem = { code: string; name: string; tag?: string };
 
@@ -29,22 +30,7 @@ type Props = {
     day1: Day;
     day2: Day;
   };
-};
-
-const TYPE_LABEL: Record<string, string> = {
-  registro: 'Registro',
-  apertura: 'Apertura',
-  charla: 'Charla',
-  keynote: 'Keynote',
-  panel: 'Panel',
-  break: 'Coffee break',
-  comida: 'Almuerzo',
-  networking: 'Networking',
-  feria: 'Feria',
-  pitch: 'Elevator pitch',
-  salones: 'Tracks paralelos',
-  relacionamiento: 'Relacionamiento',
-  vip: 'VIP'
+  ui: UiContent['agenda'];
 };
 
 const ACCENT_TYPES = new Set(['apertura', 'charla', 'keynote', 'pitch']);
@@ -54,21 +40,24 @@ function formatTime(item: AgendaItem) {
   return item.endTime ? `${item.time} – ${item.endTime}` : item.time;
 }
 
-export default function Agenda({ agenda }: Props) {
+export default function Agenda({ agenda, ui }: Props) {
   const [activeDay, setActiveDay] = useState<'day1' | 'day2'>('day1');
   const day = agenda[activeDay];
+
+  const typeLabel = (t: string) =>
+    (ui.types as Record<string, string>)[t] ?? t;
 
   return (
     <section id="agenda" className="relative">
       <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
         <Reveal>
           <SectionHeading
-            eyebrow="Agenda"
+            eyebrow={ui.eyebrow}
             title={
               <>
-                Dos días
+                {ui.titleA}
                 <br />
-                <span className="text-linku-coral">construidos por bloque.</span>
+                <span className="text-linku-coral">{ui.titleB}</span>
               </>
             }
             lead={agenda.intro?.lead}
@@ -88,7 +77,7 @@ export default function Agenda({ agenda }: Props) {
                     : 'text-linku-text-muted hover:text-linku-text'
                 }`}
               >
-                {d === 'day1' ? 'Día 1' : 'Día 2'}
+                {d === 'day1' ? ui.day1 : ui.day2}
               </button>
             ))}
           </div>
@@ -124,7 +113,7 @@ export default function Agenda({ agenda }: Props) {
                       </div>
                       <div>
                         <span className="inline-flex items-center rounded-full border border-linku-coral/30 bg-linku-coral/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-linku-coral">
-                          {TYPE_LABEL[item.type] ?? item.type}
+                          {typeLabel(item.type)}
                         </span>
                         <h4 className="mt-3 text-lg font-bold tracking-tightish text-linku-text sm:text-xl">
                           {item.title}
@@ -184,7 +173,7 @@ export default function Agenda({ agenda }: Props) {
                   </div>
                   <div>
                     <span className="inline-flex items-center rounded-full border border-linku-border bg-white/[0.02] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.15em] text-linku-text-dim">
-                      {TYPE_LABEL[item.type] ?? item.type}
+                      {typeLabel(item.type)}
                     </span>
                     <h4 className="mt-2 text-base font-semibold tracking-tightish text-linku-text sm:text-lg">
                       {item.title}

@@ -1,0 +1,10 @@
+{
+  "tiers": [
+    { "id": "series-a", "name": "Series A",          "sponsors": [] },
+    { "id": "seed",     "name": "Seed",              "sponsors": [] },
+    { "id": "pre-seed", "name": "Pre-Seed",          "sponsors": [] },
+    { "id": "esencial", "name": "Essential Branding", "sponsors": [] }
+  ],
+  "emptyMessage": "Announcing sponsors soon. To be among the first: sponsors@linkusummit.com",
+  "ctaEmail": "sponsors@linkusummit.com"
+}

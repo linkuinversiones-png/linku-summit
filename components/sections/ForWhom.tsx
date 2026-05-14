@@ -2,48 +2,44 @@ import SectionHeading from '@/components/ui/SectionHeading';
 import Reveal from '@/components/ui/Reveal';
 import OutlineButton from '@/components/ui/OutlineButton';
 import { Briefcase, Rocket, Megaphone } from 'lucide-react';
+import type { UiContent } from '@/lib/i18n/content';
 
 type Props = {
   contacts: { invites: string; sponsors: string; partners: string };
+  ui: UiContent['forWhom'];
 };
 
-export default function ForWhom({ contacts }: Props) {
+export default function ForWhom({ contacts, ui }: Props) {
   const cards = [
     {
       icon: Briefcase,
-      title: 'Inversionistas',
-      lead: 'Vienes a desplegar capital.',
-      bullets: [
-        'Acceso curado a 30+ proyectos pre-seleccionados por el comité',
-        'Salas VIP 1:1 para cierres durante todo el día',
-        'Networking con 60% family offices, fund managers y HNWI',
-        'Agenda de citas gestionada por la app del summit'
-      ],
-      cta: { label: 'Solicitar invitación', href: `mailto:${contacts.invites}?subject=Solicito invitación — Inversionista` }
+      title: ui.investors.title,
+      lead: ui.investors.lead,
+      bullets: ui.investors.bullets,
+      cta: {
+        label: ui.investors.cta,
+        href: `mailto:${contacts.invites}?subject=${encodeURIComponent(ui.investors.ctaSubject)}`
+      }
     },
     {
       icon: Rocket,
-      title: 'Founders y Desarrolladores',
-      lead: 'Vienes a levantar capital.',
-      bullets: [
-        'Stand premium con tu marca y maqueta del proyecto',
-        'Pitch stage con 6 founders seleccionados día 2',
-        'Reuniones 1:1 con LPs activos y mandato verificado',
-        'Curaduría de inversionistas alineados a tu vertical'
-      ],
-      cta: { label: 'Postular proyecto', href: `mailto:${contacts.invites}?subject=Postulación de proyecto — Founder` }
+      title: ui.founders.title,
+      lead: ui.founders.lead,
+      bullets: ui.founders.bullets,
+      cta: {
+        label: ui.founders.cta,
+        href: `mailto:${contacts.invites}?subject=${encodeURIComponent(ui.founders.ctaSubject)}`
+      }
     },
     {
       icon: Megaphone,
-      title: 'Sponsors y Aliados',
-      lead: 'Vienes a posicionarte donde se mueve el capital.',
-      bullets: [
-        'Branding dominante en venue y comunicación',
-        'Acceso al universo de inversionistas pre-evento',
-        'Activaciones a medida (lounges, cocktail, kits)',
-        'Co-branding en contenido post-evento'
-      ],
-      cta: { label: 'Hablar con el equipo', href: `mailto:${contacts.sponsors}?subject=Sponsorship — LinkU Summit 2026` }
+      title: ui.sponsors.title,
+      lead: ui.sponsors.lead,
+      bullets: ui.sponsors.bullets,
+      cta: {
+        label: ui.sponsors.cta,
+        href: `mailto:${contacts.sponsors}?subject=${encodeURIComponent(ui.sponsors.ctaSubject)}`
+      }
     }
   ];
 
@@ -52,15 +48,15 @@ export default function ForWhom({ contacts }: Props) {
       <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
         <Reveal>
           <SectionHeading
-            eyebrow="Para quién es"
+            eyebrow={ui.eyebrow}
             title={
               <>
-                Tres salas. Tres mandatos.
+                {ui.titleA}
                 <br />
-                <span className="text-linku-coral">Una conversación.</span>
+                <span className="text-linku-coral">{ui.titleB}</span>
               </>
             }
-            lead="Cada perfil entra al summit con un objetivo claro. Lo que une la sala es que todos vienen a ejecutar."
+            lead={ui.lead}
           />
         </Reveal>
 

@@ -2,6 +2,7 @@ import SectionHeading from '@/components/ui/SectionHeading';
 import Reveal from '@/components/ui/Reveal';
 import PartnerLogo from '@/components/ui/PartnerLogo';
 import CoralButton from '@/components/ui/CoralButton';
+import type { UiContent } from '@/lib/i18n/content';
 
 type Sponsor = { id: string; name: string; logo: string; website?: string };
 type Tier = { id: string; name: string; sponsors: Sponsor[] };
@@ -12,6 +13,7 @@ type Props = {
     emptyMessage: string;
     ctaEmail: string;
   };
+  ui: UiContent['sponsorsConfirmed'];
 };
 
 const TIER_SIZE: Record<string, string> = {
@@ -21,7 +23,7 @@ const TIER_SIZE: Record<string, string> = {
   esencial: 'h-12 sm:h-14'
 };
 
-export default function SponsorsConfirmed({ sponsors }: Props) {
+export default function SponsorsConfirmed({ sponsors, ui }: Props) {
   const hasAny = sponsors.tiers.some((t) => t.sponsors && t.sponsors.length > 0);
 
   if (!hasAny) {
@@ -30,17 +32,19 @@ export default function SponsorsConfirmed({ sponsors }: Props) {
         <div className="mx-auto max-w-4xl px-5 py-20 text-center sm:px-8 sm:py-24">
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-linku-coral">
-              Sponsors confirmados
+              {ui.eyebrow}
             </p>
             <h3 className="mt-4 text-2xl font-bold tracking-tightish text-linku-text sm:text-3xl">
-              Anunciamos sponsors pronto.
+              {ui.emptyTitle}
             </h3>
             <p className="mt-4 text-base text-linku-text-muted sm:text-lg">
               {sponsors.emptyMessage}
             </p>
             <div className="mt-8 flex justify-center">
-              <CoralButton href={`mailto:${sponsors.ctaEmail}?subject=Sponsorship — LinkU Summit 2026`}>
-                Quiero ser sponsor
+              <CoralButton
+                href={`mailto:${sponsors.ctaEmail}?subject=${encodeURIComponent(ui.emptyCtaSubject)}`}
+              >
+                {ui.emptyCta}
               </CoralButton>
             </div>
           </Reveal>
@@ -53,7 +57,7 @@ export default function SponsorsConfirmed({ sponsors }: Props) {
     <section className="relative">
       <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
         <Reveal>
-          <SectionHeading eyebrow="Sponsors confirmados" title="Quién está adentro." />
+          <SectionHeading eyebrow={ui.eyebrow} title={ui.title} />
         </Reveal>
 
         <div className="mt-14 space-y-12">

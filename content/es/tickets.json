@@ -1,46 +1,8 @@
 {
   "intro": {
     "title": "Entradas",
-    "lead": "Dos formas de estar en la sala. Ambas pasan por curaduría."
+    "lead": "Distintos tipos de entrada. Todas pasan por curaduría."
   },
-  "tiers": [
-    {
-      "id": "early-investor",
-      "name": "Early Investor",
-      "label": "Acceso temprano",
-      "price": "COP $1.500.000",
-      "priceNote": "Tarifa válida hasta agotar primer cupo",
-      "highlight": false,
-      "benefits": [
-        "Pase a los 2 días del summit",
-        "Acceso a feria y stands curados",
-        "Almuerzos por mesa temática",
-        "Cocktail de bienvenida (Día 1)",
-        "App del evento con agenda y networking"
-      ],
-      "ctaLabel": "Comprar entrada",
-      "ctaHref": "mailto:invites@linkusummit.com?subject=Compra Early Investor — LinkU Summit 2026"
-    },
-    {
-      "id": "smart-investor",
-      "name": "Smart Investor",
-      "label": "Acceso completo",
-      "price": "COP $3.000.000",
-      "priceNote": "Cupo limitado. Incluye experiencias VIP.",
-      "highlight": true,
-      "badge": "MÁS POPULAR",
-      "benefits": [
-        "Todo lo del Early Investor",
-        "Acceso al deal room 1:1",
-        "Cena de cierre · solo por invitación",
-        "Curaduría personalizada de 5 reuniones",
-        "Asiento prioritario en escenario principal",
-        "Kit de bienvenida co-branded"
-      ],
-      "ctaLabel": "Comprar entrada",
-      "ctaHref": "mailto:invites@linkusummit.com?subject=Compra Smart Investor — LinkU Summit 2026"
-    }
-  ],
   "sponsorship": {
     "tiers": [
       {

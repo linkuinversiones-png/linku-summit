@@ -1,0 +1,9 @@
+[
+  { "id": "manyobra",    "name": "Manyobra",                       "logo": "/partners/manyobra.png" },
+  { "id": "camacol",     "name": "Camacol",                        "logo": "/partners/camacol.png" },
+  { "id": "ruta-n",      "name": "Ruta N",                         "logo": "/partners/ruta-n.png" },
+  { "id": "ccma",        "name": "Medellín Chamber of Commerce",   "logo": "/partners/ccma.png" },
+  { "id": "aci",         "name": "ACI Medellín",                   "logo": "/partners/aci.png" },
+  { "id": "procolombia", "name": "ProColombia",                    "logo": "/partners/procolombia.png" },
+  { "id": "fbn",         "name": "FBN",                            "logo": "/partners/fbn.png" }
+]

@@ -6,24 +6,33 @@ import Image from 'next/image';
 import { Menu, X, UserCircle2 } from 'lucide-react';
 import CoralButton from '@/components/ui/CoralButton';
 import OutlineButton from '@/components/ui/OutlineButton';
-
-const NAV_LINKS = [
-  { href: '#agenda', label: 'Agenda' },
-  { href: '#speakers', label: 'Speakers' },
-  { href: '#tesis', label: 'Tracks' },
-  { href: '#tickets', label: 'Tickets' },
-  { href: '#sponsors', label: 'Sponsors' },
-  { href: '#faq', label: 'FAQ' }
-];
+import LocaleSwitcher from '@/components/ui/LocaleSwitcher';
+import { localizePath, type Locale } from '@/lib/i18n/config';
+import type { UiContent } from '@/lib/i18n/content';
 
 type Props = {
   contacts: { sponsors: string; invites: string; partners: string };
   isLoggedIn?: boolean;
+  locale: Locale;
+  ui: UiContent['nav'];
 };
 
-export default function Navbar({ contacts, isLoggedIn = false }: Props) {
+export default function Navbar({ isLoggedIn = false, locale, ui }: Props) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+
+  const homeHref = localizePath('/', locale);
+  const meHref = localizePath('/me', locale);
+  const loginHref = localizePath('/login', locale);
+
+  const navLinks = [
+    { href: '#agenda', label: ui.links.agenda },
+    { href: '#speakers', label: ui.links.speakers },
+    { href: '#tesis', label: ui.links.tracks },
+    { href: '#tickets', label: ui.links.tickets },
+    { href: '#sponsors', label: ui.links.sponsors },
+    { href: '#faq', label: ui.links.faq }
+  ];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 80);
@@ -49,7 +58,7 @@ export default function Navbar({ contacts, isLoggedIn = false }: Props) {
       }`}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:h-20 sm:px-8">
-        <Link href="#" className="flex items-center gap-3" aria-label="LinkU Summit 2026">
+        <Link href={homeHref} className="flex items-center gap-3" aria-label="LinkU Summit 2026">
           <Image
             src="/brand/linku-icon.png"
             alt="LinkU"
@@ -69,7 +78,7 @@ export default function Navbar({ contacts, isLoggedIn = false }: Props) {
         </Link>
 
         <nav className="hidden items-center gap-7 lg:flex">
-          {NAV_LINKS.map((l) => (
+          {navLinks.map((l) => (
             <a
               key={l.href}
               href={l.href}
@@ -81,24 +90,28 @@ export default function Navbar({ contacts, isLoggedIn = false }: Props) {
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
+          <LocaleSwitcher currentLocale={locale} />
           {isLoggedIn ? (
-            <OutlineButton href="/me">
-              <UserCircle2 size={16} /> Mi cuenta
+            <OutlineButton href={meHref}>
+              <UserCircle2 size={16} /> {ui.account}
             </OutlineButton>
           ) : (
-            <OutlineButton href="/login">Iniciar sesión</OutlineButton>
+            <OutlineButton href={loginHref}>{ui.login}</OutlineButton>
           )}
-          <CoralButton href="#tickets">Comprar entrada</CoralButton>
+          <CoralButton href="#tickets">{ui.buy}</CoralButton>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          className="rounded-lg border border-linku-border-2 p-2 text-linku-text lg:hidden"
-          aria-label="Abrir menú"
-        >
-          <Menu size={20} />
-        </button>
+        <div className="flex items-center gap-2 lg:hidden">
+          <LocaleSwitcher currentLocale={locale} />
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className="rounded-lg border border-linku-border-2 p-2 text-linku-text"
+            aria-label={ui.openMenu}
+          >
+            <Menu size={20} />
+          </button>
+        </div>
       </div>
 
       {/* Mobile drawer */}
@@ -124,13 +137,13 @@ export default function Navbar({ contacts, isLoggedIn = false }: Props) {
             type="button"
             onClick={() => setOpen(false)}
             className="rounded-lg border border-linku-border-2 p-2 text-linku-text"
-            aria-label="Cerrar menú"
+            aria-label={ui.closeMenu}
           >
             <X size={20} />
           </button>
         </div>
         <nav className="flex flex-col gap-1 px-5 pt-4 sm:px-8">
-          {NAV_LINKS.map((l) => (
+          {navLinks.map((l) => (
             <a
               key={l.href}
               href={l.href}
@@ -142,16 +155,16 @@ export default function Navbar({ contacts, isLoggedIn = false }: Props) {
           ))}
           <div className="mt-6 flex flex-col gap-3">
             {isLoggedIn ? (
-              <OutlineButton href="/me" size="lg">
-                <UserCircle2 size={18} /> Mi cuenta
+              <OutlineButton href={meHref} size="lg">
+                <UserCircle2 size={18} /> {ui.account}
               </OutlineButton>
             ) : (
-              <OutlineButton href="/login" size="lg">
-                Iniciar sesión
+              <OutlineButton href={loginHref} size="lg">
+                {ui.login}
               </OutlineButton>
             )}
             <CoralButton href="#tickets" size="lg">
-              Comprar entrada
+              {ui.buy}
             </CoralButton>
           </div>
         </nav>

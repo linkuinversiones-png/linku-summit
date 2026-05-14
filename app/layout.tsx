@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import { DEFAULT_LOCALE, HTML_LANG, isLocale, type Locale } from '@/lib/i18n/config';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -8,65 +10,100 @@ const inter = Inter({
   display: 'swap'
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL('https://linkusummit.com'),
-  title: 'LINKU SUMMIT 2026 — La cumbre de inversión multi-activo en Medellín',
-  description:
-    'Octubre 2026 · Medellín. 300+ inversionistas, 6 clases de activo, 2 días donde se mueve capital real en Latinoamérica.',
-  keywords: [
-    'LinkU Summit',
-    'inversión',
-    'Medellín',
-    'venture capital',
-    'real estate',
-    'private equity',
-    'family office',
-    'Latinoamérica'
-  ],
-  authors: [{ name: 'LinkU Ventures' }],
-  alternates: { canonical: 'https://linkusummit.com' },
-  openGraph: {
-    type: 'website',
-    locale: 'es_CO',
-    url: 'https://linkusummit.com',
-    siteName: 'LINKU SUMMIT 2026',
-    title: 'LINKU SUMMIT 2026 — Donde el capital real se encuentra',
+const SITE_URL = 'https://linkusummit.com';
+
+const META: Record<Locale, { title: string; description: string; ogLocale: string }> = {
+  es: {
+    title: 'LINKU SUMMIT 2026 — La cumbre de inversión multi-activo en Medellín',
     description:
-      'Octubre 2026 · Medellín. 300+ inversionistas, 6 clases de activo, 2 días de alto impacto.',
-    images: [
-      {
-        url: '/og/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'LinkU Summit 2026'
-      }
-    ]
+      'Octubre 2026 · Medellín. 300+ inversionistas, 6 clases de activo, 2 días donde se mueve capital real en Latinoamérica.',
+    ogLocale: 'es_CO'
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'LINKU SUMMIT 2026',
+  en: {
+    title: 'LINKU SUMMIT 2026 — The multi-asset investment summit in Medellín',
     description:
-      'Octubre 2026 · Medellín. La cumbre de inversión multi-activo de Latinoamérica.',
-    images: ['/og/og-image.jpg']
-  },
-  icons: {
-    icon: '/brand/linku-icon.png',
-    shortcut: '/brand/linku-icon.png',
-    apple: '/brand/linku-icon.png'
-  },
-  appleWebApp: {
-    title: 'LINKU SUMMIT 2026',
-    statusBarStyle: 'black-translucent'
+      'October 2026 · Medellín. 300+ investors, 6 asset classes, 2 days where real capital moves in Latin America.',
+    ogLocale: 'en_US'
   }
 };
+
+function readLocale(): Locale {
+  const raw = headers().get('x-locale');
+  return isLocale(raw) ? raw : DEFAULT_LOCALE;
+}
+
+export function generateMetadata(): Metadata {
+  const locale = readLocale();
+  const m = META[locale];
+  const url = locale === DEFAULT_LOCALE ? SITE_URL : `${SITE_URL}/${locale}`;
+
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: m.title,
+    description: m.description,
+    keywords: [
+      'LinkU Summit',
+      'inversión',
+      'investment',
+      'Medellín',
+      'venture capital',
+      'real estate',
+      'private equity',
+      'family office',
+      'Latinoamérica'
+    ],
+    authors: [{ name: 'LinkU Ventures' }],
+    alternates: {
+      canonical: url,
+      languages: {
+        'es-CO': SITE_URL,
+        en: `${SITE_URL}/en`,
+        'x-default': SITE_URL
+      }
+    },
+    openGraph: {
+      type: 'website',
+      locale: m.ogLocale,
+      url,
+      siteName: 'LINKU SUMMIT 2026',
+      title: m.title,
+      description: m.description,
+      images: [
+        {
+          url: '/og/og-image.jpg',
+          width: 1200,
+          height: 630,
+          alt: 'LinkU Summit 2026'
+        }
+      ]
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: m.title,
+      description: m.description,
+      images: ['/og/og-image.jpg']
+    },
+    icons: {
+      icon: '/brand/linku-icon.png',
+      shortcut: '/brand/linku-icon.png',
+      apple: '/brand/linku-icon.png'
+    },
+    appleWebApp: {
+      title: 'LINKU SUMMIT 2026',
+      statusBarStyle: 'black-translucent'
+    }
+  };
+}
 
 export default function RootLayout({
   children
 }: {
   children: React.ReactNode;
 }) {
+  const locale = readLocale();
+
   return (
-    <html lang="es-CO" className={inter.variable}>
+    <html lang={HTML_LANG[locale]} className={inter.variable}>
       <body className="min-h-screen bg-linku-bg font-sans antialiased">
         {children}
 
@@ -88,7 +125,6 @@ export default function RootLayout({
         >
           <defs>
             <filter id="linku-duotone" colorInterpolationFilters="sRGB">
-              {/* Convierte a escala de grises usando luminancia humana */}
               <feColorMatrix
                 type="matrix"
                 values="
@@ -98,7 +134,6 @@ export default function RootLayout({
                   0     0     0     1 0
                 "
               />
-              {/* Remapea negro→navy y blanco→coral */}
               <feComponentTransfer>
                 <feFuncR tableValues="0.0196 1" />
                 <feFuncG tableValues="0.0314 0.3529" />

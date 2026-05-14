@@ -1,21 +1,27 @@
 import SectionHeading from '@/components/ui/SectionHeading';
 import Reveal from '@/components/ui/Reveal';
+import type { UiContent } from '@/lib/i18n/content';
 
 type Item = { title: string; body: string };
 
-export default function WhyNow({ items }: { items: Item[] }) {
+type Props = {
+  items: Item[];
+  ui: UiContent['whyNow'];
+};
+
+export default function WhyNow({ items, ui }: Props) {
   return (
     <section className="relative bg-linku-bg-2/40">
       <div className="absolute inset-0 bg-section-glow opacity-50" aria-hidden />
       <div className="relative mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
         <Reveal>
           <SectionHeading
-            eyebrow="Por qué ahora"
+            eyebrow={ui.eyebrow}
             title={
               <>
-                El momento no es coincidencia.
+                {ui.titleA}
                 <br />
-                <span className="text-linku-coral">Es lectura.</span>
+                <span className="text-linku-coral">{ui.titleB}</span>
               </>
             }
           />

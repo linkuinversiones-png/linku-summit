@@ -9,6 +9,7 @@ import {
   Sparkles,
   type LucideIcon
 } from 'lucide-react';
+import type { UiContent } from '@/lib/i18n/content';
 
 type Thesis = { icon: string; title: string; desc: string };
 
@@ -21,21 +22,26 @@ const ICON_MAP: Record<string, LucideIcon> = {
   sparkles: Sparkles
 };
 
-export default function ThesisSection({ items }: { items: Thesis[] }) {
+type Props = {
+  items: Thesis[];
+  ui: UiContent['thesis'];
+};
+
+export default function ThesisSection({ items, ui }: Props) {
   return (
     <section id="tesis" className="relative">
       <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
         <Reveal>
           <SectionHeading
-            eyebrow="Tesis multi-activo"
+            eyebrow={ui.eyebrow}
             title={
               <>
-                Seis clases de activo.
+                {ui.titleA}
                 <br />
-                <span className="text-linku-coral">Una sola sala.</span>
+                <span className="text-linku-coral">{ui.titleB}</span>
               </>
             }
-            lead="No elegimos una vertical. Elegimos a los que están construyendo la siguiente generación de cada una."
+            lead={ui.lead}
           />
         </Reveal>
 

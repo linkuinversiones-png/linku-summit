@@ -30,3 +30,6 @@ Thumbs.db
 
 # claude code internal
 .claude/
+
+# supabase cli temp
+supabase/.temp/

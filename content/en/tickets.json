@@ -1,0 +1,78 @@
+{
+  "intro": {
+    "title": "Tickets",
+    "lead": "Different ticket types. All go through curation."
+  },
+  "sponsorship": {
+    "tiers": [
+      {
+        "id": "pre-seed",
+        "name": "Pre-Seed",
+        "label": "Presence",
+        "price": "On request",
+        "highlight": false,
+        "benefits": [
+          "Logo on digital agenda",
+          "2 passes to the summit",
+          "Mention in 1 communications piece",
+          "Access to general networking"
+        ],
+        "ctaLabel": "Request info",
+        "ctaHref": "mailto:sponsors@linkusummit.com?subject=Pre-Seed Sponsorship — LinkU Summit 2026"
+      },
+      {
+        "id": "seed",
+        "name": "Seed",
+        "label": "Visibility",
+        "price": "On request",
+        "highlight": false,
+        "benefits": [
+          "Standard expo booth (24 m²)",
+          "5 passes + 1 VIP invitation",
+          "Branding on secondary stage",
+          "Formal intro to 5 curated investors",
+          "Logo on website home"
+        ],
+        "ctaLabel": "Request info",
+        "ctaHref": "mailto:sponsors@linkusummit.com?subject=Seed Sponsorship — LinkU Summit 2026"
+      },
+      {
+        "id": "series-a",
+        "name": "Series A",
+        "label": "Leadership",
+        "price": "On request",
+        "highlight": true,
+        "badge": "MOST POPULAR",
+        "benefits": [
+          "Premium 48 m² booth + physical branding",
+          "15 passes including VIP dinner",
+          "Slot on main stage (panel or keynote)",
+          "Personalized curation of 15 1:1 meetings",
+          "Dominant branding throughout the venue",
+          "Co-branding in post-event communications"
+        ],
+        "ctaLabel": "Talk to the team",
+        "ctaHref": "mailto:sponsors@linkusummit.com?subject=Series A Sponsorship — LinkU Summit 2026"
+      }
+    ],
+    "essential": {
+      "name": "Essential Branding",
+      "price": "From COP $3M + VAT",
+      "description": "For ally brands that want to be at the summit without committing to a main tier.",
+      "benefits": [
+        "Logo on the official summit notebook",
+        "Logo on attendee badges",
+        "Digital presence (agenda + app)",
+        "2 general passes included",
+        "Mention in post-event communications"
+      ]
+    },
+    "addons": [
+      { "name": "Networking lounge naming",   "tag": "Exclusive · high impact" },
+      { "name": "Closing cocktail sponsorship", "tag": "Live brand activation" },
+      { "name": "Co-branded welcome kit",      "tag": "Gift for every attendee" },
+      { "name": "1:1 VIP room naming",         "tag": "Visibility at deal closings" },
+      { "name": "Co-created post-event content", "tag": "Paper + video with the brand" }
+    ]
+  }
+}

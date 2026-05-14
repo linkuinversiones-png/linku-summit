@@ -4,6 +4,12 @@ import { useEffect, useState } from 'react';
 
 type Props = {
   targetDate: string;
+  labels?: {
+    days: string;
+    hours: string;
+    minutes: string;
+    seconds: string;
+  };
 };
 
 type Parts = { days: number; hours: number; minutes: number; seconds: number };
@@ -20,7 +26,9 @@ function diff(target: number): Parts {
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
-export default function Countdown({ targetDate }: Props) {
+const FALLBACK = { days: 'Días', hours: 'Horas', minutes: 'Minutos', seconds: 'Segundos' };
+
+export default function Countdown({ targetDate, labels = FALLBACK }: Props) {
   const target = new Date(targetDate).getTime();
   const [mounted, setMounted] = useState(false);
   const [parts, setParts] = useState<Parts>(() => diff(target));
@@ -32,10 +40,10 @@ export default function Countdown({ targetDate }: Props) {
   }, [target]);
 
   const blocks: Array<{ label: string; value: string }> = [
-    { label: 'Días', value: mounted ? String(parts.days) : '—' },
-    { label: 'Horas', value: mounted ? pad(parts.hours) : '—' },
-    { label: 'Minutos', value: mounted ? pad(parts.minutes) : '—' },
-    { label: 'Segundos', value: mounted ? pad(parts.seconds) : '—' }
+    { label: labels.days, value: mounted ? String(parts.days) : '—' },
+    { label: labels.hours, value: mounted ? pad(parts.hours) : '—' },
+    { label: labels.minutes, value: mounted ? pad(parts.minutes) : '—' },
+    { label: labels.seconds, value: mounted ? pad(parts.seconds) : '—' }
   ];
 
   return (

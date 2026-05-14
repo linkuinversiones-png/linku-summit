@@ -1,18 +1,71 @@
-import { type NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
+import { LOCALES, DEFAULT_LOCALE, isLocale } from '@/lib/i18n/config';
+
+/**
+ * Estrategia i18n:
+ *   - `/`            → rewrite a `/es` (default sin prefijo en la URL pública)
+ *   - `/en`, `/en/…` → ruta válida tal cual
+ *   - `/es`, `/es/…` → redirect 308 a la versión sin prefijo (canonical SEO)
+ *
+ * Excepciones (no se aplica i18n):
+ *   - `/admin/...`   → panel interno, solo español, ruta directa
+ *   - `/api/...`     → handlers de API
+ *
+ * Adicionalmente refresca la sesión de Supabase en cada request.
+ */
+
+const I18N_EXEMPT_PREFIXES = ['admin', 'api'];
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request);
+  const { pathname, search } = request.nextUrl;
+  const segments = pathname.split('/').filter(Boolean);
+  const first = segments[0];
+
+  // Rutas exentas de i18n: solo refrescar sesión y pasar.
+  if (first && I18N_EXEMPT_PREFIXES.includes(first)) {
+    return await updateSession(request);
+  }
+
+  // Canonical: si entran a /es o /es/… los mandamos a la versión sin prefijo.
+  if (first === DEFAULT_LOCALE) {
+    const stripped = '/' + segments.slice(1).join('/');
+    const cleanPath = stripped === '/' ? '/' : stripped;
+    return NextResponse.redirect(new URL(cleanPath + search, request.url), 308);
+  }
+
+  let locale: (typeof LOCALES)[number] = DEFAULT_LOCALE;
+  let rewriteTarget: string | null = null;
+
+  if (isLocale(first)) {
+    locale = first;
+  } else {
+    rewriteTarget = `/${DEFAULT_LOCALE}${pathname === '/' ? '' : pathname}`;
+  }
+
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-locale', locale);
+  requestHeaders.set('x-pathname', pathname);
+
+  let response: NextResponse;
+  if (rewriteTarget) {
+    response = NextResponse.rewrite(new URL(rewriteTarget + search, request.url), {
+      request: { headers: requestHeaders }
+    });
+  } else {
+    response = NextResponse.next({ request: { headers: requestHeaders } });
+  }
+
+  const supabaseResponse = await updateSession(request);
+  supabaseResponse.cookies.getAll().forEach((c) => {
+    response.cookies.set(c.name, c.value, c);
+  });
+
+  return response;
 }
 
 export const config = {
   matcher: [
-    /*
-     * Coincide con todas las rutas excepto:
-     * - _next/static, _next/image (assets de Next)
-     * - favicon.ico
-     * - archivos estáticos en /public
-     */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'
+    '/((?!_next/static|_next/image|favicon.ico|brand|partners|speakers|sponsors|og|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)'
   ]
 };

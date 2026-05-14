@@ -1,0 +1,228 @@
+{
+  "nav": {
+    "links": {
+      "agenda": "Agenda",
+      "speakers": "Speakers",
+      "tracks": "Tracks",
+      "tickets": "Tickets",
+      "sponsors": "Sponsors",
+      "faq": "FAQ"
+    },
+    "login": "Iniciar sesión",
+    "account": "Mi cuenta",
+    "buy": "Comprar entrada",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú",
+    "language": "Idioma"
+  },
+  "hero": {
+    "ctaBuy": "Comprar entrada",
+    "ctaInvite": "Solicitar invitación",
+    "inviteSubject": "Solicito invitación — LinkU Summit 2026",
+    "assetClasses": [
+      "Real Estate",
+      "Venture Capital",
+      "Private Equity",
+      "Deportes",
+      "Deuda Privada",
+      "Emerging Sectors"
+    ]
+  },
+  "countdown": {
+    "days": "Días",
+    "hours": "Horas",
+    "minutes": "Minutos",
+    "seconds": "Segundos"
+  },
+  "about": {
+    "eyebrow": "El evento",
+    "titleA": "No es un evento masivo.",
+    "titleB": "Es una sala curada.",
+    "factsTitle": "Datos clave",
+    "factDate": "Fecha",
+    "factDateValue": "Octubre 2026",
+    "factCity": "Ciudad",
+    "factAttendees": "Asistentes",
+    "factAttendeesValue": "300+ por invitación",
+    "factAssets": "Asset classes",
+    "factAssetsValue": "6 en la misma sala"
+  },
+  "forWhom": {
+    "eyebrow": "Para quién es",
+    "titleA": "Tres salas. Tres mandatos.",
+    "titleB": "Una conversación.",
+    "lead": "Cada perfil entra al summit con un objetivo claro. Lo que une la sala es que todos vienen a ejecutar.",
+    "investors": {
+      "title": "Inversionistas",
+      "lead": "Vienes a desplegar capital.",
+      "bullets": [
+        "Acceso curado a 30+ proyectos pre-seleccionados por el comité",
+        "Salas VIP 1:1 para cierres durante todo el día",
+        "Networking con 60% family offices, fund managers y HNWI",
+        "Agenda de citas gestionada por la app del summit"
+      ],
+      "cta": "Solicitar invitación",
+      "ctaSubject": "Solicito invitación — Inversionista"
+    },
+    "founders": {
+      "title": "Founders y Desarrolladores",
+      "lead": "Vienes a levantar capital.",
+      "bullets": [
+        "Stand premium con tu marca y maqueta del proyecto",
+        "Pitch stage con 6 founders seleccionados día 2",
+        "Reuniones 1:1 con LPs activos y mandato verificado",
+        "Curaduría de inversionistas alineados a tu vertical"
+      ],
+      "cta": "Postular proyecto",
+      "ctaSubject": "Postulación de proyecto — Founder"
+    },
+    "sponsors": {
+      "title": "Sponsors y Aliados",
+      "lead": "Vienes a posicionarte donde se mueve el capital.",
+      "bullets": [
+        "Branding dominante en venue y comunicación",
+        "Acceso al universo de inversionistas pre-evento",
+        "Activaciones a medida (lounges, cocktail, kits)",
+        "Co-branding en contenido post-evento"
+      ],
+      "cta": "Hablar con el equipo",
+      "ctaSubject": "Sponsorship — LinkU Summit 2026"
+    }
+  },
+  "whyNow": {
+    "eyebrow": "Por qué ahora",
+    "titleA": "El momento no es coincidencia.",
+    "titleB": "Es lectura."
+  },
+  "thesis": {
+    "eyebrow": "Tesis multi-activo",
+    "titleA": "Seis clases de activo.",
+    "titleB": "Una sola sala.",
+    "lead": "No elegimos una vertical. Elegimos a los que están construyendo la siguiente generación de cada una."
+  },
+  "audience": {
+    "titleA": "Calidad,",
+    "titleB": "no volumen.",
+    "curationEyebrow": "Curaduría",
+    "curationTitle": "Cuatro filtros antes de entrar a la sala."
+  },
+  "experience": {
+    "eyebrow": "Experiencia",
+    "titleA": "Lo que vas a vivir",
+    "titleB": "en el venue."
+  },
+  "agenda": {
+    "eyebrow": "Agenda",
+    "titleA": "Dos días",
+    "titleB": "construidos por bloque.",
+    "day1": "Día 1",
+    "day2": "Día 2",
+    "types": {
+      "registro": "Registro",
+      "apertura": "Apertura",
+      "charla": "Charla",
+      "keynote": "Keynote",
+      "panel": "Panel",
+      "break": "Coffee break",
+      "comida": "Almuerzo",
+      "networking": "Networking",
+      "feria": "Feria",
+      "pitch": "Elevator pitch",
+      "salones": "Tracks paralelos",
+      "relacionamiento": "Relacionamiento",
+      "vip": "VIP"
+    }
+  },
+  "speakers": {
+    "eyebrow": "Speakers",
+    "titleA": "voces que están",
+    "titleB": "moviendo capital hoy.",
+    "lead": "Fund managers activos, family offices, founders en ronda y operadores de los activos que están definiendo Latam.",
+    "more": "+ speakers adicionales por confirmar.",
+    "empty": {
+      "title": "Anunciamos speakers pronto.",
+      "lead": "Estamos cerrando el line-up. Si quieres ser de los primeros en saber quién sube al escenario, solicita tu invitación."
+    },
+    "placeholderTBD": "Por confirmar"
+  },
+  "partners": {
+    "eyebrow": "Aliados institucionales",
+    "title": "Construimos la sala con"
+  },
+  "tickets": {
+    "titleA": "Dos formas de estar",
+    "titleB": "en la sala."
+  },
+  "sponsorship": {
+    "eyebrow": "Sponsorship",
+    "titleA": "Pon tu marca donde",
+    "titleB": "se mueve el capital.",
+    "lead": "Tres tiers principales más Branding Esencial y add-ons. Armamos el paquete a medida.",
+    "essentialEyebrow": "Branding Esencial",
+    "addonsEyebrow": "Add-ons",
+    "addonsTitle": "Activaciones a medida."
+  },
+  "sponsorsConfirmed": {
+    "eyebrow": "Sponsors confirmados",
+    "title": "Quién está adentro.",
+    "emptyTitle": "Anunciamos sponsors pronto.",
+    "emptyCta": "Quiero ser sponsor",
+    "emptyCtaSubject": "Sponsorship — LinkU Summit 2026"
+  },
+  "whyLinkU": {
+    "eyebrow": "Por qué LinkU Summit",
+    "titleA": "No es un evento más.",
+    "titleB": "Es la sala correcta."
+  },
+  "faq": {
+    "eyebrow": "Preguntas frecuentes",
+    "title": "Lo que la gente nos pregunta antes de entrar."
+  },
+  "footer": {
+    "tagline": "es el espacio donde el capital real se encuentra con las oportunidades que mueven a Latinoamérica. Octubre 2026 · Medellín.",
+    "contactTitle": "Contacto",
+    "socialTitle": "Síguenos",
+    "poweredBy": "Powered by LinkU Ventures",
+    "rights": "Todos los derechos reservados.",
+    "madeIn": "Hecho en Medellín."
+  },
+  "login": {
+    "title": "Inicia sesión",
+    "lead": "Te enviamos un enlace mágico a tu email. Click en el enlace y entras directo, sin contraseñas.",
+    "emailLabel": "Tu email",
+    "emailPlaceholder": "tu@email.com",
+    "submit": "Enviar enlace",
+    "submitting": "Enviando…",
+    "sentTitle": "Revisa tu email",
+    "sentBody": "Te enviamos un enlace mágico a {email}. Ábrelo desde el mismo dispositivo para continuar.",
+    "useOther": "Usar otro email",
+    "backHome": "Volver al inicio",
+    "noAccount": "Si todavía no tienes cuenta, te creamos una automáticamente al iniciar."
+  },
+  "me": {
+    "subtitle": "Mi cuenta",
+    "greeting": "Hola,",
+    "title": "Tu acceso al summit.",
+    "profileTitle": "Tu perfil",
+    "edit": "Editar",
+    "soon": "Próximamente",
+    "fieldName": "Nombre",
+    "fieldEmail": "Email",
+    "fieldRole": "Rol",
+    "fieldCompany": "Empresa",
+    "roleTBD": "Por confirmar",
+    "profileNote": "Tu perfil se completa cuando confirmes tu rol antes del summit. Por ahora estos datos son suficientes para tu acceso.",
+    "ticketsTitle": "Mis boletas",
+    "ticketsEmpty": "Todavía no tienes boletas activas.",
+    "ticketsView": "Ver boletería",
+    "signOut": "Cerrar sesión",
+    "roleLabels": {
+      "investor": "Inversionista",
+      "founder": "Founder",
+      "sponsor": "Sponsor",
+      "partner": "Aliado",
+      "attendee": "Asistente",
+      "admin": "Admin"
+    }
+  }
+}

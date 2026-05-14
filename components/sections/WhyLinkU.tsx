@@ -1,21 +1,27 @@
 import SectionHeading from '@/components/ui/SectionHeading';
 import Reveal from '@/components/ui/Reveal';
 import { Check } from 'lucide-react';
+import type { UiContent } from '@/lib/i18n/content';
 
 type Item = { title: string; body: string };
 
-export default function WhyLinkU({ items }: { items: Item[] }) {
+type Props = {
+  items: Item[];
+  ui: UiContent['whyLinkU'];
+};
+
+export default function WhyLinkU({ items, ui }: Props) {
   return (
     <section className="relative">
       <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
         <Reveal>
           <SectionHeading
-            eyebrow="Por qué LinkU Summit"
+            eyebrow={ui.eyebrow}
             title={
               <>
-                No es un evento más.
+                {ui.titleA}
                 <br />
-                <span className="text-linku-coral">Es la sala correcta.</span>
+                <span className="text-linku-coral">{ui.titleB}</span>
               </>
             }
           />

@@ -1,5 +1,6 @@
 import SectionHeading from '@/components/ui/SectionHeading';
 import Reveal from '@/components/ui/Reveal';
+import type { UiContent } from '@/lib/i18n/content';
 
 type Props = {
   audience: {
@@ -8,9 +9,10 @@ type Props = {
     splits: { value: string; label: string }[];
     filters: string[];
   };
+  ui: UiContent['audience'];
 };
 
-export default function Audience({ audience }: Props) {
+export default function Audience({ audience, ui }: Props) {
   return (
     <section className="relative bg-linku-bg-2/40">
       <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
@@ -20,9 +22,9 @@ export default function Audience({ audience }: Props) {
               eyebrow={audience.title}
               title={
                 <>
-                  Calidad,
+                  {ui.titleA}
                   <br />
-                  <span className="text-linku-coral">no volumen.</span>
+                  <span className="text-linku-coral">{ui.titleB}</span>
                 </>
               }
               lead={audience.lead}
@@ -48,10 +50,10 @@ export default function Audience({ audience }: Props) {
           <Reveal delay={0.1}>
             <div className="linku-card p-7 sm:p-9">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-linku-coral">
-                Curaduría
+                {ui.curationEyebrow}
               </p>
               <h3 className="mt-4 text-2xl font-bold tracking-tightish text-linku-text sm:text-3xl">
-                Cuatro filtros antes de entrar a la sala.
+                {ui.curationTitle}
               </h3>
               <ol className="mt-8 space-y-5">
                 {audience.filters.map((f, i) => (

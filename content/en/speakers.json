@@ -1,0 +1,83 @@
+[
+  {
+    "id": "alejandro-pardo",
+    "name": "Alejandro Pardo",
+    "role": "Founder",
+    "company": "Satto",
+    "track": "Real estate development",
+    "avatar": "speakers/alejandro-pardo.jpg",
+    "confirmed": true
+  },
+  {
+    "id": "harold-calderon",
+    "name": "Harold Calderón",
+    "role": "Professional manager",
+    "company": "",
+    "track": "Venture Capital",
+    "avatar": "speakers/harold-calderon.jpg",
+    "confirmed": true
+  },
+  {
+    "id": "camilo-merino",
+    "name": "Camilo Merino",
+    "role": "Fund legal structuring",
+    "company": "",
+    "track": "Legal & compliance",
+    "avatar": "speakers/camilo-merino.jpg",
+    "confirmed": true
+  },
+  {
+    "id": "juan-fernando-velez",
+    "name": "Juan Fernando Vélez",
+    "role": "Head of Investment",
+    "company": "Artists' Family Office",
+    "track": "Family office",
+    "avatar": "speakers/juan-fernando-velez.jpg",
+    "confirmed": true
+  },
+  {
+    "id": "mauricio-restrepo",
+    "name": "Mauricio Restrepo del Toro",
+    "role": "Principal",
+    "company": "Family Office",
+    "track": "Family office",
+    "avatar": "speakers/mauricio-restrepo-del-toro.jpg",
+    "confirmed": true
+  },
+  {
+    "id": "sergio-mejia",
+    "name": "Sergio Mejía",
+    "role": "Pro Investments",
+    "company": "",
+    "track": "Athlete investing",
+    "avatar": "speakers/sergio-mejia.jpg",
+    "confirmed": true
+  },
+  {
+    "id": "johnatan-combeau",
+    "name": "Johnatan Combeau",
+    "role": "VP Wealth Management",
+    "company": "Credicorp",
+    "track": "Wealth Management",
+    "avatar": "speakers/jonathan-combeau.png",
+    "confirmed": true
+  },
+  {
+    "id": "matias-gonzalez",
+    "name": "Matías González",
+    "role": "To be confirmed",
+    "company": "",
+    "track": "To be confirmed",
+    "avatar": "speakers/matias-gonzalez.png",
+    "confirmed": true
+  },
+  {
+    "id": "keynote-internacional",
+    "name": "To be confirmed",
+    "role": "International keynote",
+    "company": "",
+    "track": "Summit closing",
+    "avatar": null,
+    "confirmed": false
+  }
+]

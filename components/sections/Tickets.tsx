@@ -1,6 +1,7 @@
 import SectionHeading from '@/components/ui/SectionHeading';
 import Reveal from '@/components/ui/Reveal';
 import SponsorTier from '@/components/ui/SponsorTier';
+import type { UiContent } from '@/lib/i18n/content';
 
 type Tier = {
   id: string;
@@ -20,9 +21,10 @@ type Props = {
     intro: { title: string; lead: string };
     tiers: Tier[];
   };
+  ui: UiContent['tickets'];
 };
 
-export default function Tickets({ tickets }: Props) {
+export default function Tickets({ tickets, ui }: Props) {
   return (
     <section id="tickets" className="relative">
       <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-28">
@@ -31,9 +33,9 @@ export default function Tickets({ tickets }: Props) {
             eyebrow={tickets.intro.title}
             title={
               <>
-                Dos formas de estar
+                {ui.titleA}
                 <br />
-                <span className="text-linku-coral">en la sala.</span>
+                <span className="text-linku-coral">{ui.titleB}</span>
               </>
             }
             lead={tickets.intro.lead}

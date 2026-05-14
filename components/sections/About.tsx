@@ -1,22 +1,20 @@
 import SectionHeading from '@/components/ui/SectionHeading';
 import Reveal from '@/components/ui/Reveal';
 import { Calendar, MapPin, Users, Layers } from 'lucide-react';
+import type { UiContent } from '@/lib/i18n/content';
 
 type Props = {
   about: { title: string; lead: string; body: string };
-  site: {
-    dateLabel: string;
-    city: string;
-    venue: string;
-  };
+  site: { city: string; country: string };
+  ui: UiContent['about'];
 };
 
-export default function About({ about, site }: Props) {
+export default function About({ about, site, ui }: Props) {
   const facts = [
-    { icon: Calendar, label: 'Fecha', value: 'Octubre 2026' },
-    { icon: MapPin, label: 'Ciudad', value: `${site.city}, Colombia` },
-    { icon: Users, label: 'Asistentes', value: '300+ por invitación' },
-    { icon: Layers, label: 'Asset classes', value: '6 en la misma sala' }
+    { icon: Calendar, label: ui.factDate, value: ui.factDateValue },
+    { icon: MapPin, label: ui.factCity, value: `${site.city}, ${site.country}` },
+    { icon: Users, label: ui.factAttendees, value: ui.factAttendeesValue },
+    { icon: Layers, label: ui.factAssets, value: ui.factAssetsValue }
   ];
 
   return (
@@ -25,12 +23,12 @@ export default function About({ about, site }: Props) {
         <div className="grid gap-12 lg:grid-cols-[1.3fr_1fr] lg:gap-16">
           <Reveal>
             <SectionHeading
-              eyebrow="El evento"
+              eyebrow={ui.eyebrow}
               title={
                 <>
-                  No es un evento masivo.
+                  {ui.titleA}
                   <br />
-                  <span className="text-linku-coral">Es una sala curada.</span>
+                  <span className="text-linku-coral">{ui.titleB}</span>
                 </>
               }
             />
@@ -43,7 +41,7 @@ export default function About({ about, site }: Props) {
           <Reveal delay={0.1}>
             <div className="linku-card p-6 sm:p-8">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-linku-coral">
-                Datos clave
+                {ui.factsTitle}
               </p>
               <dl className="mt-6 space-y-5">
                 {facts.map((f) => (

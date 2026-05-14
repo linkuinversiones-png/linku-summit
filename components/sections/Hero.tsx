@@ -4,6 +4,7 @@ import CoralButton from '@/components/ui/CoralButton';
 import OutlineButton from '@/components/ui/OutlineButton';
 import Countdown from '@/components/ui/Countdown';
 import { ArrowRight, MapPin } from 'lucide-react';
+import type { UiContent } from '@/lib/i18n/content';
 
 type Props = {
   site: {
@@ -14,26 +15,17 @@ type Props = {
     startDate: string;
     contacts: { invites: string };
   };
+  ui: UiContent['hero'];
+  countdownLabels: UiContent['countdown'];
 };
 
-const ASSET_CLASSES = [
-  'Real Estate',
-  'Venture Capital',
-  'Private Equity',
-  'Deportes',
-  'Deuda Privada',
-  'Emerging Sectors'
-];
-
-export default function Hero({ site }: Props) {
+export default function Hero({ site, ui, countdownLabels }: Props) {
   return (
     <section className="relative overflow-hidden pt-28 sm:pt-36 lg:pt-44">
-      {/* Glow coral arriba a la derecha */}
       <div
         className="pointer-events-none absolute inset-0 bg-hero-glow opacity-90"
         aria-hidden
       />
-      {/* Grid sutil de fondo */}
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.04]"
         style={{
@@ -67,23 +59,23 @@ export default function Hero({ site }: Props) {
           </div>
 
           <div className="mt-2">
-            <Countdown targetDate={site.startDate} />
+            <Countdown targetDate={site.startDate} labels={countdownLabels} />
           </div>
 
           <div className="mt-4 flex flex-wrap gap-3">
             <CoralButton href="#tickets" size="lg">
-              Comprar entrada <ArrowRight size={16} />
+              {ui.ctaBuy} <ArrowRight size={16} />
             </CoralButton>
             <OutlineButton
-              href={`mailto:${site.contacts.invites}?subject=Solicito invitación — LinkU Summit 2026`}
+              href={`mailto:${site.contacts.invites}?subject=${encodeURIComponent(ui.inviteSubject)}`}
               size="lg"
             >
-              Solicitar invitación
+              {ui.ctaInvite}
             </OutlineButton>
           </div>
 
           <div className="mt-2 flex flex-wrap gap-2">
-            {ASSET_CLASSES.map((c) => (
+            {ui.assetClasses.map((c) => (
               <AssetClassPill key={c} label={c} />
             ))}
           </div>

@@ -21,7 +21,13 @@ function initials(name: string) {
   return (first + last).toUpperCase() || '?';
 }
 
-export default function SpeakerCard({ speaker }: { speaker: Speaker }) {
+export default function SpeakerCard({
+  speaker,
+  tbdLabel = 'Por confirmar'
+}: {
+  speaker: Speaker;
+  tbdLabel?: string;
+}) {
   const [imgFailed, setImgFailed] = useState(false);
   const resolvedAvatar = getImageUrl(speaker.avatar);
   const showPlaceholder = !resolvedAvatar || !speaker.confirmed || imgFailed;
@@ -53,7 +59,7 @@ export default function SpeakerCard({ speaker }: { speaker: Speaker }) {
                   <circle cx="12" cy="7" r="4" />
                 </svg>
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-linku-coral">
-                  Por confirmar
+                  {tbdLabel}
                 </span>
               </>
             )}
