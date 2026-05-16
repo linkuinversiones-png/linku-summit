@@ -191,3 +191,21 @@ export async function toggleSpeakerActive(
   revalidatePath('/admin/speakers');
   revalidatePath('/', 'layout');
 }
+
+/**
+ * Reordena speakers según el array de IDs.
+ * Asigna sort_order = (index + 1) * 10 para dejar espacio entre valores
+ * (facilita inserciones manuales futuras sin recalcular todos).
+ */
+export async function reorderSpeakers(orderedIds: string[]): Promise<void> {
+  await assertAdmin();
+  const sb = createServiceClient();
+  // Updates en paralelo — pocas filas, OK para MVP.
+  await Promise.all(
+    orderedIds.map((id, index) =>
+      sb.from('speakers').update({ sort_order: (index + 1) * 10 }).eq('id', id)
+    )
+  );
+  revalidatePath('/admin/speakers');
+  revalidatePath('/', 'layout');
+}
