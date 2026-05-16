@@ -25,7 +25,6 @@ import Audience from '@/components/sections/Audience';
 import Experience from '@/components/sections/Experience';
 import Agenda from '@/components/sections/Agenda';
 import Speakers from '@/components/sections/Speakers';
-import Partners from '@/components/sections/Partners';
 import Tickets from '@/components/sections/Tickets';
 import SponsorsWall from '@/components/sections/SponsorsWall';
 import WhyLinkU from '@/components/sections/WhyLinkU';
@@ -107,7 +106,6 @@ export default async function HomePage({
         <Thesis items={c.site.thesis} ui={ui.thesis} />
         <Audience audience={c.site.audience} ui={ui.audience} />
         <Experience items={c.site.experience} ui={ui.experience} />
-        <Partners partners={c.partners} ui={ui.partners} />
         <Tickets tickets={ticketsForView} ui={ui.tickets} />
         <SponsorsWall
           locale={params.locale}
