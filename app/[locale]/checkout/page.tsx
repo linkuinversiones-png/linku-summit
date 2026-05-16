@@ -5,14 +5,15 @@ import { createClient } from '@/lib/supabase/server';
 import { localizePath, type Locale } from '@/lib/i18n/config';
 import { getActiveTiers, formatCop } from '@/lib/tickets';
 import {
-  hasWompiConfigured,
-  wompiPublicKey,
-  WOMPI_ENV
-} from '@/lib/wompi/config';
+  hasEpaycoConfigured,
+  epaycoPKey,
+  epaycoCustomerId,
+  EPAYCO_TEST_MODE
+} from '@/lib/epayco/config';
 import {
-  signTransactionIntegrity,
+  signCheckout,
   generateOrderReference
-} from '@/lib/wompi/signatures';
+} from '@/lib/epayco/signatures';
 import PaymentButton from './PaymentButton';
 
 export const metadata = {
@@ -25,29 +26,31 @@ const COPY = {
     eyebrow: 'Checkout',
     title: 'Confirma tu entrada.',
     summary: 'Resumen de tu compra',
-    payNow: 'Pagar con Wompi',
+    payNow: 'Pagar con ePayco',
     notConfigured:
       'La pasarela de pago aún no está configurada. Escríbenos a invites@linkusummit.com.',
     notFound: 'Esa entrada no existe o ya no está disponible.',
     backToTickets: 'Volver a entradas',
-    secureCheckout: 'Pago seguro procesado por Wompi · Tarjeta, PSE, Nequi, Bancolombia.',
+    secureCheckout:
+      'Pago seguro procesado por ePayco · Tarjeta, PSE, Nequi, Daviplata, Efecty.',
     youPay: 'Total a pagar',
     sandboxNote:
-      'Modo PRUEBA: ningún cobro real se procesará. Usa tarjeta de prueba 4242 4242 4242 4242.'
+      'Modo PRUEBA: ningún cobro real se procesará. Usa la tarjeta de prueba 4575 6231 8229 0326.'
   },
   en: {
     eyebrow: 'Checkout',
     title: 'Confirm your ticket.',
     summary: 'Order summary',
-    payNow: 'Pay with Wompi',
+    payNow: 'Pay with ePayco',
     notConfigured:
       "Payments aren't configured yet. Email us at invites@linkusummit.com.",
     notFound: 'That ticket no longer exists or is unavailable.',
     backToTickets: 'Back to tickets',
-    secureCheckout: 'Secure payment by Wompi · Card, PSE, Nequi, Bancolombia.',
+    secureCheckout:
+      'Secure payment by ePayco · Card, PSE, Nequi, Daviplata, Efecty.',
     youPay: 'Total to pay',
     sandboxNote:
-      'TEST mode: no real charge will be processed. Use test card 4242 4242 4242 4242.'
+      'TEST mode: no real charge will be processed. Use test card 4575 6231 8229 0326.'
   }
 } as const;
 
@@ -93,7 +96,7 @@ export default async function CheckoutPage({
     );
   }
 
-  if (!hasWompiConfigured()) {
+  if (!hasEpaycoConfigured()) {
     return (
       <main className="relative min-h-screen bg-linku-bg px-5 py-20 sm:px-8">
         <div className="mx-auto max-w-lg text-center">
@@ -111,9 +114,9 @@ export default async function CheckoutPage({
     );
   }
 
-  // Crear orden pendiente — referencia única
+  // Crear orden pendiente — referencia única (p_id_invoice)
   const reference = generateOrderReference();
-  const amountInCents = tier.priceCop * 100;
+  const amount = tier.priceCop; // ePayco usa unidades de moneda enteras (no centavos)
   const currency = 'COP';
 
   const { error: insertErr } = await supabase.from('orders').insert({
@@ -123,7 +126,7 @@ export default async function CheckoutPage({
     discount_cop: 0,
     total_cop: tier.priceCop,
     status: 'pending',
-    wompi_reference: reference
+    payment_reference: reference
   });
 
   if (insertErr) {
@@ -139,16 +142,29 @@ export default async function CheckoutPage({
     );
   }
 
-  const integritySignature = signTransactionIntegrity({
-    reference,
-    amountInCents,
+  const signature = signCheckout({
+    invoiceId: reference,
+    amount,
     currency
   });
 
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
   const successPath = localizePath('/checkout/success', params.locale);
-  const redirectUrl = `${siteUrl}${successPath}?ref=${encodeURIComponent(reference)}`;
+  const responseUrl = `${siteUrl}${successPath}?ref=${encodeURIComponent(reference)}`;
+  const confirmationUrl = `${siteUrl}/api/webhooks/epayco`;
+
+  // ePayco rechaza/500 con caracteres no-ASCII en p_description (em-dash, acentos
+  // raros). Normalizamos a ASCII puro removiendo diacríticos.
+  const sanitize = (s: string) =>
+    s
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '') // quita combining diacritics
+      .replace(/[^\x20-\x7E]/g, '-'); // cualquier no-ASCII restante → guion
+  const descriptionByLocale: Record<Locale, string> = {
+    es: sanitize(`LinkU Summit 2026 - ${tier.name}`),
+    en: sanitize(`LinkU Summit 2026 - ${tier.name}`)
+  };
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-linku-bg pb-20">
@@ -220,19 +236,24 @@ export default async function CheckoutPage({
 
           <div className="mt-8">
             <PaymentButton
-              publicKey={wompiPublicKey()}
+              customerId={epaycoCustomerId()}
+              pKey={epaycoPKey()}
+              invoiceId={reference}
+              amount={amount}
               currency={currency}
-              amountInCents={amountInCents}
-              reference={reference}
-              integritySignature={integritySignature}
-              redirectUrl={redirectUrl}
+              signature={signature}
+              testMode={EPAYCO_TEST_MODE}
+              description={descriptionByLocale[params.locale]}
+              responseUrl={responseUrl}
+              confirmationUrl={confirmationUrl}
               customerEmail={user.email ?? ''}
+              locale={params.locale}
               label={t.payNow}
             />
             <p className="mt-4 text-center text-[11px] text-linku-text-dim">
               {t.secureCheckout}
             </p>
-            {WOMPI_ENV === 'test' && (
+            {EPAYCO_TEST_MODE && (
               <p className="mt-3 rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-center text-[11px] text-amber-200">
                 {t.sandboxNote}
               </p>

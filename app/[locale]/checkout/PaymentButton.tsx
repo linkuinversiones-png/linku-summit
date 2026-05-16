@@ -1,49 +1,77 @@
 'use client';
 
 import { ArrowRight } from 'lucide-react';
+import { EPAYCO_CHECKOUT_URL } from '@/lib/epayco/config';
 
 type Props = {
-  publicKey: string;
+  customerId: string;
+  pKey: string; // EPAYCO_P_KEY — va al form `p_key` Y se usa para firmar
+  invoiceId: string;
+  amount: number; // COP entero (no centavos)
   currency: string;
-  amountInCents: number;
-  reference: string;
-  integritySignature: string;
-  redirectUrl: string;
+  signature: string;
+  testMode: boolean;
+  description: string;
+  responseUrl: string;
+  confirmationUrl: string;
   customerEmail: string;
+  locale: 'es' | 'en';
   label: string;
 };
 
 /**
- * Botón de pago: hace POST form a Wompi Web Checkout.
- * Wompi exige que sea form submit del cliente (cross-origin).
+ * Botón de pago: hace POST form al Checkout estándar de ePayco.
+ * ePayco abre su pasarela en la misma pestaña; al terminar, redirige
+ * a `p_url_response` y notifica al webhook `p_url_confirmation`.
  *
- * Doc: https://docs.wompi.co/docs/colombia/widget-checkout-web
+ * Importante: el campo `p_key` del form lleva la P_KEY (la misma usada
+ * para firmar), NO la PUBLIC_KEY del dashboard. Convención histórica
+ * de ePayco: la PUBLIC_KEY se usa solo para SDK Onpage / Smart Checkout v2.
+ *
+ * Doc: https://docs.epayco.co/payments/checkout
  */
 export default function PaymentButton({
-  publicKey,
+  customerId,
+  pKey,
+  invoiceId,
+  amount,
   currency,
-  amountInCents,
-  reference,
-  integritySignature,
-  redirectUrl,
+  signature,
+  testMode,
+  description,
+  responseUrl,
+  confirmationUrl,
   customerEmail,
+  locale,
   label
 }: Props) {
   return (
     <form
-      action="https://checkout.wompi.co/p/"
-      method="GET"
+      action={EPAYCO_CHECKOUT_URL}
+      method="POST"
       target="_self"
       className="w-full"
     >
-      <input type="hidden" name="public-key" value={publicKey} />
-      <input type="hidden" name="currency" value={currency} />
-      <input type="hidden" name="amount-in-cents" value={amountInCents} />
-      <input type="hidden" name="reference" value={reference} />
-      <input type="hidden" name="signature:integrity" value={integritySignature} />
-      <input type="hidden" name="redirect-url" value={redirectUrl} />
+      <input type="hidden" name="p_cust_id_cliente" value={customerId} />
+      <input type="hidden" name="p_key" value={pKey} />
+      <input type="hidden" name="p_id_invoice" value={invoiceId} />
+      <input type="hidden" name="p_description" value={description} />
+      <input type="hidden" name="p_amount" value={amount} />
+      <input type="hidden" name="p_amount_base" value={amount} />
+      <input type="hidden" name="p_tax" value={0} />
+      <input type="hidden" name="p_currency_code" value={currency} />
+      <input type="hidden" name="p_signature" value={signature} />
+      <input
+        type="hidden"
+        name="p_test_request"
+        value={testMode ? 'TRUE' : 'FALSE'}
+      />
+      <input type="hidden" name="p_url_response" value={responseUrl} />
+      <input type="hidden" name="p_url_confirmation" value={confirmationUrl} />
+      <input type="hidden" name="p_confirm_method" value="POST" />
+      <input type="hidden" name="p_lang" value={locale === 'en' ? 'en' : 'es'} />
       {customerEmail && (
-        <input type="hidden" name="customer-data:email" value={customerEmail} />
+        <input type="hidden" name="p_email" value={customerEmail} />
       )}
 
       <button

@@ -16,7 +16,7 @@ const COPY = {
     titlePaid: '¡Tu entrada está confirmada!',
     titleFailed: 'El pago no se pudo procesar.',
     leadPending:
-      'Wompi nos avisa por webhook en segundos. No cierres esta página.',
+      'ePayco nos avisa por webhook en segundos. No cierres esta página.',
     leadPaid:
       'Te enviamos un email con tu boleta y QR. También puedes verla en tu cuenta.',
     leadFailed:
@@ -31,7 +31,7 @@ const COPY = {
     titlePaid: 'Your ticket is confirmed!',
     titleFailed: 'Payment could not be processed.',
     leadPending:
-      "Wompi notifies us via webhook within seconds. Don't close this page.",
+      "ePayco notifies us via webhook within seconds. Don't close this page.",
     leadPaid:
       "We've sent you an email with your ticket and QR. You can also view it in your account.",
     leadFailed:
@@ -53,13 +53,13 @@ export default async function CheckoutSuccessPage({
   const ref = searchParams.ref || searchParams.id;
 
   const supabase = createClient();
-  let order: { id: string; status: string; wompi_reference: string } | null = null;
+  let order: { id: string; status: string; payment_reference: string } | null = null;
 
   if (ref) {
     const { data } = await supabase
       .from('orders')
-      .select('id, status, wompi_reference')
-      .eq('wompi_reference', ref)
+      .select('id, status, payment_reference')
+      .eq('payment_reference', ref)
       .single();
     order = data;
   }
@@ -126,7 +126,7 @@ export default async function CheckoutSuccessPage({
           {isPaid ? t.leadPaid : isFailed ? t.leadFailed : t.leadPending}
         </p>
         <p className="mt-6 text-xs text-linku-text-dim">
-          Ref: <code>{order.wompi_reference}</code>
+          Ref: <code>{order.payment_reference}</code>
         </p>
 
         <div className="mt-10 flex flex-wrap justify-center gap-3">
@@ -145,7 +145,7 @@ export default async function CheckoutSuccessPage({
         </div>
 
         {!isPaid && !isFailed && (
-          <StatusPoll reference={order.wompi_reference} />
+          <StatusPoll reference={order.payment_reference} />
         )}
       </div>
     </main>

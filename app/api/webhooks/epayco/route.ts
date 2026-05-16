@@ -1,24 +1,29 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient as createServerSb } from '@supabase/supabase-js';
-import { verifyWompiWebhook } from '@/lib/wompi/signatures';
+import {
+  verifyConfirmationSignature,
+  mapResponseCodeToStatus
+} from '@/lib/epayco/signatures';
 import { renderTicketQrDataUrl } from '@/lib/qr/render';
 import { sendEmail } from '@/lib/email/send';
 import { ticketConfirmedEmail } from '@/lib/email/templates';
 import type { Locale } from '@/lib/i18n/config';
 
 /**
- * Webhook que recibe eventos `transaction.updated` de Wompi.
+ * Webhook que recibe la confirmación (server-to-server) de ePayco.
  *
  * Flujo:
- *   1. Verifica firma con WOMPI_EVENTS_SECRET.
- *   2. Busca la orden por wompi_reference.
- *   3. Si transaction.status = APPROVED:
+ *   1. Lee el form-urlencoded del request (ePayco no manda JSON).
+ *   2. Verifica `x_signature` con EPAYCO_P_KEY.
+ *   3. Busca la orden por payment_reference (= x_id_invoice).
+ *   4. Si x_cod_response = 1 (Aceptada):
  *        - marca orden 'paid' (idempotente)
- *        - emite tickets_issued con qr_code = HMAC(ticket.id)
+ *        - emite tickets_issued con qr_code random + HMAC del id
  *        - dispara email con boleta+QR via Resend
- *   4. Si DECLINED/VOIDED/ERROR: marca orden 'failed'.
+ *   5. Si 2/4/11 (Rechazada/Fallida/Cancelada): marca orden 'failed'.
+ *   6. Otros: deja la orden en estado actual.
  *
- * Siempre retorna 200 a Wompi (los reintenta solo en 5xx).
+ * Siempre retorna 200 a ePayco (los reintenta solo en 5xx).
  */
 
 // Service role: necesario para escribir aunque el webhook no esté autenticado.
@@ -35,69 +40,104 @@ function serviceClient() {
   });
 }
 
+/** Soporta tanto application/x-www-form-urlencoded como JSON. */
+async function readPayload(
+  request: NextRequest
+): Promise<Record<string, string>> {
+  const contentType = request.headers.get('content-type') ?? '';
+  if (contentType.includes('application/json')) {
+    const body = (await request.json()) as Record<string, unknown>;
+    const out: Record<string, string> = {};
+    for (const [k, v] of Object.entries(body)) out[k] = String(v ?? '');
+    return out;
+  }
+  const form = await request.formData();
+  const out: Record<string, string> = {};
+  form.forEach((v, k) => {
+    out[k] = typeof v === 'string' ? v : '';
+  });
+  return out;
+}
+
 export async function POST(request: NextRequest) {
-  let body: unknown;
+  let payload: Record<string, string>;
   try {
-    body = await request.json();
+    payload = await readPayload(request);
   } catch {
-    return NextResponse.json({ ok: false, error: 'invalid json' }, { status: 400 });
+    return NextResponse.json(
+      { ok: false, error: 'invalid payload' },
+      { status: 400 }
+    );
   }
 
-  if (!verifyWompiWebhook(body)) {
+  const xSignature = payload['x_signature'] ?? '';
+  const xRefPayco = payload['x_ref_payco'] ?? '';
+  const xTransactionId = payload['x_transaction_id'] ?? '';
+  const xAmount = payload['x_amount'] ?? '';
+  const xCurrencyCode = payload['x_currency_code'] ?? '';
+  const xIdInvoice = payload['x_id_invoice'] ?? '';
+  const xCodResponse = payload['x_cod_response'] ?? '';
+
+  if (!xIdInvoice) {
+    return NextResponse.json(
+      { ok: false, error: 'missing x_id_invoice' },
+      { status: 400 }
+    );
+  }
+
+  const sigValid = verifyConfirmationSignature({
+    xRefPayco,
+    xTransactionId,
+    xAmount,
+    xCurrencyCode,
+    xSignature
+  });
+
+  if (!sigValid) {
     return NextResponse.json(
       { ok: false, error: 'invalid signature' },
       { status: 401 }
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tx = (body as any)?.data?.transaction;
-  if (!tx?.reference || !tx?.status) {
-    return NextResponse.json({ ok: false, error: 'missing fields' }, { status: 400 });
-  }
-
-  const reference: string = tx.reference;
-  const status: string = tx.status; // APPROVED | DECLINED | VOIDED | ERROR | PENDING
-  const wompiId: string = tx.id;
-
   const sb = serviceClient();
 
   const { data: order, error: orderErr } = await sb
     .from('orders')
     .select('*')
-    .eq('wompi_reference', reference)
+    .eq('payment_reference', xIdInvoice)
     .single();
 
   if (orderErr || !order) {
-    // No respondemos error: Wompi reintentaría. La orden no existe en nuestra DB.
     return NextResponse.json({ ok: true, note: 'order not found' });
   }
 
+  const newStatus = mapResponseCodeToStatus(xCodResponse);
+
   // Idempotencia: si ya está paid, no volver a emitir tickets ni email.
-  if (order.status === 'paid' && status === 'APPROVED') {
+  if (order.status === 'paid' && newStatus === 'paid') {
     return NextResponse.json({ ok: true, note: 'already paid' });
   }
 
-  if (status === 'APPROVED') {
+  if (newStatus === 'paid') {
     await sb
       .from('orders')
       .update({
         status: 'paid',
-        wompi_transaction_id: wompiId,
+        payment_provider_id: xRefPayco,
         paid_at: new Date().toISOString()
       })
       .eq('id', order.id);
 
-    // Emitir 1 ticket (MVP: 1 orden = 1 boleta). Cuando soportemos compras
-    // múltiples se itera sobre quantity.
-    const { data: { user } = { user: null } } = await sb.auth.admin.getUserById(
-      order.user_id
-    );
+    // Emitir 1 ticket (MVP: 1 orden = 1 boleta).
+    const { data: { user } = { user: null } } =
+      await sb.auth.admin.getUserById(order.user_id);
     const attendeeEmail = user?.email ?? '';
     const attendeeName =
-      ((user?.user_metadata as Record<string, unknown> | undefined)?.full_name as
-        | string
-        | undefined) ?? attendeeEmail.split('@')[0] ?? '';
+      ((user?.user_metadata as Record<string, unknown> | undefined)
+        ?.full_name as string | undefined) ??
+      attendeeEmail.split('@')[0] ??
+      '';
 
     const { data: ticket, error: ticketErr } = await sb
       .from('tickets_issued')
@@ -117,7 +157,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true, note: 'ticket emit failed' });
     }
 
-    // Incrementar sold_count del tier (no atómico; OK para MVP — luego mover a RPC).
+    // Incrementar sold_count (no atómico; OK para MVP).
     const { data: tierCount } = await sb
       .from('ticket_tiers')
       .select('sold_count')
@@ -128,24 +168,24 @@ export async function POST(request: NextRequest) {
       .update({ sold_count: (tierCount?.sold_count ?? 0) + 1 })
       .eq('slug', order.ticket_tier);
 
-    // Lookup tier name + locale
     const { data: tierRow } = await sb
       .from('ticket_tiers')
       .select('name_es, name_en')
       .eq('slug', order.ticket_tier)
       .single();
 
-    // Heurística simple para locale del email: TODO leer de profile o de la orden.
-    const locale: Locale = 'es';
+    const locale: Locale = 'es'; // TODO leer locale de perfil / orden
     const tierName =
-      locale === 'es' ? tierRow?.name_es ?? order.ticket_tier : tierRow?.name_en ?? order.ticket_tier;
+      locale === 'es'
+        ? tierRow?.name_es ?? order.ticket_tier
+        : tierRow?.name_en ?? order.ticket_tier;
 
     if (attendeeEmail) {
       const qrDataUrl = await renderTicketQrDataUrl(ticket.id);
       const { subject, html } = ticketConfirmedEmail({
         locale,
         attendeeName: attendeeName || attendeeEmail,
-        orderRef: order.wompi_reference,
+        orderRef: order.payment_reference,
         totalCop: formatCop(order.total_cop),
         tickets: [
           { qrDataUrl, tierName, qrCodeShort: ticket.qr_code.slice(0, 8) }
@@ -154,15 +194,24 @@ export async function POST(request: NextRequest) {
       const result = await sendEmail({ to: attendeeEmail, subject, html });
       if (!result.ok) console.error('Resend error:', result.error);
     }
-  } else if (status === 'DECLINED' || status === 'VOIDED' || status === 'ERROR') {
+  } else if (newStatus === 'failed') {
     await sb
       .from('orders')
       .update({
         status: 'failed',
-        wompi_transaction_id: wompiId
+        payment_provider_id: xRefPayco
+      })
+      .eq('id', order.id);
+  } else if (newStatus === 'expired') {
+    await sb
+      .from('orders')
+      .update({
+        status: 'expired',
+        payment_provider_id: xRefPayco
       })
       .eq('id', order.id);
   }
+  // pending / null → no tocamos la orden, esperamos otra confirmación
 
   return NextResponse.json({ ok: true });
 }

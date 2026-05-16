@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
 /**
- * GET /api/orders/status?ref=<wompi_reference>
+ * GET /api/orders/status?ref=<payment_reference>
  *
  * Devuelve { status } de la orden del usuario autenticado.
  * Usado por la página /checkout/success para polling.
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = await supabase
     .from('orders')
     .select('status')
-    .eq('wompi_reference', ref)
+    .eq('payment_reference', ref)
     .eq('user_id', user.id)
     .single();
 

@@ -1,8 +1,8 @@
 # LinkU Summit 2026 — Handoff técnico
 
-**Última actualización:** 2026-05-13
+**Última actualización:** 2026-05-15
 **Branch:** `main`
-**Stack:** Next.js 14.2 (App Router) · React 18 · TypeScript strict · Tailwind 3.4 · Supabase (Postgres + Auth + Storage) · Resend (email) · Wompi (pagos) · qrcode (QR)
+**Stack:** Next.js 14.2 (App Router) · React 18 · TypeScript strict · Tailwind 3.4 · Supabase (Postgres + Auth + Storage) · Resend (email) · ePayco (pagos) · qrcode (QR)
 
 ---
 
@@ -15,14 +15,16 @@
 | `/me` con perfil + boletas + QR | ✅ Operativo | QR firmado HMAC se renderiza inline |
 | Admin `/admin` con guard por rol | ✅ Operativo | Solo `profiles.role = 'admin'` entra |
 | CRUD de entradas `/admin/tiers` | ✅ Operativo | Tabla `ticket_tiers` con campos bilingües |
-| Checkout `/checkout` + Wompi | ⚠️ **Bloqueado** | Falta pegar 4 llaves de Wompi en `.env.local`. Bug del `cta_href` ya corregido |
+| Checkout `/checkout` + ePayco | ⚠️ **Bloqueado** | Falta pegar 4 llaves de ePayco en `.env.local`. Migración 0008 renombra columnas a `payment_reference` / `payment_provider_id` |
 | Email transaccional con QR (Resend) | ⚠️ Implementado, sin probar | El webhook lo dispara cuando una orden pasa a `paid` |
 | Portería QR (scan + check-in) | ❌ No empezado | Schema listo (`tickets_issued.used_at`), falta UI |
 | Agenda de citas 1:1 | ❌ No empezado | Roles definidos en `profiles.role` |
 | Agente IA concierge | ❌ No empezado | Decidido: Claude Haiku 4.5 + prompt caching, cap USD $20/mes |
 | Correos masivos | ❌ No empezado | API key de Resend disponible |
 
-**Bug crítico activo:** Wompi no funciona end-to-end porque faltan las 4 env vars del proveedor. Una vez pegadas debería andar.
+**Bug crítico activo:** Pagos no funcionan end-to-end porque faltan las 4 env vars de ePayco. Una vez pegadas y aplicada la migración 0008, debería andar.
+
+**Cambio importante 2026-05-15:** Pasamos de Wompi a **ePayco** como pasarela de pagos. Toda la integración con Wompi fue removida; el código ya está adaptado a ePayco Checkout estándar (redirect).
 
 ---
 
@@ -35,7 +37,7 @@
 - Cuenta en:
   - **Supabase** (proyecto creado, base de datos Postgres)
   - **Resend** (con dominio `linkusummit.com` verificado)
-  - **Wompi Colombia** (cuenta comercio, llaves sandbox o producción)
+  - **ePayco** (cuenta comercio, llaves de Pruebas o Producción)
   - **Vercel** (para deploys)
 
 ### 1.2 Clonar y dependencias
@@ -63,12 +65,17 @@ SUPABASE_ACCESS_TOKEN=<PAT generado en supabase.com/dashboard/account/tokens>
 # --- Storage (público) ---
 NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET=summit-media
 
-# --- Wompi (PEGAR ESTOS PARA QUE FUNCIONE CHECKOUT) ---
-WOMPI_ENV=test
-WOMPI_PUBLIC_KEY=pub_test_xxx
-WOMPI_PRIVATE_KEY=prv_test_xxx
-WOMPI_INTEGRITY_SECRET=test_integrity_xxx
-WOMPI_EVENTS_SECRET=test_events_xxx
+# --- ePayco (PEGAR ESTOS PARA QUE FUNCIONE CHECKOUT) ---
+# Mapeo nombres ePayco → env vars:
+#   P_CUST_ID_CLIENTE → EPAYCO_CUSTOMER_ID
+#   PUBLIC_KEY        → EPAYCO_PUBLIC_KEY
+#   PRIVATE_KEY       → EPAYCO_PRIVATE_KEY
+#   P_KEY             → EPAYCO_P_KEY
+EPAYCO_TEST_MODE=true
+EPAYCO_CUSTOMER_ID=xxxxxxx
+EPAYCO_PUBLIC_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+EPAYCO_PRIVATE_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+EPAYCO_P_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 # --- Resend (transaccionales nuestros) ---
 RESEND_API_KEY=re_xxx
@@ -89,7 +96,7 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000   # dev
 | `SUPABASE_SERVICE_ROLE_KEY` | Igual (debajo, "service_role secret", click ojo) |
 | `SUPABASE_PROJECT_REF` | Igual (URL del proyecto) o `Settings → General → Reference ID` |
 | `SUPABASE_ACCESS_TOKEN` | https://supabase.com/dashboard/account/tokens → Generate token |
-| `WOMPI_*` | Dashboard Wompi → **Desarrolladores → Llaves API** |
+| `EPAYCO_*` | Dashboard ePayco → **Integraciones → Llaves API** (modo activo arriba derecha) |
 | `RESEND_API_KEY` | Dashboard Resend → API Keys |
 
 ### 1.4 Aplicar migraciones de Supabase
@@ -151,19 +158,25 @@ Password: <RESEND_API_KEY>
 Sender:   LinkU Summit <noreply@linkusummit.com>
 ```
 
-### 1.7 Configurar webhook de Wompi
+### 1.7 Configurar webhook de ePayco
 
-Cuando tengas las llaves de Wompi en `.env.local`:
+El **URL de confirmación** se envía en cada transacción como `p_url_confirmation`
+desde nuestro propio checkout (`app/[locale]/checkout/page.tsx`). No requiere
+configuración por separado en el dashboard de ePayco para sandbox; ePayco lo
+toma del form de cada transacción.
 
-Dashboard Wompi → **Eventos → Agregar URL**:
-- URL: `https://linkusummit.com/api/webhooks/wompi` (prod) o tu URL de Vercel preview
-- Evento: `transaction.updated`
+Para probar en **localhost**, ePayco NO puede llegar a `http://localhost:3000`,
+así que hay que exponerlo con ngrok o similar y poner la URL pública en
+`NEXT_PUBLIC_SITE_URL`:
 
-Para probar en **localhost**, expón con ngrok o similar:
 ```powershell
 npx ngrok http 3000
-# usa la URL https://xxxx.ngrok.io/api/webhooks/wompi
+# copia la URL https://xxxx.ngrok.io y ponla en NEXT_PUBLIC_SITE_URL del .env.local
+# el checkout enviará p_url_confirmation = https://xxxx.ngrok.io/api/webhooks/epayco
 ```
+
+En **producción** funciona sin configuración adicional: el form ya envía
+`https://linkusummit.com/api/webhooks/epayco`.
 
 ### 1.8 Redirect URLs en Supabase Auth
 
@@ -199,8 +212,8 @@ linku_summit/
 │   │   ├── me/                    ← cuenta del usuario + QR
 │   │   ├── auth/callback/         ← exchange code → session
 │   │   └── checkout/
-│   │       ├── page.tsx           ← crea orden pending + firma Wompi
-│   │       ├── PaymentButton.tsx  ← form POST a checkout.wompi.co
+│   │       ├── page.tsx           ← crea orden pending + firma ePayco
+│   │       ├── PaymentButton.tsx  ← form POST a secure.epayco.co
 │   │       ├── error.tsx          ← error boundary
 │   │       └── success/           ← post-pago con polling
 │   ├── admin/                     ← backoffice (sin i18n)
@@ -214,7 +227,7 @@ linku_summit/
 │   │       ├── new/page.tsx
 │   │       └── [id]/page.tsx
 │   ├── api/
-│   │   ├── webhooks/wompi/route.ts ← procesa eventos Wompi
+│   │   ├── webhooks/epayco/route.ts ← procesa confirmaciones ePayco
 │   │   └── orders/status/route.ts  ← GET status para polling
 │   ├── layout.tsx                  ← root, <html lang> dinámico
 │   ├── globals.css
@@ -235,7 +248,7 @@ linku_summit/
 │   ├── seo/structured-data.ts
 │   ├── supabase/{client,server,middleware}.ts
 │   ├── tickets.ts                  ← lee ticket_tiers de DB
-│   ├── wompi/{config,signatures}.ts
+│   ├── epayco/{config,signatures}.ts
 │   ├── qr/{sign,render}.ts
 │   └── email/{send,templates}.ts
 ├── public/
@@ -268,8 +281,8 @@ linku_summit/
 
 **Lo que falta validar:**
 - Después de reiniciar dev server, click en el tier desde la landing debe llevar a `/checkout?tier=early-access` (no a `/checkout` puro).
-- Si el usuario llega y Wompi NO está configurado (env vars faltantes) → muestra mensaje "La pasarela de pago aún no está configurada".
-- Si Wompi SÍ está configurado pero algo falla, captura `app/[locale]/checkout/error.tsx`.
+- Si el usuario llega y ePayco NO está configurado (env vars faltantes) → muestra mensaje "La pasarela de pago aún no está configurada".
+- Si ePayco SÍ está configurado pero algo falla, captura `app/[locale]/checkout/error.tsx`.
 
 **Cómo verificar:**
 ```powershell
@@ -281,22 +294,23 @@ npm run dev
 
 Si sigue 404, revisar `cta_href` del tier en `/admin/tiers` — debe ser `/checkout` (y el código le pegará el `?tier=` automáticamente) o `/checkout?tier=<slug>` explícito.
 
-### 3.2 Wompi: NO funcional end-to-end
+### 3.2 ePayco: NO funcional end-to-end
 
-Las 4 env vars (`WOMPI_PUBLIC_KEY`, `WOMPI_PRIVATE_KEY`, `WOMPI_INTEGRITY_SECRET`, `WOMPI_EVENTS_SECRET`) **NO están en `.env.local`**.
+Las 4 env vars (`EPAYCO_CUSTOMER_ID`, `EPAYCO_PUBLIC_KEY`, `EPAYCO_PRIVATE_KEY`, `EPAYCO_P_KEY`) **NO están en `.env.local`**.
 
 Hasta que se peguen:
 - `/checkout?tier=...` muestra "La pasarela de pago aún no está configurada".
-- El botón "Pagar con Wompi" no aparece.
-- El webhook `/api/webhooks/wompi` existe pero no recibe nada.
+- El botón "Pagar con ePayco" no aparece.
+- El webhook `/api/webhooks/epayco` existe pero no recibe nada.
 
 **Para activar:**
-1. Pegar las 4 llaves en `.env.local`.
-2. Pegar `SUPABASE_SERVICE_ROLE_KEY` (el webhook lo necesita para escribir sin sesión).
-3. Pegar `QR_HMAC_SECRET` (mín. 32 chars random).
-4. Pegar `NEXT_PUBLIC_SITE_URL`.
-5. Reiniciar `npm run dev`.
-6. Probar flujo completo con tarjeta sandbox `4242 4242 4242 4242` / CVC `123` / fecha futura.
+1. Aplicar migración 0008 (`node scripts/run-migrations.mjs`) — renombra `orders.wompi_reference` → `payment_reference` y `wompi_transaction_id` → `payment_provider_id`.
+2. Pegar las 4 llaves de ePayco en `.env.local` (+ `EPAYCO_TEST_MODE=true`).
+3. Pegar `SUPABASE_SERVICE_ROLE_KEY` (el webhook lo necesita para escribir sin sesión).
+4. Pegar `QR_HMAC_SECRET` (mín. 32 chars random).
+5. Pegar `NEXT_PUBLIC_SITE_URL`.
+6. Reiniciar `npm run dev`.
+7. Probar flujo completo con tarjeta sandbox ePayco `4575 6231 8229 0326` / CVV `123` / fecha futura.
 
 ### 3.3 Cache de webpack en Next dev tras reorganizaciones grandes
 
@@ -341,13 +355,13 @@ taskkill /PID <pid> /F
 
 **Flujo:**
 1. User logueado va a `/checkout?tier=<slug>`.
-2. Server crea fila en `orders` con `status='pending'`, `wompi_reference=LSUMMIT26-XXX-YYY` único, `total_cop=<precio del tier>`.
-3. Calcula firma SHA256 de integridad (`reference + cents + COP + secret`).
-4. Renderiza form HTML con los campos requeridos por Wompi Web Checkout.
-5. Click "Pagar" → form POST a `https://checkout.wompi.co/p/`.
-6. Wompi procesa → redirige a `redirect-url` (= `/checkout/success?ref=<reference>`).
-7. En paralelo, Wompi llama al webhook `/api/webhooks/wompi`.
-8. Webhook verifica firma con `WOMPI_EVENTS_SECRET`, busca orden por `wompi_reference`, marca `paid`, emite `tickets_issued` con QR firmado HMAC, dispara email con Resend.
+2. Server crea fila en `orders` con `status='pending'`, `payment_reference=LSUMMIT26-XXX-YYY` único, `total_cop=<precio del tier>`.
+3. Calcula firma SHA256 (`p_cust_id_cliente^p_key^p_id_invoice^p_amount^p_currency_code`).
+4. Renderiza form HTML con los campos requeridos por el Checkout estándar de ePayco.
+5. Click "Pagar" → form POST a `https://secure.epayco.co/checkout.php`.
+6. ePayco procesa → redirige a `p_url_response` (= `/checkout/success?ref=<reference>`).
+7. En paralelo, ePayco llama al webhook `/api/webhooks/epayco` (= `p_url_confirmation`).
+8. Webhook verifica `x_signature` con `EPAYCO_P_KEY`, busca orden por `payment_reference` (= `x_id_invoice`), mapea `x_cod_response` a estado, marca `paid`, emite `tickets_issued` con QR firmado HMAC, dispara email con Resend.
 9. La página `success` polla `/api/orders/status` cada 4s → cuando ve `paid` hace `router.refresh()` → muestra confirmación.
 
 **El QR es la URL `/staff/scan?t=<ticketId.HMAC>`.** Cuando portería esté implementada, escanea, llama a `/api/staff/scan` que valida HMAC y marca `used_at`.
@@ -372,8 +386,8 @@ taskkill /PID <pid> /F
 
 ## 5. Roadmap pendiente (en orden sugerido)
 
-1. **Activar Wompi end-to-end** — pegar 4 env vars + service role + QR secret + site URL. Probar flujo completo en sandbox.
-2. **Configurar webhook de Wompi en su dashboard** apuntando a `https://linkusummit.com/api/webhooks/wompi`.
+1. **Activar ePayco end-to-end** — aplicar migración 0008 + pegar 4 env vars de ePayco + service role + QR secret + site URL. Probar flujo completo en sandbox con tarjeta de prueba.
+2. **Verificar webhook en producción** — ePayco toma la URL de cada `p_url_confirmation` por transacción; en sandbox/local hay que usar ngrok.
 3. **Portería QR**: `/staff/scan` PWA-like responsive con cámara, endpoint `/api/staff/scan` con validación HMAC y marca `used_at`. Sub-rol `gate_staff` en perfiles.
 4. **Admin: ventas y usuarios** — listas filtrables, export CSV. La data ya está en DB.
 5. **Agenda de citas 1:1** — el módulo más grande (~5 semanas). Schema nuevo: `meeting_slots`, `meeting_requests`, OAuth de Google Calendar y Microsoft Graph.
@@ -389,7 +403,7 @@ taskkill /PID <pid> /F
 - **Solo COP**, sin USD/EUR.
 - **Bilingüe ES + EN** desde inicio, no agregar idiomas más adelante sin refactor.
 - **PWA web responsive para portería**, no app nativa.
-- **Web Checkout (redirect)** de Wompi para MVP, no Widget embedded. Migrable después.
+- **Checkout estándar (redirect)** de ePayco para MVP, no Onpage (modal) ni API directa. Migrable después.
 - **Agente IA Haiku 4.5** con cap USD $20/mes, prompt caching del knowledge base.
 - **Resend** como único proveedor de email (transaccionales + masivos + SMTP de Auth).
 - **Solo web** por ahora, sin WhatsApp Business API.
