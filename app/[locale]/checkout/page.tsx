@@ -14,7 +14,9 @@ import {
   signCheckout,
   generateOrderReference
 } from '@/lib/epayco/signatures';
+import { validateCoupon } from '@/lib/coupons';
 import PaymentButton from './PaymentButton';
+import CouponBox from './CouponBox';
 
 export const metadata = {
   title: 'Checkout · LINKU SUMMIT 2026',
@@ -34,6 +36,14 @@ const COPY = {
     secureCheckout:
       'Pago seguro procesado por ePayco · Tarjeta, PSE, Nequi, Daviplata, Efecty.',
     youPay: 'Total a pagar',
+    subtotal: 'Subtotal',
+    discount: 'Descuento',
+    couponLabel: '¿Tienes un código de descuento?',
+    couponPlaceholder: 'INGRESA TU CÓDIGO',
+    couponApply: 'Aplicar',
+    couponRemove: 'Quitar cupón',
+    couponApplied: 'Cupón aplicado:',
+    couponInvalid: 'Cupón no válido',
     sandboxNote:
       'Modo PRUEBA: ningún cobro real se procesará. Usa la tarjeta de prueba 4575 6231 8229 0326.'
   },
@@ -49,6 +59,14 @@ const COPY = {
     secureCheckout:
       'Secure payment by ePayco · Card, PSE, Nequi, Daviplata, Efecty.',
     youPay: 'Total to pay',
+    subtotal: 'Subtotal',
+    discount: 'Discount',
+    couponLabel: 'Have a discount code?',
+    couponPlaceholder: 'ENTER YOUR CODE',
+    couponApply: 'Apply',
+    couponRemove: 'Remove coupon',
+    couponApplied: 'Coupon applied:',
+    couponInvalid: 'Invalid coupon',
     sandboxNote:
       'TEST mode: no real charge will be processed. Use test card 4575 6231 8229 0326.'
   }
@@ -59,7 +77,7 @@ export default async function CheckoutPage({
   searchParams
 }: {
   params: { locale: Locale };
-  searchParams: { tier?: string };
+  searchParams: { tier?: string; coupon?: string };
 }) {
   const t = COPY[params.locale];
 
@@ -114,17 +132,39 @@ export default async function CheckoutPage({
     );
   }
 
+  // Cupón opcional vía query param
+  let discountCop = 0;
+  let appliedCouponCode: string | null = null;
+  const couponInput = searchParams.coupon?.trim();
+  if (couponInput) {
+    const validation = await validateCoupon({
+      code: couponInput,
+      tierSlug: tier.slug,
+      subtotalCop: tier.priceCop
+    });
+    if (validation.ok) {
+      discountCop = validation.discountCop;
+      appliedCouponCode = validation.coupon.code;
+    }
+    // Si no es válido, lo ignoramos silenciosamente — el UI ya
+    // mostró el error al usuario antes de redirigir aquí.
+  }
+
+  const subtotalCop = tier.priceCop;
+  const totalCop = subtotalCop - discountCop;
+
   // Crear orden pendiente — referencia única (p_id_invoice)
   const reference = generateOrderReference();
-  const amount = tier.priceCop; // ePayco usa unidades de moneda enteras (no centavos)
+  const amount = totalCop; // ePayco usa unidades de moneda enteras (no centavos)
   const currency = 'COP';
 
   const { error: insertErr } = await supabase.from('orders').insert({
     user_id: user.id,
     ticket_tier: tier.slug,
-    subtotal_cop: tier.priceCop,
-    discount_cop: 0,
-    total_cop: tier.priceCop,
+    subtotal_cop: subtotalCop,
+    discount_cop: discountCop,
+    total_cop: totalCop,
+    coupon_code: appliedCouponCode,
     status: 'pending',
     payment_reference: reference
   });
@@ -221,16 +261,57 @@ export default async function CheckoutPage({
               )}
             </div>
             <p className="text-lg font-bold tabular-nums text-linku-text">
-              {formatCop(tier.priceCop)}
+              {formatCop(subtotalCop)}
             </p>
           </div>
 
-          <div className="mt-5 flex items-center justify-between">
+          <div className="mt-5">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-linku-text-muted">
+              {t.couponLabel}
+            </p>
+            <CouponBox
+              tier={tier.slug}
+              subtotalCop={subtotalCop}
+              appliedCode={appliedCouponCode}
+              appliedDiscountCop={discountCop}
+              copy={{
+                placeholder: t.couponPlaceholder,
+                apply: t.couponApply,
+                remove: t.couponRemove,
+                applied: t.couponApplied,
+                invalid: t.couponInvalid
+              }}
+            />
+          </div>
+
+          {discountCop > 0 && (
+            <div className="mt-5 flex items-center justify-between text-sm">
+              <span className="text-linku-text-muted">{t.subtotal}</span>
+              <span className="tabular-nums text-linku-text-muted">
+                {formatCop(subtotalCop)}
+              </span>
+            </div>
+          )}
+          {discountCop > 0 && (
+            <div className="mt-1.5 flex items-center justify-between text-sm">
+              <span className="text-emerald-300">
+                {t.discount}{' '}
+                {appliedCouponCode && (
+                  <code className="ml-1 font-mono text-xs">({appliedCouponCode})</code>
+                )}
+              </span>
+              <span className="tabular-nums text-emerald-300">
+                − {formatCop(discountCop)}
+              </span>
+            </div>
+          )}
+
+          <div className="mt-5 flex items-center justify-between border-t border-linku-border pt-4">
             <span className="text-xs font-semibold uppercase tracking-[0.18em] text-linku-text-muted">
               {t.youPay}
             </span>
             <span className="text-2xl font-bold tracking-tightish tabular-nums text-linku-coral">
-              {formatCop(tier.priceCop)}
+              {formatCop(totalCop)}
             </span>
           </div>
 

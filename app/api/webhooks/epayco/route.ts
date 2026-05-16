@@ -129,6 +129,33 @@ export async function POST(request: NextRequest) {
       })
       .eq('id', order.id);
 
+    // Si la orden usó un cupón, registrar redención + incrementar contador.
+    // El unique(order_id) en coupon_redemptions previene doble-registro si
+    // el webhook llega dos veces.
+    if (order.coupon_code && order.discount_cop > 0) {
+      const { data: coupon } = await sb
+        .from('coupons')
+        .select('id')
+        .eq('code', order.coupon_code)
+        .maybeSingle();
+
+      if (coupon) {
+        const { error: redErr } = await sb.from('coupon_redemptions').insert({
+          coupon_id: coupon.id,
+          order_id: order.id,
+          user_id: order.user_id,
+          code_snapshot: order.coupon_code,
+          discount_cop: order.discount_cop
+        });
+        // Si ya existía (segundo webhook), no incrementamos contador.
+        if (!redErr) {
+          await sb.rpc('increment_coupon_uses', { coupon_id: coupon.id });
+        } else if (redErr.code !== '23505') {
+          console.error('Error registrando redemption:', redErr);
+        }
+      }
+    }
+
     // Emitir 1 ticket (MVP: 1 orden = 1 boleta).
     const { data: { user } = { user: null } } =
       await sb.auth.admin.getUserById(order.user_id);
