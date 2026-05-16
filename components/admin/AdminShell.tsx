@@ -7,6 +7,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
   Ticket,
+  Receipt,
+  TicketPercent,
   Users,
   CalendarClock,
   Mail,
@@ -28,7 +30,8 @@ type NavItem = {
 const NAV: NavItem[] = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/tiers', label: 'Entradas', icon: Ticket },
-  { href: '/admin/orders', label: 'Ventas', icon: Ticket, soon: true },
+  { href: '/admin/orders', label: 'Ventas', icon: Receipt },
+  { href: '/admin/coupons', label: 'Cupones', icon: TicketPercent },
   { href: '/admin/users', label: 'Usuarios', icon: Users, soon: true },
   { href: '/admin/meetings', label: 'Citas', icon: CalendarClock, soon: true },
   { href: '/admin/emails', label: 'Correos', icon: Mail, soon: true },
