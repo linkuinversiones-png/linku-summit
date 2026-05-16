@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { LogOut, Loader2 } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
 import { localizePath, type Locale } from '@/lib/i18n/config';
 
 export default function SignOutButton({
@@ -18,8 +17,7 @@ export default function SignOutButton({
 
   async function handleSignOut() {
     setLoading(true);
-    const supabase = createClient();
-    await supabase.auth.signOut();
+    await fetch('/api/auth/sign-out', { method: 'POST' });
     router.refresh();
     router.push(localizePath('/', locale));
   }

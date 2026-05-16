@@ -17,7 +17,6 @@ import {
   X,
   type LucideIcon
 } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
 
 type NavItem = {
   href: string;
@@ -53,8 +52,7 @@ export default function AdminShell({
 
   async function handleSignOut() {
     setSigningOut(true);
-    const supabase = createClient();
-    await supabase.auth.signOut();
+    await fetch('/api/auth/sign-out', { method: 'POST' });
     router.refresh();
     router.push('/');
   }
