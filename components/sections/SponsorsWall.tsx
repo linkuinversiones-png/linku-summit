@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import SectionHeading from '@/components/ui/SectionHeading';
 import Reveal from '@/components/ui/Reveal';
 import { getSponsorGroups, type SponsorGroup } from '@/lib/sponsors-storage';
@@ -61,33 +60,36 @@ export default async function SponsorsWall({
           <SectionHeading eyebrow={copy.eyebrow} title={copy.title} />
         </Reveal>
 
-        <div className="mt-14 space-y-12">
+        <div className="mt-14 divide-y divide-linku-border border-t border-linku-border">
           {tiers.map((group) => (
-            <CategoryBlock key={group.category.slug} group={group} />
+            <CategoryRow key={group.category.slug} group={group} />
           ))}
         </div>
 
         {aliados && (
-          <>
-            <div className="mt-20 mb-12 border-t border-linku-border" aria-hidden />
-            <CategoryBlock group={aliados} />
-          </>
+          <div className="mt-16 border-t border-linku-border-2 pt-4">
+            <div className="divide-y divide-linku-border">
+              <CategoryRow group={aliados} />
+            </div>
+          </div>
         )}
       </div>
     </section>
   );
 }
 
-function CategoryBlock({ group }: { group: SponsorGroup }) {
+function CategoryRow({ group }: { group: SponsorGroup }) {
   return (
     <Reveal>
-      <p className="text-center text-[11px] font-bold uppercase tracking-[0.28em] text-linku-text-dim">
-        {group.title}
-      </p>
-      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
-        {group.logos.map((logo) => (
-          <LogoTile key={logo.url} name={logo.name} url={logo.url} />
-        ))}
+      <div className="grid gap-6 py-8 sm:grid-cols-[180px_1fr] sm:gap-10 sm:py-10 lg:grid-cols-[220px_1fr]">
+        <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-linku-text-dim sm:pt-1">
+          {group.title}
+        </p>
+        <div className="flex flex-wrap items-center gap-x-8 gap-y-6">
+          {group.logos.map((logo) => (
+            <LogoTile key={logo.url} name={logo.name} url={logo.url} />
+          ))}
+        </div>
       </div>
     </Reveal>
   );
@@ -95,17 +97,12 @@ function CategoryBlock({ group }: { group: SponsorGroup }) {
 
 function LogoTile({ name, url }: { name: string; url: string }) {
   return (
-    <div
-      className="group relative flex aspect-[3/2] items-center justify-center border border-linku-border bg-linku-bg-2/60 px-6 py-5 transition hover:border-linku-coral/40 hover:bg-linku-bg-2"
+    /* eslint-disable-next-line @next/next/no-img-element */
+    <img
+      src={url}
+      alt={name}
       title={name}
-    >
-      <Image
-        src={url}
-        alt={name}
-        fill
-        sizes="(max-width:640px) 50vw, (max-width:1024px) 33vw, 25vw"
-        className="object-contain p-6 brightness-0 invert opacity-70 transition group-hover:opacity-100"
-      />
-    </div>
+      className="h-8 w-auto max-w-[140px] object-contain brightness-0 invert opacity-60 transition hover:opacity-100 sm:h-10"
+    />
   );
 }
