@@ -1,5 +1,5 @@
 import Reveal from '@/components/ui/Reveal';
-import { getSponsorGroups, type SponsorGroup } from '@/lib/sponsors-storage';
+import { getSponsorGroups, type SponsorGroup } from '@/lib/sponsors';
 import type { Locale } from '@/lib/i18n/config';
 import CoralButton from '@/components/ui/CoralButton';
 
@@ -136,14 +136,17 @@ function CategoryRow({ group }: { group: SponsorGroup }) {
           {group.title}
         </p>
         <div className={`flex flex-wrap items-center ${gap}`}>
-          {group.logos.map((logo) => (
-            <LogoTile
-              key={logo.url}
-              name={logo.name}
-              url={logo.url}
-              sizeClass={size}
-            />
-          ))}
+          {group.logos.map((logo) =>
+            logo.logoUrl ? (
+              <LogoTile
+                key={logo.id}
+                name={logo.name}
+                url={logo.logoUrl}
+                href={logo.websiteUrl ?? logo.linkedinUrl}
+                sizeClass={size}
+              />
+            ) : null
+          )}
         </div>
       </div>
     </Reveal>
@@ -153,13 +156,15 @@ function CategoryRow({ group }: { group: SponsorGroup }) {
 function LogoTile({
   name,
   url,
+  href,
   sizeClass
 }: {
   name: string;
   url: string;
+  href: string | null;
   sizeClass: string;
 }) {
-  return (
+  const img = (
     /* eslint-disable-next-line @next/next/no-img-element */
     <img
       src={url}
@@ -167,5 +172,11 @@ function LogoTile({
       title={name}
       className={`w-auto object-contain brightness-0 invert opacity-60 transition hover:opacity-100 ${sizeClass}`}
     />
+  );
+  if (!href) return img;
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer" aria-label={name}>
+      {img}
+    </a>
   );
 }
