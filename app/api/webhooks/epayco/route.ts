@@ -4,7 +4,7 @@ import {
   verifyConfirmationSignature,
   mapResponseCodeToStatus
 } from '@/lib/epayco/signatures';
-import { renderTicketQrDataUrl } from '@/lib/qr/render';
+import { uploadTicketQr } from '@/lib/qr/upload';
 import { sendEmail } from '@/lib/email/send';
 import { ticketConfirmedEmail } from '@/lib/email/templates';
 import type { Locale } from '@/lib/i18n/config';
@@ -181,14 +181,20 @@ export async function POST(request: NextRequest) {
         : tierRow?.name_en ?? order.ticket_tier;
 
     if (attendeeEmail) {
-      const qrDataUrl = await renderTicketQrDataUrl(ticket.id);
+      let qrUrl: string;
+      try {
+        qrUrl = await uploadTicketQr(sb, ticket.id);
+      } catch (e) {
+        console.error('Error subiendo QR a Storage:', e);
+        qrUrl = ''; // el email se manda igual, sin QR visible (degradación graceful)
+      }
       const { subject, html } = ticketConfirmedEmail({
         locale,
         attendeeName: attendeeName || attendeeEmail,
         orderRef: order.payment_reference,
         totalCop: formatCop(order.total_cop),
         tickets: [
-          { qrDataUrl, tierName, qrCodeShort: ticket.qr_code.slice(0, 8) }
+          { qrDataUrl: qrUrl, tierName, qrCodeShort: ticket.qr_code.slice(0, 8) }
         ]
       });
       const result = await sendEmail({ to: attendeeEmail, subject, html });
