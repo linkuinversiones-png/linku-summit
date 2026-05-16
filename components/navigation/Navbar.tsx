@@ -49,6 +49,14 @@ export default function Navbar({ isLoggedIn = false, locale, ui }: Props) {
     };
   }, [open]);
 
+  // Cierra el menú al cambiar la URL hash (ancla de sección).
+  // Garantiza el cierre aunque el onClick no alcance a procesarse.
+  useEffect(() => {
+    const close = () => setOpen(false);
+    window.addEventListener('hashchange', close);
+    return () => window.removeEventListener('hashchange', close);
+  }, []);
+
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition duration-300 ${
@@ -116,7 +124,7 @@ export default function Navbar({ isLoggedIn = false, locale, ui }: Props) {
 
       {/* Mobile drawer */}
       <div
-        className={`fixed inset-0 z-50 bg-linku-bg/95 backdrop-blur-2xl transition lg:hidden ${
+        className={`fixed inset-0 z-50 bg-linku-bg transition lg:hidden ${
           open ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
         }`}
       >
@@ -153,7 +161,7 @@ export default function Navbar({ isLoggedIn = false, locale, ui }: Props) {
               {l.label}
             </a>
           ))}
-          <div className="mt-6 flex flex-col gap-3">
+          <div className="mt-6 flex flex-col gap-3" onClick={() => setOpen(false)}>
             {isLoggedIn ? (
               <OutlineButton href={meHref} size="lg">
                 <UserCircle2 size={18} /> {ui.account}
