@@ -4,7 +4,7 @@ import { useFormState, useFormStatus } from 'react-dom';
 import Link from 'next/link';
 import { Loader2, Save, ArrowLeft, Linkedin, Globe } from 'lucide-react';
 import type { SponsorRow } from '@/lib/sponsors';
-import { SPONSOR_CATEGORIES } from '@/lib/sponsors';
+import { SPONSOR_CATEGORIES } from '@/lib/sponsors-constants';
 import type { SponsorActionResult } from './actions';
 
 type Action = (

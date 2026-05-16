@@ -1,6 +1,12 @@
 import { createClient } from '@/lib/supabase/server';
 import { getImageUrl } from '@/lib/storage';
 import type { Locale } from '@/lib/i18n/config';
+import { SPONSOR_CATEGORIES, type SponsorCategory } from '@/lib/sponsors-constants';
+
+// Re-export para que el resto del código que ya importaba desde aquí
+// siga funcionando sin cambios.
+export { SPONSOR_CATEGORIES };
+export type { SponsorCategory };
 
 export type SponsorRow = {
   id: string;
@@ -15,24 +21,6 @@ export type SponsorRow = {
   created_at: string;
   updated_at: string;
 };
-
-export type SponsorCategory = {
-  slug: string;
-  titleEs: string;
-  titleEn: string;
-  aliado?: boolean;
-};
-
-export const SPONSOR_CATEGORIES: SponsorCategory[] = [
-  { slug: 'series-c', titleEs: 'Series C Sponsors', titleEn: 'Series C Sponsors' },
-  { slug: 'series-b', titleEs: 'Series B Sponsors', titleEn: 'Series B Sponsors' },
-  { slug: 'series-a', titleEs: 'Series A Sponsors', titleEn: 'Series A Sponsors' },
-  { slug: 'pre-series-a', titleEs: 'Pre-Series A Sponsors', titleEn: 'Pre-Series A Sponsors' },
-  { slug: 'seed', titleEs: 'Seed Sponsors', titleEn: 'Seed Sponsors' },
-  { slug: 'pre-seed', titleEs: 'Pre-Seed Sponsors', titleEn: 'Pre-Seed Sponsors' },
-  { slug: 'angel', titleEs: 'Angel Sponsors', titleEn: 'Angel Sponsors' },
-  { slug: 'aliados', titleEs: 'Aliados', titleEn: 'Partners', aliado: true }
-];
 
 export type PublicSponsor = {
   id: string;
