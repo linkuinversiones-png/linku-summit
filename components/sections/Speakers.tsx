@@ -2,19 +2,10 @@ import SectionHeading from '@/components/ui/SectionHeading';
 import Reveal from '@/components/ui/Reveal';
 import SpeakerCard from '@/components/ui/SpeakerCard';
 import type { UiContent } from '@/lib/i18n/content';
-
-type Speaker = {
-  id: string;
-  name: string;
-  role: string;
-  company: string;
-  track: string;
-  avatar: string | null;
-  confirmed: boolean;
-};
+import type { PublicSpeaker } from '@/lib/speakers';
 
 type Props = {
-  speakers: Speaker[];
+  speakers: PublicSpeaker[];
   ui: UiContent['speakers'];
 };
 

@@ -32,6 +32,7 @@ const NAV: NavItem[] = [
   { href: '/admin/tiers', label: 'Entradas', icon: Ticket },
   { href: '/admin/orders', label: 'Ventas', icon: Receipt },
   { href: '/admin/coupons', label: 'Cupones', icon: TicketPercent },
+  { href: '/admin/speakers', label: 'Speakers', icon: Users },
   { href: '/admin/users', label: 'Usuarios', icon: Users, soon: true },
   { href: '/admin/meetings', label: 'Citas', icon: CalendarClock, soon: true },
   { href: '/admin/emails', label: 'Correos', icon: Mail, soon: true },

@@ -2,17 +2,8 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
-import { getImageUrl } from '@/lib/storage';
-
-type Speaker = {
-  id: string;
-  name: string;
-  role: string;
-  company: string;
-  track: string;
-  avatar: string | null;
-  confirmed: boolean;
-};
+import { Linkedin } from 'lucide-react';
+import type { PublicSpeaker } from '@/lib/speakers';
 
 function initials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -25,15 +16,14 @@ export default function SpeakerCard({
   speaker,
   tbdLabel = 'Por confirmar'
 }: {
-  speaker: Speaker;
+  speaker: PublicSpeaker;
   tbdLabel?: string;
 }) {
   const [imgFailed, setImgFailed] = useState(false);
-  const resolvedAvatar = getImageUrl(speaker.avatar);
-  const showPlaceholder = !resolvedAvatar || !speaker.confirmed || imgFailed;
+  const showPlaceholder = !speaker.avatarUrl || !speaker.confirmed || imgFailed;
 
   return (
-    <article className="linku-card group overflow-hidden">
+    <article className="linku-card group relative overflow-hidden">
       <div className="relative aspect-square w-full overflow-hidden rounded-t-[20px] bg-linku-bg-3">
         {showPlaceholder ? (
           <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-linku-bg-3 to-linku-bg-2">
@@ -66,13 +56,26 @@ export default function SpeakerCard({
           </div>
         ) : (
           <Image
-            src={resolvedAvatar as string}
+            src={speaker.avatarUrl as string}
             alt={speaker.name}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className="object-cover transition-all duration-500 [filter:url(#linku-duotone)] group-hover:scale-[1.03] group-hover:[filter:none]"
             onError={() => setImgFailed(true)}
           />
+        )}
+
+        {speaker.linkedinUrl && (
+          <a
+            href={speaker.linkedinUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`LinkedIn de ${speaker.name}`}
+            className="absolute right-3 top-3 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full bg-linku-bg/85 text-linku-text backdrop-blur-sm ring-1 ring-white/10 transition hover:bg-linku-coral hover:text-white"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Linkedin size={14} />
+          </a>
         )}
       </div>
       <div className="px-5 py-4">
