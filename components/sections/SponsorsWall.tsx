@@ -94,16 +94,55 @@ export default async function SponsorsWall({
   );
 }
 
+/**
+ * Tamaño de logos según jerarquía del tier.
+ * Series C / Aliados: los más grandes (sponsors top + partners institucionales).
+ * Series B → Angel: escalación descendente.
+ */
+const SIZE_BY_SLUG: Record<string, string> = {
+  'series-c': 'h-14 max-w-[180px] sm:h-16 sm:max-w-[200px]',
+  'series-b': 'h-12 max-w-[160px] sm:h-14 sm:max-w-[180px]',
+  'series-a': 'h-10 max-w-[140px] sm:h-12 sm:max-w-[160px]',
+  'pre-series-a': 'h-9 max-w-[125px] sm:h-10 sm:max-w-[140px]',
+  seed: 'h-8 max-w-[110px] sm:h-9 sm:max-w-[125px]',
+  'pre-seed': 'h-7 max-w-[100px] sm:h-8 sm:max-w-[115px]',
+  angel: 'h-6 max-w-[90px] sm:h-7 sm:max-w-[105px]',
+  aliados: 'h-14 max-w-[180px] sm:h-16 sm:max-w-[200px]'
+};
+
+const DEFAULT_SIZE = 'h-9 max-w-[120px] sm:h-10 sm:max-w-[140px]';
+
+/**
+ * Gap entre logos: mayor en tiers grandes para que respiren.
+ */
+const GAP_BY_SLUG: Record<string, string> = {
+  'series-c': 'gap-x-10 gap-y-7',
+  'series-b': 'gap-x-9 gap-y-6',
+  'series-a': 'gap-x-8 gap-y-6',
+  'pre-series-a': 'gap-x-7 gap-y-5',
+  seed: 'gap-x-6 gap-y-5',
+  'pre-seed': 'gap-x-5 gap-y-4',
+  angel: 'gap-x-5 gap-y-4',
+  aliados: 'gap-x-10 gap-y-7'
+};
+
 function CategoryRow({ group }: { group: SponsorGroup }) {
+  const size = SIZE_BY_SLUG[group.category.slug] ?? DEFAULT_SIZE;
+  const gap = GAP_BY_SLUG[group.category.slug] ?? 'gap-x-7 gap-y-5';
   return (
     <Reveal>
       <div className="grid gap-5 py-7 sm:grid-cols-[160px_1fr] sm:gap-8 sm:py-9 lg:grid-cols-[180px_1fr]">
         <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-linku-text-dim sm:pt-1">
           {group.title}
         </p>
-        <div className="flex flex-wrap items-center gap-x-7 gap-y-5">
+        <div className={`flex flex-wrap items-center ${gap}`}>
           {group.logos.map((logo) => (
-            <LogoTile key={logo.url} name={logo.name} url={logo.url} />
+            <LogoTile
+              key={logo.url}
+              name={logo.name}
+              url={logo.url}
+              sizeClass={size}
+            />
           ))}
         </div>
       </div>
@@ -111,14 +150,22 @@ function CategoryRow({ group }: { group: SponsorGroup }) {
   );
 }
 
-function LogoTile({ name, url }: { name: string; url: string }) {
+function LogoTile({
+  name,
+  url,
+  sizeClass
+}: {
+  name: string;
+  url: string;
+  sizeClass: string;
+}) {
   return (
     /* eslint-disable-next-line @next/next/no-img-element */
     <img
       src={url}
       alt={name}
       title={name}
-      className="h-8 w-auto max-w-[120px] object-contain brightness-0 invert opacity-60 transition hover:opacity-100 sm:h-9"
+      className={`w-auto object-contain brightness-0 invert opacity-60 transition hover:opacity-100 ${sizeClass}`}
     />
   );
 }
