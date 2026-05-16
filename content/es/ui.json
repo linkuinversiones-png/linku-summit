@@ -153,19 +153,11 @@
     "titleA": "Dos formas de estar",
     "titleB": "en la sala."
   },
-  "sponsorship": {
-    "eyebrow": "Sponsorship",
-    "titleA": "Pon tu marca donde",
-    "titleB": "se mueve el capital.",
-    "lead": "Tres tiers principales más Branding Esencial y add-ons. Armamos el paquete a medida.",
-    "essentialEyebrow": "Branding Esencial",
-    "addonsEyebrow": "Add-ons",
-    "addonsTitle": "Activaciones a medida."
-  },
-  "sponsorsConfirmed": {
-    "eyebrow": "Sponsors confirmados",
+  "sponsors": {
+    "eyebrow": "Sponsors",
     "title": "Quién está adentro.",
     "emptyTitle": "Anunciamos sponsors pronto.",
+    "emptyLead": "Estamos cerrando alianzas con los fondos y compañías que mueven el capital LATAM. Si quieres estar acá, escríbenos.",
     "emptyCta": "Quiero ser sponsor",
     "emptyCtaSubject": "Sponsorship — LinkU Summit 2026"
   },

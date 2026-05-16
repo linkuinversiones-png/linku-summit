@@ -27,8 +27,7 @@ import Agenda from '@/components/sections/Agenda';
 import Speakers from '@/components/sections/Speakers';
 import Partners from '@/components/sections/Partners';
 import Tickets from '@/components/sections/Tickets';
-import Sponsorship from '@/components/sections/Sponsorship';
-import SponsorsConfirmed from '@/components/sections/SponsorsConfirmed';
+import SponsorsWall from '@/components/sections/SponsorsWall';
 import WhyLinkU from '@/components/sections/WhyLinkU';
 import FinalCTA from '@/components/sections/FinalCTA';
 import FAQ from '@/components/sections/FAQ';
@@ -60,11 +59,10 @@ export default async function HomePage({
   const c = getContent(params.locale);
   const ui = c.ui;
 
-  // Combinamos: intro y sponsorship vienen del JSON; tiers vienen de DB.
+  // Tiers vienen de DB; el copy de intro viene del JSON.
   const ticketsForView = {
     intro: c.tickets.intro,
-    tiers: dbTiers,
-    sponsorship: c.tickets.sponsorship
+    tiers: dbTiers
   };
 
   const eventLd = eventJsonLd(
@@ -111,8 +109,18 @@ export default async function HomePage({
         <Experience items={c.site.experience} ui={ui.experience} />
         <Partners partners={c.partners} ui={ui.partners} />
         <Tickets tickets={ticketsForView} ui={ui.tickets} />
-        <Sponsorship sponsorship={c.tickets.sponsorship} ui={ui.sponsorship} />
-        <SponsorsConfirmed sponsors={c.sponsors} ui={ui.sponsorsConfirmed} />
+        <SponsorsWall
+          locale={params.locale}
+          copy={{
+            eyebrow: ui.sponsors.eyebrow,
+            title: ui.sponsors.title,
+            emptyTitle: ui.sponsors.emptyTitle,
+            emptyLead: ui.sponsors.emptyLead,
+            emptyCta: ui.sponsors.emptyCta,
+            emptyCtaSubject: ui.sponsors.emptyCtaSubject,
+            contactEmail: c.site.contacts.sponsors
+          }}
+        />
         <WhyLinkU items={c.site.whyLinkU} ui={ui.whyLinkU} />
         <FinalCTA finalCTA={c.site.finalCTA} />
         <FAQ items={c.faq} ui={ui.faq} />

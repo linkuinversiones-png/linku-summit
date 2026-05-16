@@ -153,19 +153,11 @@
     "titleA": "Two ways to be",
     "titleB": "in the room."
   },
-  "sponsorship": {
-    "eyebrow": "Sponsorship",
-    "titleA": "Put your brand where",
-    "titleB": "capital moves.",
-    "lead": "Three main tiers plus Essential Branding and add-ons. We tailor the package.",
-    "essentialEyebrow": "Essential Branding",
-    "addonsEyebrow": "Add-ons",
-    "addonsTitle": "Custom activations."
-  },
-  "sponsorsConfirmed": {
-    "eyebrow": "Confirmed sponsors",
+  "sponsors": {
+    "eyebrow": "Sponsors",
     "title": "Who's in.",
-    "emptyTitle": "Announcing sponsors soon.",
+    "emptyTitle": "Sponsors announcing soon.",
+    "emptyLead": "We're closing partnerships with the funds and companies moving LATAM capital. If you want to be here, reach out.",
     "emptyCta": "I want to sponsor",
     "emptyCtaSubject": "Sponsorship — LinkU Summit 2026"
   },
