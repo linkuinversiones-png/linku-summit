@@ -10,6 +10,7 @@ type Props = {
   site: {
     eventName: string;
     tagline: string;
+    heroLead: string;
     dateLabel: string;
     heroPill: string;
     startDate: string;
@@ -53,6 +54,10 @@ export default function Hero({ site, ui, countdownLabels }: Props) {
             {site.tagline}.
           </p>
 
+          <p className="max-w-3xl text-sm text-linku-text-dim sm:text-base lg:text-lg leading-relaxed">
+            {site.heroLead}
+          </p>
+
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm font-medium text-linku-text-muted">
             <MapPin size={16} className="text-linku-coral" />
             <span className="text-linku-text">{site.dateLabel}</span>
@@ -66,10 +71,7 @@ export default function Hero({ site, ui, countdownLabels }: Props) {
             <CoralButton href="#tickets" size="lg">
               {ui.ctaBuy} <ArrowRight size={16} />
             </CoralButton>
-            <OutlineButton
-              href={`mailto:${site.contacts.invites}?subject=${encodeURIComponent(ui.inviteSubject)}`}
-              size="lg"
-            >
+            <OutlineButton href="#agenda" size="lg">
               {ui.ctaInvite}
             </OutlineButton>
           </div>

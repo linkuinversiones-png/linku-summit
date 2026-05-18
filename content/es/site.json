@@ -1,13 +1,14 @@
 {
   "eventName": "LinkU Summit 2026",
-  "tagline": "Donde el capital real se encuentra con las oportunidades que mueven a Latinoamérica",
+  "tagline": "Dos días para entender cómo se mueve el capital en Latinoamérica",
+  "heroLead": "Educación, debate y conexión real entre inversionistas, gestores y founders. Seis clases de activo en una sola conversación.",
   "city": "Medellín",
   "country": "Colombia",
   "venue": "Por confirmar",
   "startDate": "2026-10-15T08:30:00-05:00",
   "endDate": "2026-10-16T20:00:00-05:00",
   "dateLabel": "Octubre 2026 · 2 días",
-  "heroPill": "+300 inversionistas confirmados",
+  "heroPill": "OCTUBRE 2026 · MEDELLÍN",
   "stats": [
     { "value": "300+", "label": "asistentes por invitación" },
     { "value": "6",    "label": "clases de activo" },

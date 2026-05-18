@@ -17,15 +17,15 @@
   },
   "hero": {
     "ctaBuy": "Buy ticket",
-    "ctaInvite": "Request invitation",
+    "ctaInvite": "See agenda",
     "inviteSubject": "Invitation request — LinkU Summit 2026",
     "assetClasses": [
       "Real Estate",
-      "Venture Capital",
-      "Private Equity",
-      "Sports",
-      "Private Debt",
-      "Emerging Sectors"
+      "Venture Capital & Private Equity",
+      "Public Markets",
+      "Alternatives",
+      "Crypto",
+      "Passion Assets"
     ]
   },
   "countdown": {

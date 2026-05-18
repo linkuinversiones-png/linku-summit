@@ -16,13 +16,13 @@ const META: Record<Locale, { title: string; description: string; ogLocale: strin
   es: {
     title: 'LINKU SUMMIT 2026 — La cumbre de inversión multi-activo en Medellín',
     description:
-      'Octubre 2026 · Medellín. 300+ inversionistas, 6 clases de activo, 2 días donde se mueve capital real en Latinoamérica.',
+      'Octubre 2026 · Medellín. Dos días para entender cómo se mueve el capital en Latinoamérica. Seis clases de activo en una sola conversación.',
     ogLocale: 'es_CO'
   },
   en: {
     title: 'LINKU SUMMIT 2026 — The multi-asset investment summit in Medellín',
     description:
-      'October 2026 · Medellín. 300+ investors, 6 asset classes, 2 days where real capital moves in Latin America.',
+      'October 2026 · Medellín. Two days to understand how capital moves across Latin America. Six asset classes in one conversation.',
     ogLocale: 'en_US'
   }
 };

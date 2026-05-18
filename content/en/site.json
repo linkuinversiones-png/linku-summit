@@ -1,13 +1,14 @@
 {
   "eventName": "LinkU Summit 2026",
-  "tagline": "Where real capital meets the opportunities moving Latin America",
+  "tagline": "Two days to understand how capital moves across Latin America",
+  "heroLead": "Education, debate and real connection between investors, managers and founders. Six asset classes in one conversation.",
   "city": "Medellín",
   "country": "Colombia",
   "venue": "To be announced",
   "startDate": "2026-10-15T08:30:00-05:00",
   "endDate": "2026-10-16T20:00:00-05:00",
   "dateLabel": "October 2026 · 2 days",
-  "heroPill": "+300 investors confirmed",
+  "heroPill": "OCTOBER 2026 · MEDELLÍN",
   "stats": [
     { "value": "300+", "label": "attendees by invitation" },
     { "value": "6",    "label": "asset classes" },
