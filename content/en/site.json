@@ -23,12 +23,12 @@
     "body": ""
   },
   "thesis": [
-    { "icon": "building",     "title": "Real Estate",       "desc": "The Latin American wealth core. Multifamily, BTR and cross-border vehicles." },
-    { "icon": "trending-up",  "title": "Venture Capital",   "desc": "Early and growth in LatAm. Active funds, disciplined tickets, founders executing." },
-    { "icon": "briefcase",    "title": "Private Equity",    "desc": "Mid-market buyouts, co-investments and secondaries for family offices and HNWIs." },
-    { "icon": "trophy",       "title": "Sports",            "desc": "Investing in athletes, clubs and careers. A young asset class with asymmetric returns." },
-    { "icon": "landmark",     "title": "Private Debt",      "desc": "Direct lending and venture debt with attractive yields in hard currency." },
-    { "icon": "sparkles",     "title": "Emerging Sectors",  "desc": "Tokenization, distributed energy and new alternative vehicles." }
+    { "icon": "building",    "title": "Real Estate",                   "desc": "The patrimonial core of Latin America. Multifamily, build-to-rent and cross-border vehicles redefining real estate investing across the region." },
+    { "icon": "trending-up", "title": "Venture Capital & Private Equity", "desc": "Private capital in Latam: early stage, growth, mid-market buyouts and co-investments. Active funds, disciplined tickets, executable theses." },
+    { "icon": "bar-chart",   "title": "Public Markets",                "desc": "Liquid markets and strategic allocation. Frameworks to build, rebalance and protect a multi-asset portfolio in today's environment." },
+    { "icon": "layers",      "title": "Alternatives",                  "desc": "Hedge funds, commodities, gold and private debt. Attractive yields and decorrelation for resilient portfolios." },
+    { "icon": "bitcoin",     "title": "Crypto & Digital Assets",       "desc": "Stablecoins, real-world asset tokenization and on-chain vehicles. Where traditional finance meets the digital economy." },
+    { "icon": "palette",     "title": "Passion Assets",                "desc": "Art, film, music and sports. The asset class growing double-digit annually that global family offices already hold. In Latam, it's just starting." }
   ],
   "finalCTA": {
     "title": "October 2026.",

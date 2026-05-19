@@ -23,12 +23,12 @@
     "body": ""
   },
   "thesis": [
-    { "icon": "building",     "title": "Real Estate",       "desc": "El núcleo patrimonial latinoamericano. Multifamily, BTR y vehículos cross-border." },
-    { "icon": "trending-up",  "title": "Venture Capital",   "desc": "Early y growth en Latam. Fondos activos, tickets disciplinados, founders ejecutando." },
-    { "icon": "briefcase",    "title": "Private Equity",    "desc": "Buyouts medianos, co-inversiones y secundarios para family offices y HNWI." },
-    { "icon": "trophy",       "title": "Deportes",          "desc": "Inversión en atletas, clubes y carreras. Una clase de activo joven con retornos asimétricos." },
-    { "icon": "landmark",     "title": "Deuda Privada",     "desc": "Direct lending y venture debt con yields atractivos en moneda fuerte." },
-    { "icon": "sparkles",     "title": "Emerging Sectors",  "desc": "Tokenización, energía distribuida y nuevos vehículos alternativos." }
+    { "icon": "building",    "title": "Real Estate",                   "desc": "El núcleo patrimonial latinoamericano. Multifamily, build-to-rent y vehículos cross-border que están redefiniendo la inversión inmobiliaria en la región." },
+    { "icon": "trending-up", "title": "Venture Capital & Private Equity", "desc": "Capital privado en Latam: early stage, growth, buyouts medianos y co-inversiones. Fondos activos con tickets disciplinados y tesis ejecutable." },
+    { "icon": "bar-chart",   "title": "Renta Fija y Variable",         "desc": "Mercados líquidos y allocation estratégico. Marcos para construir, rebalancear y proteger un portafolio multi-asset en el entorno actual." },
+    { "icon": "layers",      "title": "Alternativos",                  "desc": "Hedge funds, commodities, oro y deuda privada. Yields atractivos y descorrelación para portafolios que buscan resiliencia." },
+    { "icon": "bitcoin",     "title": "Cripto y Activos Digitales",    "desc": "Stablecoins, tokenización de activos reales y nuevos vehículos on-chain. La frontera entre las finanzas tradicionales y la economía digital." },
+    { "icon": "palette",     "title": "Passion Assets",                "desc": "Arte, cine, música y deportes. La clase de activo que crece a doble dígito y que los family offices globales ya tienen en su portafolio. En Latam apenas empieza." }
   ],
   "finalCTA": {
     "title": "Octubre 2026.",

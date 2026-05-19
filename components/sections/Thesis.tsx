@@ -3,6 +3,10 @@ import Reveal from '@/components/ui/Reveal';
 import {
   Building2,
   TrendingUp,
+  BarChart3,
+  Layers,
+  Bitcoin,
+  Palette,
   Briefcase,
   Trophy,
   Landmark,
@@ -16,6 +20,10 @@ type Thesis = { icon: string; title: string; desc: string };
 const ICON_MAP: Record<string, LucideIcon> = {
   building: Building2,
   'trending-up': TrendingUp,
+  'bar-chart': BarChart3,
+  layers: Layers,
+  bitcoin: Bitcoin,
+  palette: Palette,
   briefcase: Briefcase,
   trophy: Trophy,
   landmark: Landmark,
