@@ -93,27 +93,11 @@
       ]
     }
   },
-  "whyNow": {
-    "eyebrow": "Por qué ahora",
-    "titleA": "El momento no es coincidencia.",
-    "titleB": "Es lectura."
-  },
   "thesis": {
     "eyebrow": "Tesis multi-activo",
     "titleA": "Seis clases de activo.",
     "titleB": "Una sola sala.",
     "lead": "No elegimos una vertical. Elegimos a los que están construyendo la siguiente generación de cada una."
-  },
-  "audience": {
-    "titleA": "Calidad,",
-    "titleB": "no volumen.",
-    "curationEyebrow": "Curaduría",
-    "curationTitle": "Cuatro filtros antes de entrar a la sala."
-  },
-  "experience": {
-    "eyebrow": "Experiencia",
-    "titleA": "Lo que vas a vivir",
-    "titleB": "en el venue."
   },
   "agenda": {
     "eyebrow": "Agenda",
@@ -164,11 +148,6 @@
     "emptyLead": "Estamos cerrando alianzas con los fondos y compañías que mueven el capital LATAM. Si quieres estar acá, escríbenos.",
     "emptyCta": "Quiero ser sponsor",
     "emptyCtaSubject": "Sponsorship — LinkU Summit 2026"
-  },
-  "whyLinkU": {
-    "eyebrow": "Por qué LinkU Summit",
-    "titleA": "No es un evento más.",
-    "titleB": "Es la sala correcta."
   },
   "faq": {
     "eyebrow": "Preguntas frecuentes",

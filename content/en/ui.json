@@ -93,27 +93,11 @@
       ]
     }
   },
-  "whyNow": {
-    "eyebrow": "Why now",
-    "titleA": "The moment is no coincidence.",
-    "titleB": "It's the read."
-  },
   "thesis": {
     "eyebrow": "Multi-asset thesis",
     "titleA": "Six asset classes.",
     "titleB": "One room.",
     "lead": "We don't pick one vertical. We pick the ones building the next generation of each."
-  },
-  "audience": {
-    "titleA": "Quality,",
-    "titleB": "not volume.",
-    "curationEyebrow": "Curation",
-    "curationTitle": "Four filters before entering the room."
-  },
-  "experience": {
-    "eyebrow": "Experience",
-    "titleA": "What you'll live",
-    "titleB": "at the venue."
   },
   "agenda": {
     "eyebrow": "Agenda",
@@ -164,11 +148,6 @@
     "emptyLead": "We're closing partnerships with the funds and companies moving LATAM capital. If you want to be here, reach out.",
     "emptyCta": "I want to sponsor",
     "emptyCtaSubject": "Sponsorship — LinkU Summit 2026"
-  },
-  "whyLinkU": {
-    "eyebrow": "Why LinkU Summit",
-    "titleA": "Not another event.",
-    "titleB": "The right room."
   },
   "faq": {
     "eyebrow": "FAQ",

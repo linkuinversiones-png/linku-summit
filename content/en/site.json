@@ -22,20 +22,6 @@
     "lead": "Two days in Medellín where investors, family offices, fund managers, founders and project managers come together in one conversation across six asset classes: real estate, venture capital & private equity, public markets, alternatives, crypto and passion assets. Education, debate and deal-making in the same space.",
     "body": ""
   },
-  "whyNow": [
-    {
-      "title": "Geopolitics",
-      "body": "Nearshoring is redrawing the capital map. LatAm went from periphery to center of thesis for global funds."
-    },
-    {
-      "title": "Capital",
-      "body": "High rates pushed investors back to real assets. Real estate, private debt and sports are gaining traction."
-    },
-    {
-      "title": "Medellín",
-      "body": "The city now hosts the most active ecosystem in the region: founders, family offices, fund managers and developers."
-    }
-  ],
   "thesis": [
     { "icon": "building",     "title": "Real Estate",       "desc": "The Latin American wealth core. Multifamily, BTR and cross-border vehicles." },
     { "icon": "trending-up",  "title": "Venture Capital",   "desc": "Early and growth in LatAm. Active funds, disciplined tickets, founders executing." },
@@ -43,35 +29,6 @@
     { "icon": "trophy",       "title": "Sports",            "desc": "Investing in athletes, clubs and careers. A young asset class with asymmetric returns." },
     { "icon": "landmark",     "title": "Private Debt",      "desc": "Direct lending and venture debt with attractive yields in hard currency." },
     { "icon": "sparkles",     "title": "Emerging Sectors",  "desc": "Tokenization, distributed energy and new alternative vehicles." }
-  ],
-  "audience": {
-    "title": "The audience",
-    "lead": "Quality, not volume. 300 attendees vs. 3,000.",
-    "splits": [
-      { "value": "60%", "label": "LPs, family offices and wealth" },
-      { "value": "25%", "label": "Fund managers and GPs" },
-      { "value": "15%", "label": "Founders in active rounds" }
-    ],
-    "filters": [
-      "Active investment mandate",
-      "Verifiable track record",
-      "Clear, communicable thesis",
-      "Real closing capacity"
-    ]
-  },
-  "experience": [
-    { "icon": "mic",            "title": "Stage",      "desc": "8 keynotes and tight panels, no filler. Everything said is actionable." },
-    { "icon": "users",          "title": "Networking", "desc": "Assigned tables, 1:1 deal rooms and a committee making the introductions that matter." },
-    { "icon": "store",          "title": "Expo",       "desc": "30+ curated booths. Real estate, funds and projects in one room." },
-    { "icon": "wine",           "title": "Premium",    "desc": "Welcome cocktail, themed-table lunches and an invitation-only closing dinner." }
-  ],
-  "whyLinkU": [
-    { "title": "Real curation",         "body": "Every attendee passes the committee. If you don't add to the room, you don't get in." },
-    { "title": "Multi-asset for real",  "body": "Six asset classes in the same space. Cross-pollination is the product." },
-    { "title": "No observers",          "body": "Only people with mandate, ticket or project. Zero tourists." },
-    { "title": "Right size",            "body": "300 people. Enough to close deals, not enough to get lost in." },
-    { "title": "Run by a fund",         "body": "LinkU Ventures organizes. The lens is that of an investor, not an event producer." },
-    { "title": "LatAm at the center",   "body": "Medellín as the meeting point. Without pretending the world revolves around Bogotá or São Paulo." }
   ],
   "finalCTA": {
     "title": "October 2026.",

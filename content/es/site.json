@@ -22,20 +22,6 @@
     "lead": "Dos días en Medellín donde inversionistas, family offices, fund managers, founders y gestores de proyecto se encuentran en una conversación que cruza seis clases de activo: real estate, venture capital y private equity, renta fija y variable, alternativos, cripto y passion assets. Educación, debate y deal-making en el mismo espacio.",
     "body": ""
   },
-  "whyNow": [
-    {
-      "title": "Geopolítica",
-      "body": "El nearshoring redibuja el mapa del capital. Latam pasó de margen a centro de tesis para fondos globales."
-    },
-    {
-      "title": "Capital",
-      "body": "Las tasas altas hicieron volver al inversionista al activo real. Real estate, deuda privada y deportes ganan tracción."
-    },
-    {
-      "title": "Medellín",
-      "body": "La ciudad concentra hoy el ecosistema más activo de la región: founders, family offices, fund managers y desarrolladores."
-    }
-  ],
   "thesis": [
     { "icon": "building",     "title": "Real Estate",       "desc": "El núcleo patrimonial latinoamericano. Multifamily, BTR y vehículos cross-border." },
     { "icon": "trending-up",  "title": "Venture Capital",   "desc": "Early y growth en Latam. Fondos activos, tickets disciplinados, founders ejecutando." },
@@ -43,35 +29,6 @@
     { "icon": "trophy",       "title": "Deportes",          "desc": "Inversión en atletas, clubes y carreras. Una clase de activo joven con retornos asimétricos." },
     { "icon": "landmark",     "title": "Deuda Privada",     "desc": "Direct lending y venture debt con yields atractivos en moneda fuerte." },
     { "icon": "sparkles",     "title": "Emerging Sectors",  "desc": "Tokenización, energía distribuida y nuevos vehículos alternativos." }
-  ],
-  "audience": {
-    "title": "La audiencia",
-    "lead": "Calidad, no volumen. 300 asistentes vs. 3.000.",
-    "splits": [
-      { "value": "60%", "label": "LPs, family offices y wealth" },
-      { "value": "25%", "label": "Fund managers y GPs" },
-      { "value": "15%", "label": "Founders en ronda activa" }
-    ],
-    "filters": [
-      "Mandato de inversión activo",
-      "Track record verificable",
-      "Tesis clara y comunicable",
-      "Capacidad de cierre real"
-    ]
-  },
-  "experience": [
-    { "icon": "mic",            "title": "Escenario",  "desc": "8 keynotes y paneles cortos, sin filler. Todo lo que se dice se puede ejecutar." },
-    { "icon": "users",          "title": "Networking", "desc": "Mesas asignadas, deal rooms 1:1 y un comité que hace las introducciones que importan." },
-    { "icon": "store",          "title": "Feria",      "desc": "30+ stands curados. Real estate, fondos y proyectos en una sola sala." },
-    { "icon": "wine",           "title": "Premium",    "desc": "Cocktail de bienvenida, almuerzos por mesa temática y cena de cierre solo por invitación." }
-  ],
-  "whyLinkU": [
-    { "title": "Curaduría real",      "body": "Cada asistente pasa por comité. Si no aporta a la sala, no entra." },
-    { "title": "Multi-activo en serio", "body": "Seis clases de activo en el mismo espacio. La conversación cruzada es el producto." },
-    { "title": "Sin observadores",     "body": "Solo gente con mandato, ticket o proyecto. Cero turistas." },
-    { "title": "Volumen correcto",     "body": "300 personas. Suficiente para cerrar deals, no tanto como para perderse." },
-    { "title": "Operado por un fondo", "body": "LinkU Ventures organiza. La óptica es de inversionista, no de productora de eventos." },
-    { "title": "Latam en el centro",   "body": "Medellín como punto de encuentro. Sin pretender que el mundo gira alrededor de Bogotá o São Paulo." }
   ],
   "finalCTA": {
     "title": "Octubre 2026.",

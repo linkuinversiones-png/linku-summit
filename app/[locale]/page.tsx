@@ -20,15 +20,11 @@ import Footer from '@/components/navigation/Footer';
 import Hero from '@/components/sections/Hero';
 import About from '@/components/sections/About';
 import ForWhom from '@/components/sections/ForWhom';
-import WhyNow from '@/components/sections/WhyNow';
 import Thesis from '@/components/sections/Thesis';
-import Audience from '@/components/sections/Audience';
-import Experience from '@/components/sections/Experience';
 import Agenda from '@/components/sections/Agenda';
 import Speakers from '@/components/sections/Speakers';
 import Tickets from '@/components/sections/Tickets';
 import SponsorsWall from '@/components/sections/SponsorsWall';
-import WhyLinkU from '@/components/sections/WhyLinkU';
 import FinalCTA from '@/components/sections/FinalCTA';
 import FAQ from '@/components/sections/FAQ';
 
@@ -104,10 +100,7 @@ export default async function HomePage({
         <Agenda agenda={c.agenda} ui={ui.agenda} />
         <About about={c.site.about} site={c.site} ui={ui.about} />
         <ForWhom ui={ui.forWhom} />
-        <WhyNow items={c.site.whyNow} ui={ui.whyNow} />
         <Thesis items={c.site.thesis} ui={ui.thesis} />
-        <Audience audience={c.site.audience} ui={ui.audience} />
-        <Experience items={c.site.experience} ui={ui.experience} />
         <Tickets tickets={ticketsForView} ui={ui.tickets} />
         <SponsorsWall
           locale={params.locale}
@@ -121,7 +114,6 @@ export default async function HomePage({
             contactEmail: c.site.contacts.sponsors
           }}
         />
-        <WhyLinkU items={c.site.whyLinkU} ui={ui.whyLinkU} />
         <FinalCTA finalCTA={c.site.finalCTA} />
         <FAQ items={c.faq} ui={ui.faq} />
       </main>
