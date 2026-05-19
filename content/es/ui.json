@@ -49,44 +49,48 @@
   },
   "forWhom": {
     "eyebrow": "Para quién es",
-    "titleA": "Tres salas. Tres mandatos.",
+    "titleA": "Cuatro perfiles. Cuatro razones.",
     "titleB": "Una conversación.",
-    "lead": "Cada perfil entra al summit con un objetivo claro. Lo que une la sala es que todos vienen a ejecutar.",
+    "lead": "Cada perfil entra al summit con un objetivo claro. Lo que une el espacio es que todos vienen a accionar.",
     "investors": {
       "title": "Inversionistas",
-      "lead": "Vienes a desplegar capital.",
+      "lead": "Vienes a entender, decidir y desplegar capital.",
       "bullets": [
-        "Acceso curado a 30+ proyectos pre-seleccionados por el comité",
-        "Salas VIP 1:1 para cierres durante todo el día",
-        "Networking con 60% family offices, fund managers y HNWI",
+        "Acceso curado a proyectos pre-seleccionados por el comité",
+        "Deal rooms 1:1 para conversaciones directas con gestores",
+        "Networking enfocado con family offices, fund managers y HNWI",
         "Agenda de citas gestionada por la app del summit"
-      ],
-      "cta": "Solicitar invitación",
-      "ctaSubject": "Solicito invitación — Inversionista"
+      ]
+    },
+    "managers": {
+      "title": "Gestores Profesionales",
+      "lead": "Vienes a aprender, conectar y expandir tu red.",
+      "bullets": [
+        "Charlas y paneles con los mejores allocators de la región",
+        "Espacios de relacionamiento con LPs, family offices y otros gestores",
+        "Visibilidad como referente en tu clase de activo",
+        "Contenido accionable para llevar a tus clientes"
+      ]
     },
     "founders": {
-      "title": "Founders y Desarrolladores",
-      "lead": "Vienes a levantar capital.",
+      "title": "Founders y Gestores de Proyecto",
+      "lead": "Vienes a presentar tu proyecto y levantar capital.",
       "bullets": [
-        "Stand premium con tu marca y maqueta del proyecto",
-        "Pitch stage con 6 founders seleccionados día 2",
-        "Reuniones 1:1 con LPs activos y mandato verificado",
-        "Curaduría de inversionistas alineados a tu vertical"
-      ],
-      "cta": "Postular proyecto",
-      "ctaSubject": "Postulación de proyecto — Founder"
+        "Stand premium con tu marca y materiales del proyecto",
+        "Pitch stage curado el segundo día del summit",
+        "Reuniones 1:1 con LPs e inversionistas alineados a tu vertical",
+        "Curaduría de inversionistas relevantes para tu ronda"
+      ]
     },
     "sponsors": {
       "title": "Sponsors y Aliados",
-      "lead": "Vienes a posicionarte donde se mueve el capital.",
+      "lead": "Vienes a posicionar tu marca donde se decide el capital.",
       "bullets": [
-        "Branding dominante en venue y comunicación",
-        "Acceso al universo de inversionistas pre-evento",
-        "Activaciones a medida (lounges, cocktail, kits)",
-        "Co-branding en contenido post-evento"
-      ],
-      "cta": "Hablar con el equipo",
-      "ctaSubject": "Sponsorship — LinkU Summit 2026"
+        "Branding en el venue y en toda la comunicación del summit",
+        "Acceso directo a inversionistas, gestores y founders cualificados",
+        "Activaciones a medida: lounges, cocktails, kits, contenido",
+        "Co-branding en piezas post-evento y reportes del summit"
+      ]
     }
   },
   "whyNow": {

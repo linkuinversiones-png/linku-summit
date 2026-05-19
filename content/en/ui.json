@@ -49,44 +49,48 @@
   },
   "forWhom": {
     "eyebrow": "Who it's for",
-    "titleA": "Three rooms. Three mandates.",
+    "titleA": "Four profiles. Four reasons.",
     "titleB": "One conversation.",
-    "lead": "Each profile enters the summit with a clear goal. What unites the room is that everyone comes to execute.",
+    "lead": "Each profile enters the summit with a clear objective. What unites the space is that everyone comes to take action.",
     "investors": {
       "title": "Investors",
-      "lead": "You come to deploy capital.",
+      "lead": "You come to understand, decide and deploy capital.",
       "bullets": [
-        "Curated access to 30+ projects pre-selected by the committee",
-        "VIP 1:1 rooms for closings throughout the day",
-        "Networking with 60% family offices, fund managers and HNWIs",
-        "Meeting agenda managed through the summit app"
-      ],
-      "cta": "Request invitation",
-      "ctaSubject": "Invitation request — Investor"
+        "Curated access to projects pre-selected by the committee",
+        "1:1 deal rooms for direct conversations with managers",
+        "Focused networking with family offices, fund managers and HNWIs",
+        "Meeting agenda managed by the summit app"
+      ]
+    },
+    "managers": {
+      "title": "Professional Managers",
+      "lead": "You come to learn, connect and expand your network.",
+      "bullets": [
+        "Talks and panels with the region's top allocators",
+        "Networking spaces with LPs, family offices and other managers",
+        "Visibility as a reference in your asset class",
+        "Actionable content to bring back to your clients"
+      ]
     },
     "founders": {
-      "title": "Founders & Developers",
-      "lead": "You come to raise capital.",
+      "title": "Founders & Project Leads",
+      "lead": "You come to present your project and raise capital.",
       "bullets": [
-        "Premium booth with your brand and project model",
-        "Pitch stage with 6 selected founders on day 2",
-        "1:1 meetings with active LPs with verified mandate",
-        "Curation of investors aligned to your vertical"
-      ],
-      "cta": "Submit project",
-      "ctaSubject": "Project submission — Founder"
+        "Premium booth with your brand and project materials",
+        "Curated pitch stage on day two of the summit",
+        "1:1 meetings with LPs and investors aligned to your vertical",
+        "Curation of relevant investors for your round"
+      ]
     },
     "sponsors": {
       "title": "Sponsors & Partners",
-      "lead": "You come to position yourself where capital moves.",
+      "lead": "You come to position your brand where capital is decided.",
       "bullets": [
-        "Dominant branding in venue and communications",
-        "Access to the pre-event investor universe",
-        "Custom activations (lounges, cocktail, kits)",
-        "Co-branding in post-event content"
-      ],
-      "cta": "Talk to the team",
-      "ctaSubject": "Sponsorship — LinkU Summit 2026"
+        "Branding in the venue and across all summit communications",
+        "Direct access to qualified investors, managers and founders",
+        "Custom activations: lounges, cocktails, kits, content",
+        "Co-branding in post-event pieces and summit reports"
+      ]
     }
   },
   "whyNow": {

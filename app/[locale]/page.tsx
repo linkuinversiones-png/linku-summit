@@ -103,7 +103,7 @@ export default async function HomePage({
         <Speakers speakers={dbSpeakers} ui={ui.speakers} />
         <Agenda agenda={c.agenda} ui={ui.agenda} />
         <About about={c.site.about} site={c.site} ui={ui.about} />
-        <ForWhom contacts={c.site.contacts} ui={ui.forWhom} />
+        <ForWhom ui={ui.forWhom} />
         <WhyNow items={c.site.whyNow} ui={ui.whyNow} />
         <Thesis items={c.site.thesis} ui={ui.thesis} />
         <Audience audience={c.site.audience} ui={ui.audience} />
