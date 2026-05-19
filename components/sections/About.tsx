@@ -32,10 +32,14 @@ export default function About({ about, site, ui }: Props) {
                 </>
               }
             />
-            <p className="mt-6 text-lg leading-relaxed text-linku-text">{about.lead}</p>
-            <p className="mt-5 text-base leading-relaxed text-linku-text-muted sm:text-lg">
-              {about.body}
-            </p>
+            {about.lead && (
+              <p className="mt-6 text-lg leading-relaxed text-linku-text">{about.lead}</p>
+            )}
+            {about.body && (
+              <p className="mt-5 text-base leading-relaxed text-linku-text-muted sm:text-lg">
+                {about.body}
+              </p>
+            )}
           </Reveal>
 
           <Reveal delay={0.1}>

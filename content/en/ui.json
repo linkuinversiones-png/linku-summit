@@ -36,16 +36,16 @@
   },
   "about": {
     "eyebrow": "The event",
-    "titleA": "Not a mass event.",
-    "titleB": "A curated room.",
+    "titleA": "It's not a mass event.",
+    "titleB": "It's a curated conversation.",
     "factsTitle": "Key facts",
     "factDate": "Date",
     "factDateValue": "October 2026",
     "factCity": "City",
     "factAttendees": "Attendees",
-    "factAttendeesValue": "300+ by invitation",
+    "factAttendeesValue": "+400 across investors, managers and founders",
     "factAssets": "Asset classes",
-    "factAssetsValue": "6 in the same room"
+    "factAssetsValue": "6 in one conversation"
   },
   "forWhom": {
     "eyebrow": "Who it's for",

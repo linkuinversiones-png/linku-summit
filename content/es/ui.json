@@ -37,15 +37,15 @@
   "about": {
     "eyebrow": "El evento",
     "titleA": "No es un evento masivo.",
-    "titleB": "Es una sala curada.",
+    "titleB": "Es una conversación curada.",
     "factsTitle": "Datos clave",
     "factDate": "Fecha",
     "factDateValue": "Octubre 2026",
     "factCity": "Ciudad",
     "factAttendees": "Asistentes",
-    "factAttendeesValue": "300+ por invitación",
+    "factAttendeesValue": "+400 entre inversionistas, gestores y founders",
     "factAssets": "Asset classes",
-    "factAssetsValue": "6 en la misma sala"
+    "factAssetsValue": "6 en una conversación"
   },
   "forWhom": {
     "eyebrow": "Para quién es",
