@@ -31,13 +31,12 @@
     { "icon": "palette",     "title": "Passion Assets",                "desc": "Art, film, music and sports. The asset class growing double-digit annually that global family offices already hold. In Latam, it's just starting." }
   ],
   "finalCTA": {
+    "eyebrow": "OCTOBER 2026 · MEDELLÍN",
     "title": "October 2026.",
-    "highlight": "Medellín decides who's in the room.",
-    "actions": [
-      { "label": "Sponsor",   "tag": "sponsors@linkusummit.com", "href": "mailto:sponsors@linkusummit.com?subject=Sponsorship LinkU Summit 2026" },
-      { "label": "Attend",    "tag": "invites@linkusummit.com",  "href": "mailto:invites@linkusummit.com?subject=Invitation LinkU Summit 2026" },
-      { "label": "Partner",   "tag": "partners@linkusummit.com", "href": "mailto:partners@linkusummit.com?subject=Partnership LinkU Summit 2026" }
-    ]
+    "highlight": "The conversation that defines capital in Latam.",
+    "lead": "400 people. Six asset classes. Two days. Your seat starts with a decision.",
+    "primaryCta": { "label": "Buy ticket", "href": "#tickets" },
+    "secondaryCta": { "label": "Sponsor the summit", "href": "mailto:sponsors@linkusummit.com?subject=Sponsorship LinkU Summit 2026" }
   },
   "contacts": {
     "sponsors": "sponsors@linkusummit.com",
