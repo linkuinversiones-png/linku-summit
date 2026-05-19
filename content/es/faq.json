@@ -1,19 +1,15 @@
 [
   {
-    "q": "¿Quién puede asistir a LinkU Summit 2026?",
-    "a": "El summit es por invitación y por compra de entrada curada. Cada solicitud es revisada por un comité. Buscamos LPs con mandato activo, family offices, fund managers, desarrolladores con proyectos vivos y founders en ronda activa."
+    "q": "¿Quién puede asistir al LinkU Summit 2026?",
+    "a": "El summit está abierto a inversionistas, gestores profesionales, founders, desarrolladores y profesionales del mundo financiero que quieran entender cómo se mueve el capital en Latinoamérica. La asistencia es por compra de entrada — Early Access o Smart Access — y cada perfil pasa por una curaduría breve para asegurar la calidad de la conversación."
   },
   {
-    "q": "¿Cómo solicito mi invitación?",
-    "a": "Escríbenos a invites@linkusummit.com contándonos quién eres y por qué quieres estar en la sala. El comité responde en menos de 5 días hábiles."
+    "q": "¿Necesito ser inversionista institucional para asistir?",
+    "a": "No. El summit reúne a todos los niveles del ecosistema: desde inversionistas retail que quieren aprender cómo invierten los grandes, hasta family offices y fund managers institucionales. Lo que une a la sala es el interés genuino por entender y participar del capital en Latam."
   },
   {
-    "q": "¿Cuánto cuestan las entradas?",
-    "a": "Las tarifas vigentes están en la sección de Tickets más arriba. Tenemos varios tiers con beneficios distintos. Los cupos son limitados y todas las solicitudes pasan por curaduría."
-  },
-  {
-    "q": "¿Cómo participo como sponsor?",
-    "a": "Tenemos 3 tiers principales (Pre-Seed, Seed, Series A) más un tier de Branding Esencial. Escríbenos a sponsors@linkusummit.com y armamos un paquete a tu medida."
+    "q": "¿Cuál es la diferencia entre Early Access y Smart Access?",
+    "a": "Early Access te da entrada a todas las charlas, networking con participantes, posibilidad de agendamiento con gestores y un año de membresía LinkU Early. Smart Access incluye todo lo de Early más una cena privada la noche previa, curaduría de 3 a 5 reuniones 1:1 según tu tesis, acceso a deal rooms durante los dos días, mesa asignada en almuerzos y el cocktail VIP de cierre."
   },
   {
     "q": "¿Dónde será el evento?",
@@ -24,7 +20,15 @@
     "a": "Español, con traducción simultánea al inglés disponible para los keynotes internacionales."
   },
   {
-    "q": "¿Hay descuentos por grupo?",
-    "a": "Las invitaciones son individuales y curadas. Para fondos o equipos que quieran asistir en bloque, escríbenos a invites@linkusummit.com."
+    "q": "¿Cómo participo como sponsor?",
+    "a": "Tenemos paquetes de patrocinio diseñados para distintos perfiles de marca y objetivos. Escríbenos a sponsors@linkusummit.com con un poco de contexto de tu marca y armamos un paquete a tu medida."
+  },
+  {
+    "q": "¿Puedo asistir en grupo con mi equipo o fondo?",
+    "a": "Sí. Para fondos, family offices o equipos que quieran asistir en bloque, escríbenos a invites@linkusummit.com y coordinamos."
+  },
+  {
+    "q": "¿Habrá grabaciones disponibles después del evento?",
+    "a": "El summit es presencial y la mayoría del valor está en la conversación en sala. Los asistentes Smart Access reciben un research report con los highlights del summit en las semanas siguientes."
   }
 ]

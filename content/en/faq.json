@@ -1,22 +1,18 @@
 [
   {
     "q": "Who can attend LinkU Summit 2026?",
-    "a": "The summit is by invitation and curated ticket purchase. Every request is reviewed by a committee. We look for LPs with active mandate, family offices, fund managers, developers with live projects, and founders in active rounds."
+    "a": "The summit is open to investors, professional managers, founders, developers and financial professionals who want to understand how capital moves across Latin America. Attendance is by ticket purchase — Early Access or Smart Access — and each profile goes through a brief curation to ensure the quality of the conversation."
   },
   {
-    "q": "How do I request my invitation?",
-    "a": "Email us at invites@linkusummit.com telling us who you are and why you want to be in the room. The committee responds within 5 business days."
+    "q": "Do I need to be an institutional investor to attend?",
+    "a": "No. The summit brings together all levels of the ecosystem: from retail investors who want to learn how the big players invest, to family offices and institutional fund managers. What unites the room is genuine interest in understanding and participating in capital flows across Latam."
   },
   {
-    "q": "How much do tickets cost?",
-    "a": "Current rates are listed in the Tickets section above. We have several tiers with different benefits. Spots are limited and every request goes through curation."
+    "q": "What's the difference between Early Access and Smart Access?",
+    "a": "Early Access gives you entry to all talks, networking with participants, the option to schedule meetings with managers, and one year of LinkU Early membership. Smart Access includes everything in Early plus a private dinner the night before, a curated agenda of 3 to 5 one-on-one meetings aligned with your thesis, access to deal rooms across both days, reserved table at networking lunches, and the VIP closing cocktail."
   },
   {
-    "q": "How do I become a sponsor?",
-    "a": "We have 3 main tiers (Pre-Seed, Seed, Series A) plus an Essential Branding tier. Email us at sponsors@linkusummit.com and we'll put together a custom package."
-  },
-  {
-    "q": "Where will the event be?",
+    "q": "Where will the event take place?",
     "a": "In Medellín, Colombia. The specific venue is announced 60 days before the event to confirmed attendees."
   },
   {
@@ -24,7 +20,15 @@
     "a": "Spanish, with simultaneous English translation available for international keynotes."
   },
   {
-    "q": "Are there group discounts?",
-    "a": "Invitations are individual and curated. For funds or teams wanting to attend as a block, email us at invites@linkusummit.com."
+    "q": "How do I participate as a sponsor?",
+    "a": "We have sponsorship packages designed for different brand profiles and objectives. Write to sponsors@linkusummit.com with some context about your brand and we'll put together a custom package."
+  },
+  {
+    "q": "Can I attend as a group with my team or fund?",
+    "a": "Yes. For funds, family offices or teams that want to attend together, write to invites@linkusummit.com and we'll coordinate."
+  },
+  {
+    "q": "Will there be recordings after the event?",
+    "a": "The summit is in-person and most of the value lies in the live conversation. Smart Access attendees receive a research report with the summit's highlights in the weeks following the event."
   }
 ]
