@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { createClient } from '@/lib/supabase/server';
+import { createClient as createServiceSb } from '@supabase/supabase-js';
 import { localizePath, type Locale } from '@/lib/i18n/config';
 import StatusPoll from './StatusPoll';
+import RegisterOtp from './RegisterOtp';
 
 export const metadata = {
   title: 'Checkout · LINKU SUMMIT 2026',
@@ -15,50 +16,81 @@ const COPY = {
     titlePending: 'Estamos confirmando tu pago…',
     titlePaid: '¡Tu entrada está confirmada!',
     titleFailed: 'El pago no se pudo procesar.',
-    leadPending:
-      'ePayco nos avisa por webhook en segundos. No cierres esta página.',
+    leadPending: 'Wompi nos avisa por webhook en segundos. No cierres esta página.',
     leadPaid:
-      'Te enviamos un email con tu boleta y QR. También puedes verla en tu cuenta.',
+      'Te enviamos un email con tu boleta y QR. Crea tu cuenta con el código que te enviamos para verla cuando quieras.',
     leadFailed:
       'Si crees que fue un error, intenta de nuevo o contáctanos a invites@linkusummit.com.',
     notFound: 'No encontramos esa referencia de orden.',
     cta: 'Ver mis boletas',
-    backHome: 'Volver al inicio'
+    backHome: 'Volver al inicio',
+    otp: {
+      title: 'Crea tu cuenta para gestionar tu boleta',
+      lead: 'Te enviamos un código de 6 dígitos a {email}.',
+      sendCode: 'Enviar código a mi correo',
+      sending: 'Enviando…',
+      codeLabel: 'Código de 6 dígitos',
+      verify: 'Verificar y entrar',
+      verifying: 'Verificando…',
+      viewTicket: 'Ver mi boleta',
+      loggedInLead: 'Tu sesión está activa. Tu boleta ya está vinculada a tu cuenta.'
+    }
   },
   en: {
     eyebrow: 'Payment',
     titlePending: 'Confirming your payment…',
     titlePaid: 'Your ticket is confirmed!',
     titleFailed: 'Payment could not be processed.',
-    leadPending:
-      "ePayco notifies us via webhook within seconds. Don't close this page.",
+    leadPending: "Wompi notifies us via webhook within seconds. Don't close this page.",
     leadPaid:
-      "We've sent you an email with your ticket and QR. You can also view it in your account.",
+      "We've sent you an email with your ticket and QR. Create your account with the code we sent to view it anytime.",
     leadFailed:
       'If you think this is a mistake, try again or contact us at invites@linkusummit.com.',
     notFound: "We couldn't find that order reference.",
     cta: 'View my tickets',
-    backHome: 'Back to home'
+    backHome: 'Back to home',
+    otp: {
+      title: 'Create your account to manage your ticket',
+      lead: 'We sent a 6-digit code to {email}.',
+      sendCode: 'Send code to my email',
+      sending: 'Sending…',
+      codeLabel: '6-digit code',
+      verify: 'Verify & enter',
+      verifying: 'Verifying…',
+      viewTicket: 'View my ticket',
+      loggedInLead: 'Your session is active. Your ticket is already linked to your account.'
+    }
   }
 } as const;
 
-export default async function CheckoutSuccessPage({
-  params,
-  searchParams
-}: {
-  params: { locale: Locale };
-  searchParams: { ref?: string; id?: string };
-}) {
-  const t = COPY[params.locale];
-  const ref = searchParams.ref || searchParams.id;
+function serviceClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) throw new Error('SUPABASE_SERVICE_ROLE_KEY no configurada');
+  return createServiceSb(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false }
+  });
+}
 
-  const supabase = createClient();
-  let order: { id: string; status: string; payment_reference: string } | null = null;
+export default async function CheckoutSuccessPage(props: {
+  params: Promise<{ locale: Locale }>;
+  searchParams: Promise<{ ref?: string; id?: string }>;
+}) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
+  const t = COPY[params.locale];
+  // Wompi añade `?id=<txId>` a la redirect-url; recortamos si quedó pegado.
+  const ref = (searchParams.ref || searchParams.id || '').split('?')[0] || undefined;
+
+  let order:
+    | { id: string; status: string; payment_reference: string; buyer_email: string | null }
+    | null = null;
 
   if (ref) {
-    const { data } = await supabase
+    const sb = serviceClient();
+    const { data } = await sb
       .from('orders')
-      .select('id, status, payment_reference')
+      .select('id, status, payment_reference, buyer_email')
       .eq('payment_reference', ref)
       .single();
     order = data;
@@ -95,10 +127,7 @@ export default async function CheckoutSuccessPage({
 
       <header className="relative border-b border-linku-border">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-5 py-5 sm:px-8 sm:py-6">
-          <Link
-            href={localizePath('/', params.locale)}
-            className="flex items-center gap-3"
-          >
+          <Link href={localizePath('/', params.locale)} className="flex items-center gap-3">
             <Image
               src="/brand/linku-icon.png"
               alt="LinkU"
@@ -129,13 +158,11 @@ export default async function CheckoutSuccessPage({
           Ref: <code>{order.payment_reference}</code>
         </p>
 
+        {isPaid && order.buyer_email && (
+          <RegisterOtp email={order.buyer_email} meHref={meHref} copy={t.otp} />
+        )}
+
         <div className="mt-10 flex flex-wrap justify-center gap-3">
-          <Link
-            href={meHref}
-            className="inline-flex items-center gap-2 rounded-xl bg-linku-coral px-5 py-3 text-sm font-semibold text-white shadow-coral-glow transition hover:bg-linku-coral-soft"
-          >
-            {t.cta}
-          </Link>
           <Link
             href={localizePath('/', params.locale)}
             className="inline-flex items-center gap-2 rounded-xl border border-linku-border-2 px-5 py-3 text-sm font-semibold text-linku-text-muted transition hover:border-white/25 hover:text-linku-text"
@@ -144,9 +171,7 @@ export default async function CheckoutSuccessPage({
           </Link>
         </div>
 
-        {!isPaid && !isFailed && (
-          <StatusPoll reference={order.payment_reference} />
-        )}
+        {!isPaid && !isFailed && <StatusPoll reference={order.payment_reference} />}
       </div>
     </main>
   );

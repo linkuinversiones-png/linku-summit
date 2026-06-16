@@ -10,7 +10,7 @@ const inter = Inter({
   display: 'swap'
 });
 
-const SITE_URL = 'https://linkusummit.com';
+const SITE_URL = 'https://www.linkusummit.com';
 
 const META: Record<Locale, { title: string; description: string; ogLocale: string }> = {
   es: {
@@ -27,13 +27,13 @@ const META: Record<Locale, { title: string; description: string; ogLocale: strin
   }
 };
 
-function readLocale(): Locale {
-  const raw = headers().get('x-locale');
+async function readLocale(): Promise<Locale> {
+  const raw = (await headers()).get('x-locale');
   return isLocale(raw) ? raw : DEFAULT_LOCALE;
 }
 
-export function generateMetadata(): Metadata {
-  const locale = readLocale();
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await readLocale();
   const m = META[locale];
   const url = locale === DEFAULT_LOCALE ? SITE_URL : `${SITE_URL}/${locale}`;
 
@@ -95,12 +95,12 @@ export function generateMetadata(): Metadata {
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children
 }: {
   children: React.ReactNode;
 }) {
-  const locale = readLocale();
+  const locale = await readLocale();
 
   return (
     <html lang={HTML_LANG[locale]} className={inter.variable}>

@@ -38,7 +38,7 @@ export type SponsorGroup = {
 };
 
 export async function getSponsorGroups(locale: Locale): Promise<SponsorGroup[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from('sponsors')
     .select('*')
@@ -70,7 +70,7 @@ export async function getSponsorGroups(locale: Locale): Promise<SponsorGroup[]> 
 }
 
 export async function getAllSponsorsAdmin(): Promise<SponsorRow[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from('sponsors')
     .select('*')
@@ -80,7 +80,7 @@ export async function getAllSponsorsAdmin(): Promise<SponsorRow[]> {
 }
 
 export async function getSponsorByIdAdmin(id: string): Promise<SponsorRow | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from('sponsors')
     .select('*')

@@ -1,7 +1,7 @@
 import QRCode from 'qrcode';
 import { signTicketId } from './sign';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://linkusummit.com';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.linkusummit.com';
 
 /**
  * Construye la URL que codifica el QR. Apunta a la pasarela de validación

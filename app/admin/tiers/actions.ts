@@ -67,7 +67,7 @@ function validate(data: ReturnType<typeof readForm>): FieldErrors {
 }
 
 async function assertAdmin() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user }
   } = await supabase.auth.getUser();
@@ -91,7 +91,7 @@ export async function createTier(
     return { ok: false, message: 'Revisa los campos', fieldErrors };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: row, error } = await supabase
     .from('ticket_tiers')
     .insert(data)
@@ -127,7 +127,7 @@ export async function updateTier(
     return { ok: false, message: 'Revisa los campos', fieldErrors };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from('ticket_tiers')
     .update(data)
@@ -154,7 +154,7 @@ export async function updateTier(
 
 export async function deleteTier(id: string): Promise<void> {
   await assertAdmin();
-  const supabase = createClient();
+  const supabase = await createClient();
   await supabase.from('ticket_tiers').delete().eq('id', id);
   revalidatePath('/admin/tiers');
   // 'layout' invalida toda la subtree (incluyendo / y /en) para que la
@@ -164,7 +164,7 @@ export async function deleteTier(id: string): Promise<void> {
 
 export async function toggleTierActive(id: string, active: boolean): Promise<void> {
   await assertAdmin();
-  const supabase = createClient();
+  const supabase = await createClient();
   await supabase.from('ticket_tiers').update({ active }).eq('id', id);
   revalidatePath('/admin/tiers');
   // 'layout' invalida toda la subtree (incluyendo / y /en) para que la

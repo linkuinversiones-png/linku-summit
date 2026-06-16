@@ -53,7 +53,7 @@ function validate(data: ReturnType<typeof readForm>): FieldErrors {
 }
 
 async function assertAdmin() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user }
   } = await supabase.auth.getUser();
@@ -114,7 +114,7 @@ export async function createSpeaker(
     return { ok: false, message: (e as Error).message };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from('speakers')
     .insert({ ...data, avatar_path: avatarPath });
@@ -153,7 +153,7 @@ export async function updateSpeaker(
     return { ok: false, message: (e as Error).message };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from('speakers')
     .update({ ...data, avatar_path: avatarPath })
@@ -175,7 +175,7 @@ export async function updateSpeaker(
 
 export async function deleteSpeaker(id: string): Promise<void> {
   await assertAdmin();
-  const supabase = createClient();
+  const supabase = await createClient();
   await supabase.from('speakers').delete().eq('id', id);
   revalidatePath('/admin/speakers');
   revalidatePath('/', 'layout');
@@ -186,7 +186,7 @@ export async function toggleSpeakerActive(
   active: boolean
 ): Promise<void> {
   await assertAdmin();
-  const supabase = createClient();
+  const supabase = await createClient();
   await supabase.from('speakers').update({ active }).eq('id', id);
   revalidatePath('/admin/speakers');
   revalidatePath('/', 'layout');

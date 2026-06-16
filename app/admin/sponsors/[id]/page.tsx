@@ -7,11 +7,12 @@ import { getImageUrl } from '@/lib/storage';
 export const metadata = { title: 'Editar sponsor · Admin · LINKU SUMMIT' };
 export const dynamic = 'force-dynamic';
 
-export default async function EditSponsorPage({
-  params
-}: {
-  params: { id: string };
-}) {
+export default async function EditSponsorPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   const sponsor = await getSponsorByIdAdmin(params.id);
   if (!sponsor) notFound();
 

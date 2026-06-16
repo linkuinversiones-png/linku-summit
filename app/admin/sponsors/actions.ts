@@ -57,7 +57,7 @@ function validate(data: ReturnType<typeof readForm>): FieldErrors {
 }
 
 async function assertAdmin() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user }
   } = await supabase.auth.getUser();
@@ -114,7 +114,7 @@ export async function createSponsor(
     return { ok: false, message: (e as Error).message };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from('sponsors')
     .insert({ ...data, logo_path: logoPath });
@@ -153,7 +153,7 @@ export async function updateSponsor(
     return { ok: false, message: (e as Error).message };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from('sponsors')
     .update({ ...data, logo_path: logoPath })
@@ -175,7 +175,7 @@ export async function updateSponsor(
 
 export async function deleteSponsor(id: string): Promise<void> {
   await assertAdmin();
-  const supabase = createClient();
+  const supabase = await createClient();
   await supabase.from('sponsors').delete().eq('id', id);
   revalidatePath('/admin/sponsors');
   revalidatePath('/', 'layout');
@@ -186,7 +186,7 @@ export async function toggleSponsorActive(
   active: boolean
 ): Promise<void> {
   await assertAdmin();
-  const supabase = createClient();
+  const supabase = await createClient();
   await supabase.from('sponsors').update({ active }).eq('id', id);
   revalidatePath('/admin/sponsors');
   revalidatePath('/', 'layout');

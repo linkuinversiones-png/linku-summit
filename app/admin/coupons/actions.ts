@@ -56,7 +56,7 @@ function validate(data: ReturnType<typeof readForm>): FieldErrors {
 }
 
 async function assertAdmin() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user }
   } = await supabase.auth.getUser();
@@ -94,7 +94,7 @@ export async function createCoupon(
     return { ok: false, message: 'Revisa los campos', fieldErrors };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from('coupons').insert(payloadFromForm(data));
 
   if (error) {
@@ -123,7 +123,7 @@ export async function updateCoupon(
     return { ok: false, message: 'Revisa los campos', fieldErrors };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from('coupons')
     .update(payloadFromForm(data))
@@ -146,7 +146,7 @@ export async function updateCoupon(
 
 export async function deleteCoupon(id: string): Promise<void> {
   await assertAdmin();
-  const supabase = createClient();
+  const supabase = await createClient();
   await supabase.from('coupons').delete().eq('id', id);
   revalidatePath('/admin/coupons');
 }
@@ -156,7 +156,7 @@ export async function toggleCouponActive(
   active: boolean
 ): Promise<void> {
   await assertAdmin();
-  const supabase = createClient();
+  const supabase = await createClient();
   await supabase.from('coupons').update({ active }).eq('id', id);
   revalidatePath('/admin/coupons');
 }

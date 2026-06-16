@@ -20,12 +20,13 @@ export const metadata = {
   title: 'LINKU SUMMIT 2026'
 };
 
-export default async function MePage({
-  params
-}: {
-  params: { locale: Locale };
-}) {
-  const supabase = createClient();
+export default async function MePage(
+  props: {
+    params: Promise<{ locale: Locale }>;
+  }
+) {
+  const params = await props.params;
+  const supabase = await createClient();
   const {
     data: { user }
   } = await supabase.auth.getUser();

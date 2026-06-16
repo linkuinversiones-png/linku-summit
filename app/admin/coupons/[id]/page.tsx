@@ -17,11 +17,12 @@ function fmtDate(iso: string): string {
   });
 }
 
-export default async function EditCouponPage({
-  params
-}: {
-  params: { id: string };
-}) {
+export default async function EditCouponPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   const [coupon, redemptions] = await Promise.all([
     getCouponByIdAdmin(params.id),
     getRedemptionsForCouponAdmin(params.id)

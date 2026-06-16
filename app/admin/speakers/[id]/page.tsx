@@ -7,11 +7,12 @@ import { getImageUrl } from '@/lib/storage';
 export const metadata = { title: 'Editar speaker · Admin · LINKU SUMMIT' };
 export const dynamic = 'force-dynamic';
 
-export default async function EditSpeakerPage({
-  params
-}: {
-  params: { id: string };
-}) {
+export default async function EditSpeakerPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   const speaker = await getSpeakerByIdAdmin(params.id);
   if (!speaker) notFound();
 

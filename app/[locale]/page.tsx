@@ -33,7 +33,7 @@ async function getCurrentUser() {
     return null;
   }
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const {
       data: { user }
     } = await supabase.auth.getUser();
@@ -43,11 +43,12 @@ async function getCurrentUser() {
   }
 }
 
-export default async function HomePage({
-  params
-}: {
-  params: { locale: Locale };
-}) {
+export default async function HomePage(
+  props: {
+    params: Promise<{ locale: Locale }>;
+  }
+) {
+  const params = await props.params;
   const [user, dbTiers, dbSpeakers] = await Promise.all([
     getCurrentUser(),
     getActiveTiers(params.locale),

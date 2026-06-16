@@ -163,16 +163,18 @@
   },
   "login": {
     "title": "Inicia sesión",
-    "lead": "Te enviamos un enlace mágico a tu email. Click en el enlace y entras directo, sin contraseñas.",
+    "lead": "Te enviamos un código de 6 dígitos a tu email. Sin contraseñas.",
     "emailLabel": "Tu email",
     "emailPlaceholder": "tu@email.com",
-    "submit": "Enviar enlace",
+    "submit": "Enviar código",
     "submitting": "Enviando…",
-    "sentTitle": "Revisa tu email",
-    "sentBody": "Te enviamos un enlace mágico a {email}. Ábrelo desde el mismo dispositivo para continuar.",
+    "codeLabel": "Código de 6 dígitos",
+    "codeSentBody": "Enviamos un código a {email}. Revísalo y pégalo aquí.",
+    "verify": "Verificar y entrar",
+    "verifying": "Verificando…",
     "useOther": "Usar otro email",
     "backHome": "Volver al inicio",
-    "noAccount": "Si todavía no tienes cuenta, te creamos una automáticamente al iniciar."
+    "noAccount": "Si todavía no tienes cuenta, te creamos una automáticamente."
   },
   "me": {
     "subtitle": "Mi cuenta",

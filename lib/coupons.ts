@@ -38,7 +38,7 @@ export async function validateCoupon(input: {
   const code = input.code.trim().toUpperCase();
   if (!code) return { ok: false, reason: 'Código vacío' };
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: coupon } = await supabase
     .from('coupons')
     .select('*')
@@ -82,7 +82,7 @@ export async function validateCoupon(input: {
 // =====================================================================
 
 export async function getAllCouponsAdmin(): Promise<CouponRow[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from('coupons')
     .select('*')
@@ -91,7 +91,7 @@ export async function getAllCouponsAdmin(): Promise<CouponRow[]> {
 }
 
 export async function getCouponByIdAdmin(id: string): Promise<CouponRow | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from('coupons')
     .select('*')
@@ -113,7 +113,7 @@ export type CouponRedemption = {
 export async function getRedemptionsForCouponAdmin(
   couponId: string
 ): Promise<CouponRedemption[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from('coupon_redemptions')
     .select('*')

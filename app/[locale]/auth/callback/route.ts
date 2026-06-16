@@ -7,10 +7,8 @@ import { isLocale, localizePath, DEFAULT_LOCALE } from '@/lib/i18n/config';
  * Intercambia el `code` por una sesión y guarda las cookies.
  * Después manda al usuario al `next` (o a /me por defecto, respetando locale).
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { locale: string } }
-) {
+export async function GET(request: NextRequest, props: { params: Promise<{ locale: string }> }) {
+  const params = await props.params;
   const locale = isLocale(params.locale) ? params.locale : DEFAULT_LOCALE;
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
@@ -29,7 +27,7 @@ export async function GET(
     return NextResponse.redirect(`${origin}${loginPath}?error=missing_code`);
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error) {
