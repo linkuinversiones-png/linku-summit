@@ -15,23 +15,40 @@ type Props = {
   isLoggedIn?: boolean;
   locale: Locale;
   ui: UiContent['nav'];
+  /**
+   * Prefijo aplicado a los anchors (#agenda, #tickets…) cuando el navbar se
+   * monta fuera de la home — p.ej. `/` en es o `/en` en en. Por default es ''
+   * para preservar el comportamiento de scroll dentro de la misma página.
+   */
+  anchorBase?: string;
 };
 
-export default function Navbar({ isLoggedIn = false, locale, ui }: Props) {
+export default function Navbar({
+  isLoggedIn = false,
+  locale,
+  ui,
+  anchorBase = ''
+}: Props) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
   const homeHref = localizePath('/', locale);
   const meHref = localizePath('/me', locale);
   const loginHref = localizePath('/login', locale);
+  const directorioHref = localizePath('/directorio', locale);
+  const buyHref = `${anchorBase}#tickets`;
+
+  const directorioLabel =
+    (ui.links as { directorio?: string }).directorio ?? 'Directorio';
 
   const navLinks = [
-    { href: '#agenda', label: ui.links.agenda },
-    { href: '#speakers', label: ui.links.speakers },
-    { href: '#tesis', label: ui.links.tracks },
-    { href: '#tickets', label: ui.links.tickets },
-    { href: '#sponsors', label: ui.links.sponsors },
-    { href: '#faq', label: ui.links.faq }
+    { href: `${anchorBase}#agenda`, label: ui.links.agenda, isRoute: false },
+    { href: `${anchorBase}#speakers`, label: ui.links.speakers, isRoute: false },
+    { href: `${anchorBase}#tesis`, label: ui.links.tracks, isRoute: false },
+    { href: `${anchorBase}#tickets`, label: ui.links.tickets, isRoute: false },
+    { href: `${anchorBase}#sponsors`, label: ui.links.sponsors, isRoute: false },
+    { href: directorioHref, label: directorioLabel, isRoute: true },
+    { href: `${anchorBase}#faq`, label: ui.links.faq, isRoute: false }
   ];
 
   useEffect(() => {
@@ -86,15 +103,25 @@ export default function Navbar({ isLoggedIn = false, locale, ui }: Props) {
         </Link>
 
         <nav className="hidden items-center gap-7 lg:flex">
-          {navLinks.map((l) => (
-            <a
-              key={l.href}
-              href={l.href}
-              className="text-sm font-medium text-linku-text-muted transition hover:text-linku-text"
-            >
-              {l.label}
-            </a>
-          ))}
+          {navLinks.map((l) =>
+            l.isRoute ? (
+              <Link
+                key={l.href}
+                href={l.href}
+                className="text-sm font-medium text-linku-text-muted transition hover:text-linku-text"
+              >
+                {l.label}
+              </Link>
+            ) : (
+              <a
+                key={l.href}
+                href={l.href}
+                className="text-sm font-medium text-linku-text-muted transition hover:text-linku-text"
+              >
+                {l.label}
+              </a>
+            )
+          )}
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
@@ -106,7 +133,7 @@ export default function Navbar({ isLoggedIn = false, locale, ui }: Props) {
           ) : (
             <OutlineButton href={loginHref}>{ui.login}</OutlineButton>
           )}
-          <CoralButton href="#tickets">{ui.buy}</CoralButton>
+          <CoralButton href={buyHref}>{ui.buy}</CoralButton>
         </div>
 
         <div className="flex items-center gap-2 lg:hidden">
@@ -151,16 +178,27 @@ export default function Navbar({ isLoggedIn = false, locale, ui }: Props) {
           </button>
         </div>
         <nav className="flex flex-col gap-1 px-5 pt-4 sm:px-8">
-          {navLinks.map((l) => (
-            <a
-              key={l.href}
-              href={l.href}
-              onClick={() => setOpen(false)}
-              className="border-b border-linku-border py-4 text-lg font-semibold text-linku-text"
-            >
-              {l.label}
-            </a>
-          ))}
+          {navLinks.map((l) =>
+            l.isRoute ? (
+              <Link
+                key={l.href}
+                href={l.href}
+                onClick={() => setOpen(false)}
+                className="border-b border-linku-border py-4 text-lg font-semibold text-linku-text"
+              >
+                {l.label}
+              </Link>
+            ) : (
+              <a
+                key={l.href}
+                href={l.href}
+                onClick={() => setOpen(false)}
+                className="border-b border-linku-border py-4 text-lg font-semibold text-linku-text"
+              >
+                {l.label}
+              </a>
+            )
+          )}
           <div className="mt-6 flex flex-col gap-3" onClick={() => setOpen(false)}>
             {isLoggedIn ? (
               <OutlineButton href={meHref} size="lg">
@@ -171,7 +209,7 @@ export default function Navbar({ isLoggedIn = false, locale, ui }: Props) {
                 {ui.login}
               </OutlineButton>
             )}
-            <CoralButton href="#tickets" size="lg">
+            <CoralButton href={buyHref} size="lg">
               {ui.buy}
             </CoralButton>
           </div>

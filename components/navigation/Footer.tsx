@@ -1,5 +1,6 @@
 import Image from 'next/image';
-import { Instagram, Linkedin, Mail } from 'lucide-react';
+import Link from 'next/link';
+import { Instagram, Linkedin, Mail, BookOpen } from 'lucide-react';
 import type { UiContent } from '@/lib/i18n/content';
 
 type Props = {
@@ -9,14 +10,29 @@ type Props = {
     social: { instagram: string; linkedin: string; website: string };
   };
   ui: UiContent['footer'];
+  /** Si está, agrega una columna "Recursos" con link al directorio. */
+  directorioHref?: string;
+  /** Etiqueta del link al directorio. Default: "Directorio". */
+  directorioLabel?: string;
 };
 
-export default function Footer({ site, ui }: Props) {
+export default function Footer({
+  site,
+  ui,
+  directorioHref,
+  directorioLabel = 'Directorio'
+}: Props) {
   const year = new Date().getFullYear();
   return (
     <footer className="border-t border-linku-border bg-linku-bg">
       <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 sm:py-20">
-        <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr]">
+        <div
+          className={`grid gap-12 ${
+            directorioHref
+              ? 'lg:grid-cols-[1.4fr_1fr_1fr_1fr]'
+              : 'lg:grid-cols-[1.4fr_1fr_1fr]'
+          }`}
+        >
           <div>
             <div className="flex items-center gap-3">
               <Image
@@ -71,6 +87,24 @@ export default function Footer({ site, ui }: Props) {
               </li>
             </ul>
           </div>
+
+          {directorioHref && (
+            <div>
+              <h4 className="text-xs font-semibold uppercase tracking-[0.2em] text-linku-text-dim">
+                Recursos
+              </h4>
+              <ul className="mt-5 space-y-3 text-sm">
+                <li>
+                  <Link
+                    href={directorioHref}
+                    className="flex items-center gap-2 text-linku-text-muted transition hover:text-linku-coral"
+                  >
+                    <BookOpen size={14} /> {directorioLabel}
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          )}
 
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-[0.2em] text-linku-text-dim">

@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import type { Locale } from '@/lib/i18n/config';
+import { localizePath } from '@/lib/i18n/config';
 import { getContent } from '@/lib/i18n/content';
 import { getActiveTiers } from '@/lib/tickets';
 import { getActiveSpeakers } from '@/lib/speakers';
@@ -117,7 +118,12 @@ export default async function HomePage({
         <FinalCTA finalCTA={c.site.finalCTA} />
         <FAQ items={c.faq} ui={ui.faq} />
       </main>
-      <Footer site={c.site} ui={ui.footer} />
+      <Footer
+        site={c.site}
+        ui={ui.footer}
+        directorioHref={localizePath('/directorio', params.locale)}
+        directorioLabel={(ui.nav.links as { directorio?: string }).directorio ?? 'Directorio'}
+      />
     </>
   );
 }
