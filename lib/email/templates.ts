@@ -15,8 +15,9 @@ type Strings = {
   ticketsTitle: string;
   ticketsDesc: string;
   saveQrTip: string;
-  manageHere: string;
-  manageCta: string;
+  accountTitle: string;
+  accountDesc: string;
+  accountCta: string;
   footer: string;
 };
 
@@ -29,9 +30,11 @@ const STRINGS: Record<Locale, Strings> = {
     ticketsDesc:
       'Cada QR es único e intransferible. Llévalo en tu teléfono o impreso el día del summit.',
     saveQrTip:
-      'Tip: guarda este email o haz captura. El QR también está disponible en tu cuenta.',
-    manageHere: 'Tu cuenta',
-    manageCta: 'Ver mis boletas',
+      'Tu boleta está en este correo: el QR de arriba es tu entrada. Guárdalo o toma captura para mostrarlo el día del evento.',
+    accountTitle: 'Haz seguimiento de tu entrada y agenda tus citas',
+    accountDesc:
+      'Para gestionar tu entrada y agendar tus reuniones 1:1, entra a tu cuenta en linkusummit.com. Inicia sesión solo con tu correo: te enviaremos un código de 6 dígitos para entrar (sin contraseñas).',
+    accountCta: 'Entrar a mi cuenta',
     footer:
       'LinkU Summit 2026 · Octubre 2026 · Medellín · linkusummit.com'
   },
@@ -43,9 +46,11 @@ const STRINGS: Record<Locale, Strings> = {
     ticketsDesc:
       'Each QR is unique and non-transferable. Bring it on your phone or printed on the day.',
     saveQrTip:
-      'Tip: save this email or take a screenshot. The QR is also in your account.',
-    manageHere: 'Your account',
-    manageCta: 'View my tickets',
+      'Your ticket is in this email: the QR above is your entry. Save it or screenshot it to show on the event day.',
+    accountTitle: 'Track your ticket and book your meetings',
+    accountDesc:
+      "To manage your ticket and book your 1:1 meetings, sign in to your account at linkusummit.com. Just use your email: we'll send you a 6-digit code to log in (no passwords).",
+    accountCta: 'Go to my account',
     footer: 'LinkU Summit 2026 · October 2026 · Medellín · linkusummit.com'
   }
 };
@@ -58,7 +63,7 @@ export function ticketConfirmedEmail(input: {
   tickets: TicketRow[];
 }): { subject: string; html: string } {
   const t = STRINGS[input.locale];
-  const meUrl = `${SITE_URL}${input.locale === 'es' ? '' : '/' + input.locale}/me`;
+  const loginUrl = `${SITE_URL}${input.locale === 'es' ? '' : '/' + input.locale}/login`;
 
   const ticketsHtml = input.tickets
     .map(
@@ -120,10 +125,23 @@ export function ticketConfirmedEmail(input: {
           </p>
         </td></tr>
 
-        <tr><td style="padding:0 24px 32px 24px;">
-          <a href="${meUrl}" style="display:inline-block;padding:12px 22px;background:#FF5A5F;color:#fff;font-weight:600;font-size:14px;text-decoration:none;border-radius:10px;">
-            ${t.manageCta} →
-          </a>
+        <tr><td style="padding:8px 24px 32px 24px;">
+          <table cellpadding="0" cellspacing="0" border="0" style="width:100%;background:#0A1428;border:1px solid rgba(255,90,95,0.25);border-radius:12px;">
+            <tr><td style="padding:18px;">
+              <p style="margin:0 0 6px 0;color:#E8EEF5;font-size:14px;font-weight:700;">
+                ${t.accountTitle}
+              </p>
+              <p style="margin:0 0 14px 0;color:#8A9BB0;font-size:13px;line-height:1.6;">
+                ${t.accountDesc}
+              </p>
+              <a href="${loginUrl}" style="display:inline-block;padding:12px 22px;background:#FF5A5F;color:#fff;font-weight:600;font-size:14px;text-decoration:none;border-radius:10px;">
+                ${t.accountCta} →
+              </a>
+              <p style="margin:12px 0 0 0;color:#5A6B82;font-size:11px;word-break:break-all;">
+                ${loginUrl}
+              </p>
+            </td></tr>
+          </table>
         </td></tr>
 
         <tr><td style="padding:16px 24px 24px 24px;border-top:1px solid rgba(255,255,255,0.08);">

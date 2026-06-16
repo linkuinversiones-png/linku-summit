@@ -3,7 +3,6 @@ import Image from 'next/image';
 import { createClient as createServiceSb } from '@supabase/supabase-js';
 import { localizePath, type Locale } from '@/lib/i18n/config';
 import StatusPoll from './StatusPoll';
-import RegisterOtp from './RegisterOtp';
 
 export const metadata = {
   title: 'Checkout · LINKU SUMMIT 2026',
@@ -18,23 +17,14 @@ const COPY = {
     titleFailed: 'El pago no se pudo procesar.',
     leadPending: 'Wompi nos avisa por webhook en segundos. No cierres esta página.',
     leadPaid:
-      'Te enviamos un email con tu boleta y QR. Crea tu cuenta con el código que te enviamos para verla cuando quieras.',
+      'Revisa tu correo: te enviamos tu boleta con el QR — esa es tu entrada para el evento.',
+    accountNote:
+      'Para hacer seguimiento de tu entrada y agendar tus citas, entra a tu cuenta. Inicia sesión solo con tu correo (te enviamos un código de 6 dígitos).',
+    accountCta: 'Entrar a mi cuenta',
     leadFailed:
       'Si crees que fue un error, intenta de nuevo o contáctanos a invites@linkusummit.com.',
     notFound: 'No encontramos esa referencia de orden.',
-    cta: 'Ver mis boletas',
-    backHome: 'Volver al inicio',
-    otp: {
-      title: 'Crea tu cuenta para gestionar tu boleta',
-      lead: 'Te enviamos un código de 6 dígitos a {email}.',
-      sendCode: 'Enviar código a mi correo',
-      sending: 'Enviando…',
-      codeLabel: 'Código de 6 dígitos',
-      verify: 'Verificar y entrar',
-      verifying: 'Verificando…',
-      viewTicket: 'Ver mi boleta',
-      loggedInLead: 'Tu sesión está activa. Tu boleta ya está vinculada a tu cuenta.'
-    }
+    backHome: 'Volver al inicio'
   },
   en: {
     eyebrow: 'Payment',
@@ -43,23 +33,14 @@ const COPY = {
     titleFailed: 'Payment could not be processed.',
     leadPending: "Wompi notifies us via webhook within seconds. Don't close this page.",
     leadPaid:
-      "We've sent you an email with your ticket and QR. Create your account with the code we sent to view it anytime.",
+      'Check your email: we sent your ticket with the QR — that is your entry to the event.',
+    accountNote:
+      'To track your ticket and book your meetings, sign in to your account. Just use your email (we send you a 6-digit code).',
+    accountCta: 'Go to my account',
     leadFailed:
       'If you think this is a mistake, try again or contact us at invites@linkusummit.com.',
     notFound: "We couldn't find that order reference.",
-    cta: 'View my tickets',
-    backHome: 'Back to home',
-    otp: {
-      title: 'Create your account to manage your ticket',
-      lead: 'We sent a 6-digit code to {email}.',
-      sendCode: 'Send code to my email',
-      sending: 'Sending…',
-      codeLabel: '6-digit code',
-      verify: 'Verify & enter',
-      verifying: 'Verifying…',
-      viewTicket: 'View my ticket',
-      loggedInLead: 'Your session is active. Your ticket is already linked to your account.'
-    }
+    backHome: 'Back to home'
   }
 } as const;
 
@@ -114,7 +95,7 @@ export default async function CheckoutSuccessPage(props: {
     );
   }
 
-  const meHref = localizePath('/me', params.locale);
+  const loginHref = localizePath('/login', params.locale);
   const isPaid = order.status === 'paid';
   const isFailed = order.status === 'failed';
 
@@ -158,8 +139,16 @@ export default async function CheckoutSuccessPage(props: {
           Ref: <code>{order.payment_reference}</code>
         </p>
 
-        {isPaid && order.buyer_email && (
-          <RegisterOtp email={order.buyer_email} meHref={meHref} copy={t.otp} />
+        {isPaid && (
+          <div className="mx-auto mt-8 max-w-md rounded-xl border border-linku-coral/25 bg-linku-bg-3/40 p-5">
+            <p className="text-sm leading-relaxed text-linku-text-muted">{t.accountNote}</p>
+            <Link
+              href={loginHref}
+              className="mt-4 inline-flex items-center gap-2 rounded-xl bg-linku-coral px-5 py-3 text-sm font-semibold text-white shadow-coral-glow transition hover:bg-linku-coral-soft"
+            >
+              {t.accountCta} →
+            </Link>
+          </div>
         )}
 
         <div className="mt-10 flex flex-wrap justify-center gap-3">

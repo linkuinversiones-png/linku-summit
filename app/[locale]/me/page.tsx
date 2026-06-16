@@ -14,6 +14,7 @@ import { createClient } from '@/lib/supabase/server';
 import { localizePath, type Locale } from '@/lib/i18n/config';
 import { getContent } from '@/lib/i18n/content';
 import { renderTicketQrDataUrl } from '@/lib/qr/render';
+import { claimMyOrders } from '../checkout/actions';
 import SignOutButton from './SignOutButton';
 
 export const metadata = {
@@ -34,6 +35,9 @@ export default async function MePage(
   if (!user) {
     redirect(localizePath('/login?next=/me', params.locale));
   }
+
+  // Vincula compras hechas como invitado (mismo email) a esta cuenta. Idempotente.
+  await claimMyOrders();
 
   const { data: profile } = await supabase
     .from('profiles')
