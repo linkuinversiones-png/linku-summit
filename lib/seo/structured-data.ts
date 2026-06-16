@@ -1,6 +1,6 @@
 import type { Locale } from '@/lib/i18n/config';
 
-const SITE_URL = 'https://linkusummit.com';
+const SITE_URL = 'https://www.linkusummit.com';
 
 type SiteData = {
   eventName: string;

@@ -10,14 +10,15 @@ export const metadata = {
   title: 'LINKU SUMMIT 2026'
 };
 
-export default async function LoginPage({
-  params,
-  searchParams
-}: {
-  params: { locale: Locale };
-  searchParams: { next?: string };
-}) {
-  const supabase = createClient();
+export default async function LoginPage(
+  props: {
+    params: Promise<{ locale: Locale }>;
+    searchParams: Promise<{ next?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
+  const supabase = await createClient();
   const {
     data: { user }
   } = await supabase.auth.getUser();

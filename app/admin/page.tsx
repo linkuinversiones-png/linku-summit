@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { Ticket, Users, DollarSign, ScanLine, type LucideIcon } from 'lucide-react';
 
 async function getStats() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const [
     { count: usersCount },
     { count: ordersPaidCount },
@@ -135,7 +135,7 @@ export default async function AdminDashboard() {
             <li className="flex gap-2">
               <span className="text-linku-coral">·</span>
               <span>
-                <strong className="text-linku-text">ePayco + QR</strong> — checkout y boletas emitidas automáticamente.
+                <strong className="text-linku-text">Wompi + QR</strong> — checkout y boletas emitidas automáticamente.
               </span>
             </li>
             <li className="flex gap-2">

@@ -8,7 +8,7 @@ export const DIRECTORY_INDEX_COPY = {
     title: 'Directorio de eventos de inversión en Latinoamérica 2026 | LINKU Summit',
     description:
       'Guía y directorio de los eventos de capital privado, venture capital, family office, fintech, cripto y real estate más relevantes de Latinoamérica en 2026. Curado por LINKU Summit (Medellín).',
-    canonical: 'https://linkusummit.com/directorio',
+    canonical: 'https://www.linkusummit.com/directorio',
     updated: '2026-06-15',
     author: 'LINKU Ventures',
     lang: 'es'

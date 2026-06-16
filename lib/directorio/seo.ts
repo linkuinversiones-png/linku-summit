@@ -4,7 +4,7 @@ import {
   type DirectoryEvent
 } from '@/lib/directorio/events';
 
-export const SITE_URL = 'https://linkusummit.com';
+export const SITE_URL = 'https://www.linkusummit.com';
 
 /** URL absoluta de una ruta del directorio. */
 export function absoluteUrl(path: string): string {

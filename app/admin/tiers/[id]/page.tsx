@@ -8,11 +8,12 @@ export const metadata = {
   robots: { index: false, follow: false }
 };
 
-export default async function EditTierPage({
-  params
-}: {
-  params: { id: string };
-}) {
+export default async function EditTierPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   const tier = await getTierById(params.id);
   if (!tier) notFound();
 

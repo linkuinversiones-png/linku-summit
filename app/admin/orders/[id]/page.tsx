@@ -33,11 +33,12 @@ function fmtDate(iso: string | null): string {
   });
 }
 
-export default async function OrderDetailPage({
-  params
-}: {
-  params: { id: string };
-}) {
+export default async function OrderDetailPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   const order = await getOrderEnrichedById(params.id);
   if (!order) notFound();
 
@@ -107,7 +108,7 @@ export default async function OrderDetailPage({
             <Row label="Creada" value={fmtDate(order.created_at)} />
             <Row label="Pagada" value={fmtDate(order.paid_at)} />
             <Row
-              label="Ref. ePayco"
+              label="Ref. Wompi"
               value={order.payment_provider_id ?? <span className="text-linku-text-dim">—</span>}
             />
           </dl>
@@ -148,7 +149,7 @@ export default async function OrderDetailPage({
               </>
             ) : (
               <>
-                <Clock size={14} /> La boleta se emite cuando ePayco confirma el pago.
+                <Clock size={14} /> La boleta se emite cuando Wompi confirma el pago.
               </>
             )}
           </p>

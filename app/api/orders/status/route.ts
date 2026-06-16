@@ -8,7 +8,7 @@ import { createClient } from '@/lib/supabase/server';
  * Usado por la página /checkout/success para polling.
  */
 export async function GET(request: NextRequest) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user }
   } = await supabase.auth.getUser();

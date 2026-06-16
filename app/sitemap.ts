@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { DIRECTORY_EVENTS } from '@/lib/directorio/events';
 
-const SITE_URL = 'https://linkusummit.com';
+const SITE_URL = 'https://www.linkusummit.com';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();

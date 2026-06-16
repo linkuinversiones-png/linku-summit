@@ -67,7 +67,7 @@ export type ListOrdersFilter = {
 export async function listOrdersEnriched(
   filter: ListOrdersFilter = {}
 ): Promise<OrderEnriched[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   let q = supabase.from('orders').select('*').order('created_at', { ascending: false });
   if (filter.status) q = q.eq('status', filter.status);
   if (filter.tierSlug) q = q.eq('ticket_tier', filter.tierSlug);
@@ -124,7 +124,7 @@ export async function listOrdersEnriched(
 export async function getOrderEnrichedById(
   id: string
 ): Promise<OrderEnriched | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: order } = await supabase
     .from('orders')
     .select('*')
@@ -189,7 +189,7 @@ export type OrdersStats = {
 };
 
 export async function getOrdersStats(): Promise<OrdersStats> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: orders } = await supabase
     .from('orders')
     .select('status, total_cop, user_id');

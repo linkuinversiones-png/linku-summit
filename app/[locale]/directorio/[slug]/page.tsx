@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Calendar, MapPin } from 'lucide-react';
-import { localizePath, type Locale } from '@/lib/i18n/config';
+import { DEFAULT_LOCALE, isLocale, localizePath, type Locale } from '@/lib/i18n/config';
 import JsonLd from '@/components/seo/JsonLd';
 import {
   DIRECTORY_BASE_PATH,
@@ -31,12 +31,11 @@ export function generateStaticParams() {
   return directorySlugs().map((slug) => ({ slug }));
 }
 
-export function generateMetadata({
-  params
-}: {
-  params: { locale: Locale; slug: string };
-}): Metadata {
-  const evt = getEventBySlug(params.slug);
+export async function generateMetadata(props: {
+  params: Promise<{ locale: string; slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await props.params;
+  const evt = getEventBySlug(slug);
   if (!evt) {
     return { title: 'Evento no encontrado | LINKU Summit' };
   }
@@ -83,15 +82,15 @@ function truncate(s: string, n: number) {
   return s.length <= n ? s : s.slice(0, n - 1).trimEnd() + '…';
 }
 
-export default function DirectorioEventoPage({
-  params
-}: {
-  params: { locale: Locale; slug: string };
+export default async function DirectorioEventoPage(props: {
+  params: Promise<{ locale: string; slug: string }>;
 }) {
-  const evt = getEventBySlug(params.slug);
+  const { locale: rawLocale, slug } = await props.params;
+  const locale: Locale = isLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
+  const evt = getEventBySlug(slug);
   if (!evt) notFound();
 
-  const directorioBase = localizePath(DIRECTORY_BASE_PATH, params.locale);
+  const directorioBase = localizePath(DIRECTORY_BASE_PATH, locale);
   const categoria = DIRECTORY_CATEGORIES[evt.category];
   const doc = evt.published ? loadEvento(evt.slug) : null;
 
@@ -126,7 +125,7 @@ export default function DirectorioEventoPage({
         <div className="mx-auto max-w-4xl px-5 pb-14 sm:px-8 sm:pb-20">
           <Breadcrumbs
             items={[
-              { label: 'Inicio', href: localizePath('/', params.locale) },
+              { label: 'Inicio', href: localizePath('/', locale) },
               { label: 'Directorio', href: directorioBase },
               { label: evt.nombre }
             ]}
@@ -235,7 +234,7 @@ export default function DirectorioEventoPage({
           title={DIRECTORY_INDEX_COPY.cta.title}
           body={DIRECTORY_INDEX_COPY.cta.body}
           primaryLabel={DIRECTORY_INDEX_COPY.cta.primaryLabel}
-          primaryHref={`${localizePath('/', params.locale)}#tickets`}
+          primaryHref={`${localizePath('/', locale)}#tickets`}
           secondaryLabel="Volver al directorio"
           secondaryHref={directorioBase}
         />

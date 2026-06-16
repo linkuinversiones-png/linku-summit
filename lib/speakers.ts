@@ -51,7 +51,7 @@ function toPublic(row: SpeakerRow, locale: 'es' | 'en'): PublicSpeaker {
 export async function getActiveSpeakers(
   locale: 'es' | 'en'
 ): Promise<PublicSpeaker[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from('speakers')
     .select('*')
@@ -61,7 +61,7 @@ export async function getActiveSpeakers(
 }
 
 export async function getAllSpeakersAdmin(): Promise<SpeakerRow[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from('speakers')
     .select('*')
@@ -70,7 +70,7 @@ export async function getAllSpeakersAdmin(): Promise<SpeakerRow[]> {
 }
 
 export async function getSpeakerByIdAdmin(id: string): Promise<SpeakerRow | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from('speakers')
     .select('*')

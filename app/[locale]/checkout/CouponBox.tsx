@@ -50,7 +50,7 @@ export default function CouponBox({
         return;
       }
       // Recarga la página con el cupón en URL para que el server lo aplique
-      // (firma + monto a ePayco se calculan ahí).
+      // (firma + monto a Wompi se calculan ahí).
       const params = new URLSearchParams(sp?.toString() ?? '');
       params.set('coupon', data.couponCode);
       start(() => router.push(`${pathname}?${params.toString()}`));

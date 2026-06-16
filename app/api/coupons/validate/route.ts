@@ -11,7 +11,7 @@ import { validateCoupon } from '@/lib/coupons';
  * La validación final se hace de nuevo server-side al crear la orden.
  */
 export async function POST(request: NextRequest) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user }
   } = await supabase.auth.getUser();

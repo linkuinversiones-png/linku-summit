@@ -104,7 +104,7 @@ function toPublic(row: TierRow, locale: Locale): PublicTier {
  * Filtra por ventanas de visibilidad (`visible_from` / `visible_until`).
  */
 export async function getActiveTiers(locale: Locale): Promise<PublicTier[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const now = new Date().toISOString();
 
   const { data, error } = await supabase
@@ -125,7 +125,7 @@ export async function getActiveTiers(locale: Locale): Promise<PublicTier[]> {
  * Para uso en /admin: trae TODOS los tiers, incluyendo inactivos.
  */
 export async function getAllTiersAdmin(): Promise<TierRow[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from('ticket_tiers')
     .select('*')
@@ -136,7 +136,7 @@ export async function getAllTiersAdmin(): Promise<TierRow[]> {
 }
 
 export async function getTierById(id: string): Promise<TierRow | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from('ticket_tiers')
     .select('*')

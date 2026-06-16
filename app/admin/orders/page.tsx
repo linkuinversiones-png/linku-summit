@@ -51,11 +51,12 @@ type Search = {
   q?: string;
 };
 
-export default async function AdminOrdersPage({
-  searchParams
-}: {
-  searchParams: Search;
-}) {
+export default async function AdminOrdersPage(
+  props: {
+    searchParams: Promise<Search>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const [orders, stats] = await Promise.all([
     listOrdersEnriched({
       status: searchParams.status,

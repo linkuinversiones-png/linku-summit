@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { localizePath, type Locale } from '@/lib/i18n/config';
+import { DEFAULT_LOCALE, isLocale, localizePath, type Locale } from '@/lib/i18n/config';
 import JsonLd from '@/components/seo/JsonLd';
 import {
   DIRECTORY_BASE_PATH,
@@ -73,9 +73,13 @@ export function generateMetadata(): Metadata {
   };
 }
 
-export default function DirectorioPage({ params }: { params: { locale: Locale } }) {
+export default async function DirectorioPage(props: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale: rawLocale } = await props.params;
+  const locale: Locale = isLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
   const groups = eventsByCategory();
-  const directorioBase = localizePath(DIRECTORY_BASE_PATH, params.locale);
+  const directorioBase = localizePath(DIRECTORY_BASE_PATH, locale);
   const hrefFor = (slug: string) => `${directorioBase}/${slug}`;
 
   const collectionLd = directoryCollectionJsonLd({
@@ -107,7 +111,7 @@ export default function DirectorioPage({ params }: { params: { locale: Locale } 
         <div className="pt-10">
           <Breadcrumbs
             items={[
-              { label: 'Inicio', href: localizePath('/', params.locale) },
+              { label: 'Inicio', href: localizePath('/', locale) },
               { label: 'Directorio' }
             ]}
           />
@@ -164,9 +168,9 @@ export default function DirectorioPage({ params }: { params: { locale: Locale } 
           title={COPY.cta.title}
           body={COPY.cta.body}
           primaryLabel={COPY.cta.primaryLabel}
-          primaryHref={`${localizePath('/', params.locale)}#tickets`}
+          primaryHref={`${localizePath('/', locale)}#tickets`}
           secondaryLabel={COPY.cta.secondaryLabel}
-          secondaryHref={localizePath('/', params.locale)}
+          secondaryHref={localizePath('/', locale)}
         />
 
         <p className="mt-12 text-xs text-linku-text-dim leading-relaxed">{COPY.footer}</p>

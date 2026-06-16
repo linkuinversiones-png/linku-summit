@@ -1,6 +1,11 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { DEFAULT_LOCALE, localizePath, type Locale } from '@/lib/i18n/config';
+import {
+  DEFAULT_LOCALE,
+  isLocale,
+  localizePath,
+  type Locale
+} from '@/lib/i18n/config';
 import { getContent } from '@/lib/i18n/content';
 import Navbar from '@/components/navigation/Navbar';
 import Footer from '@/components/navigation/Footer';
@@ -10,7 +15,7 @@ async function getCurrentUser() {
     return null;
   }
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const {
       data: { user }
     } = await supabase.auth.getUser();
@@ -20,23 +25,22 @@ async function getCurrentUser() {
   }
 }
 
-export default async function DirectorioLayout({
-  children,
-  params
-}: {
+export default async function DirectorioLayout(props: {
   children: React.ReactNode;
-  params: { locale: Locale };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale: rawLocale } = await props.params;
   // Por ahora el directorio existe solo en español. /en/directorio devuelve 404
   // hasta que se publiquen las traducciones.
-  if (params.locale !== DEFAULT_LOCALE) {
+  if (!isLocale(rawLocale) || rawLocale !== DEFAULT_LOCALE) {
     notFound();
   }
+  const locale: Locale = rawLocale;
 
   const user = await getCurrentUser();
-  const c = getContent(params.locale);
+  const c = getContent(locale);
   const ui = c.ui;
-  const directorioHref = localizePath('/directorio', params.locale);
+  const directorioHref = localizePath('/directorio', locale);
   const directorioLabel =
     (ui.nav.links as { directorio?: string }).directorio ?? 'Directorio';
 
@@ -45,11 +49,11 @@ export default async function DirectorioLayout({
       <Navbar
         contacts={c.site.contacts}
         isLoggedIn={!!user}
-        locale={params.locale}
+        locale={locale}
         ui={ui.nav}
-        anchorBase={localizePath('/', params.locale)}
+        anchorBase={localizePath('/', locale)}
       />
-      <main className="bg-linku-bg">{children}</main>
+      <main className="bg-linku-bg">{props.children}</main>
       <Footer
         site={c.site}
         ui={ui.footer}

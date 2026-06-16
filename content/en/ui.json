@@ -163,17 +163,19 @@
     "madeIn": "Made in Medellín."
   },
   "login": {
-    "title": "Log in",
-    "lead": "We'll send a magic link to your email. Click the link and you're in, no passwords.",
+    "title": "Sign in",
+    "lead": "We'll email you a 6-digit code. No passwords.",
     "emailLabel": "Your email",
     "emailPlaceholder": "you@email.com",
-    "submit": "Send link",
+    "submit": "Send code",
     "submitting": "Sending…",
-    "sentTitle": "Check your email",
-    "sentBody": "We sent a magic link to {email}. Open it from the same device to continue.",
+    "codeLabel": "6-digit code",
+    "codeSentBody": "We sent a code to {email}. Check it and paste it here.",
+    "verify": "Verify & enter",
+    "verifying": "Verifying…",
     "useOther": "Use another email",
     "backHome": "Back to home",
-    "noAccount": "If you don't have an account yet, we'll create one for you on login."
+    "noAccount": "If you don't have an account yet, we'll create one automatically."
   },
   "me": {
     "subtitle": "My account",

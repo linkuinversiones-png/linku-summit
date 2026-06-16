@@ -17,8 +17,23 @@ import { LOCALES, DEFAULT_LOCALE, isLocale } from '@/lib/i18n/config';
 
 const I18N_EXEMPT_PREFIXES = ['admin', 'api'];
 
+/** Dominio canónico (con www). El apex redirige aquí. */
+const CANONICAL_HOST = 'www.linkusummit.com';
+
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
+
+  // Canonical host: apex (linkusummit.com) → www.linkusummit.com (301).
+  // Solo en producción; deja en paz localhost y la URL *.workers.dev.
+  const host = request.headers.get('host') ?? '';
+  if (host === 'linkusummit.com') {
+    const url = new URL(request.url);
+    url.host = CANONICAL_HOST;
+    url.protocol = 'https:';
+    url.port = '';
+    return NextResponse.redirect(url, 301);
+  }
+
   const segments = pathname.split('/').filter(Boolean);
   const first = segments[0];
 

@@ -20,7 +20,7 @@ export default function StatusPoll({ reference }: { reference: string }) {
       if (cancelled) return;
       attempts++;
       try {
-        const res = await fetch(`/api/orders/status?ref=${encodeURIComponent(reference)}`, {
+        const res = await fetch(`/api/orders/guest-status?ref=${encodeURIComponent(reference)}`, {
           cache: 'no-store'
         });
         if (!res.ok) return;

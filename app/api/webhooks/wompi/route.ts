@@ -1,32 +1,29 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient as createServerSb } from '@supabase/supabase-js';
-import {
-  verifyConfirmationSignature,
-  mapResponseCodeToStatus
-} from '@/lib/epayco/signatures';
+import { verifyEventChecksum, mapWompiStatus } from '@/lib/wompi/signatures';
 import { uploadTicketQr } from '@/lib/qr/upload';
 import { sendEmail } from '@/lib/email/send';
 import { ticketConfirmedEmail } from '@/lib/email/templates';
 import type { Locale } from '@/lib/i18n/config';
 
 /**
- * Webhook que recibe la confirmación (server-to-server) de ePayco.
+ * Webhook que recibe los eventos (server-to-server) de Wompi.
+ * Se configura en: Wompi Dashboard → Desarrollo → Programadores → "URL de Eventos".
  *
  * Flujo:
- *   1. Lee el form-urlencoded del request (ePayco no manda JSON).
- *   2. Verifica `x_signature` con EPAYCO_P_KEY.
- *   3. Busca la orden por payment_reference (= x_id_invoice).
- *   4. Si x_cod_response = 1 (Aceptada):
+ *   1. Lee el JSON del evento.
+ *   2. Valida `signature.checksum` con WOMPI_EVENTS_SECRET.
+ *   3. Busca la orden por payment_reference (= data.transaction.reference).
+ *   4. Si status = APPROVED:
  *        - marca orden 'paid' (idempotente)
  *        - emite tickets_issued con qr_code random + HMAC del id
  *        - dispara email con boleta+QR via Resend
- *   5. Si 2/4/11 (Rechazada/Fallida/Cancelada): marca orden 'failed'.
- *   6. Otros: deja la orden en estado actual.
+ *   5. Si DECLINED/VOIDED/ERROR: marca orden 'failed'.
+ *   6. PENDING / otros: no toca la orden.
  *
- * Siempre retorna 200 a ePayco (los reintenta solo en 5xx).
+ * Siempre retorna 200 salvo payload/firma inválida (Wompi reintenta en no-2xx).
  */
 
-// Service role: necesario para escribir aunque el webhook no esté autenticado.
 function serviceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -40,29 +37,22 @@ function serviceClient() {
   });
 }
 
-/** Soporta tanto application/x-www-form-urlencoded como JSON. */
-async function readPayload(
-  request: NextRequest
-): Promise<Record<string, string>> {
-  const contentType = request.headers.get('content-type') ?? '';
-  if (contentType.includes('application/json')) {
-    const body = (await request.json()) as Record<string, unknown>;
-    const out: Record<string, string> = {};
-    for (const [k, v] of Object.entries(body)) out[k] = String(v ?? '');
-    return out;
-  }
-  const form = await request.formData();
-  const out: Record<string, string> = {};
-  form.forEach((v, k) => {
-    out[k] = typeof v === 'string' ? v : '';
-  });
-  return out;
-}
+type WompiTransaction = {
+  id?: string;
+  reference?: string;
+  status?: string;
+  amount_in_cents?: number;
+  customer_email?: string;
+};
 
 export async function POST(request: NextRequest) {
-  let payload: Record<string, string>;
+  let event: {
+    data?: { transaction?: WompiTransaction };
+    timestamp?: number;
+    signature?: { properties?: string[]; checksum?: string };
+  };
   try {
-    payload = await readPayload(request);
+    event = await request.json();
   } catch {
     return NextResponse.json(
       { ok: false, error: 'invalid payload' },
@@ -70,33 +60,21 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const xSignature = payload['x_signature'] ?? '';
-  const xRefPayco = payload['x_ref_payco'] ?? '';
-  const xTransactionId = payload['x_transaction_id'] ?? '';
-  const xAmount = payload['x_amount'] ?? '';
-  const xCurrencyCode = payload['x_currency_code'] ?? '';
-  const xIdInvoice = payload['x_id_invoice'] ?? '';
-  const xCodResponse = payload['x_cod_response'] ?? '';
-
-  if (!xIdInvoice) {
-    return NextResponse.json(
-      { ok: false, error: 'missing x_id_invoice' },
-      { status: 400 }
-    );
-  }
-
-  const sigValid = verifyConfirmationSignature({
-    xRefPayco,
-    xTransactionId,
-    xAmount,
-    xCurrencyCode,
-    xSignature
-  });
-
-  if (!sigValid) {
+  if (!verifyEventChecksum(event)) {
     return NextResponse.json(
       { ok: false, error: 'invalid signature' },
       { status: 401 }
+    );
+  }
+
+  const tx = event.data?.transaction;
+  const reference = tx?.reference ?? '';
+  const providerId = tx?.id ?? '';
+
+  if (!reference) {
+    return NextResponse.json(
+      { ok: false, error: 'missing reference' },
+      { status: 400 }
     );
   }
 
@@ -105,14 +83,14 @@ export async function POST(request: NextRequest) {
   const { data: order, error: orderErr } = await sb
     .from('orders')
     .select('*')
-    .eq('payment_reference', xIdInvoice)
+    .eq('payment_reference', reference)
     .single();
 
   if (orderErr || !order) {
     return NextResponse.json({ ok: true, note: 'order not found' });
   }
 
-  const newStatus = mapResponseCodeToStatus(xCodResponse);
+  const newStatus = mapWompiStatus(tx?.status);
 
   // Idempotencia: si ya está paid, no volver a emitir tickets ni email.
   if (order.status === 'paid' && newStatus === 'paid') {
@@ -124,7 +102,7 @@ export async function POST(request: NextRequest) {
       .from('orders')
       .update({
         status: 'paid',
-        payment_provider_id: xRefPayco,
+        payment_provider_id: providerId,
         paid_at: new Date().toISOString()
       })
       .eq('id', order.id);
@@ -157,14 +135,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Emitir 1 ticket (MVP: 1 orden = 1 boleta).
-    const { data: { user } = { user: null } } =
-      await sb.auth.admin.getUserById(order.user_id);
-    const attendeeEmail = user?.email ?? '';
+    // Checkout de invitado: los datos vienen de la orden (buyer_*), no de un
+    // usuario logueado (user_id puede ser null hasta que se registre por OTP).
+    const attendeeEmail = order.buyer_email ?? '';
     const attendeeName =
-      ((user?.user_metadata as Record<string, unknown> | undefined)
-        ?.full_name as string | undefined) ??
-      attendeeEmail.split('@')[0] ??
-      '';
+      order.buyer_name || attendeeEmail.split('@')[0] || '';
 
     const { data: ticket, error: ticketErr } = await sb
       .from('tickets_issued')
@@ -232,19 +207,11 @@ export async function POST(request: NextRequest) {
       .from('orders')
       .update({
         status: 'failed',
-        payment_provider_id: xRefPayco
-      })
-      .eq('id', order.id);
-  } else if (newStatus === 'expired') {
-    await sb
-      .from('orders')
-      .update({
-        status: 'expired',
-        payment_provider_id: xRefPayco
+        payment_provider_id: providerId
       })
       .eq('id', order.id);
   }
-  // pending / null → no tocamos la orden, esperamos otra confirmación
+  // pending / null → no tocamos la orden, esperamos otro evento
 
   return NextResponse.json({ ok: true });
 }
