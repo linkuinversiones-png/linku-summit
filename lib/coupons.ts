@@ -1,5 +1,15 @@
 import { createClient } from '@/lib/supabase/server';
 
+/** Normaliza un texto a slug: minúsculas, sin acentos, espacios → guiones. */
+function slugify(s: string): string {
+  return s
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-');
+}
+
 export type CouponRow = {
   id: string;
   code: string;
@@ -56,12 +66,16 @@ export async function validateCoupon(input: {
   if (c.max_uses !== null && c.current_uses >= c.max_uses) {
     return { ok: false, reason: 'Cupón agotado' };
   }
-  if (
-    c.applies_to_tiers &&
-    c.applies_to_tiers.length > 0 &&
-    !c.applies_to_tiers.includes(input.tierSlug)
-  ) {
-    return { ok: false, reason: 'Cupón no aplica a este tier' };
+  if (c.applies_to_tiers && c.applies_to_tiers.length > 0) {
+    // Tolerante: el admin puede haber guardado el slug ("early-access") o el
+    // nombre visible ("Early access"). Normalizamos ambos a slug para comparar.
+    const target = slugify(input.tierSlug);
+    const applies = c.applies_to_tiers.some(
+      (x) => slugify(x) === target || x.trim() === input.tierSlug
+    );
+    if (!applies) {
+      return { ok: false, reason: 'Cupón no aplica a este tier' };
+    }
   }
 
   let discount = 0;

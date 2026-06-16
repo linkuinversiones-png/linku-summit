@@ -149,9 +149,10 @@ export default function Navbar({
         </div>
       </div>
 
-      {/* Mobile drawer */}
+      {/* Mobile drawer — z alto y fondo sólido a pantalla completa (100dvh)
+          para que SIEMPRE tape el contenido detrás, en cualquier sección. */}
       <div
-        className={`fixed inset-0 z-50 bg-linku-bg transition lg:hidden ${
+        className={`fixed inset-0 z-[90] h-[100dvh] w-screen overflow-y-auto bg-linku-bg transition-opacity duration-300 lg:hidden ${
           open ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
         }`}
       >
