@@ -1,5 +1,4 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
 import { validateCoupon } from '@/lib/coupons';
 
 /**
@@ -7,18 +6,10 @@ import { validateCoupon } from '@/lib/coupons';
  * Body: { code: string, tier: string, subtotalCop: number }
  * Resp: { ok, discountCop, totalCop, reason? }
  *
- * Solo para feedback inmediato al usuario en el UI del checkout.
- * La validación final se hace de nuevo server-side al crear la orden.
+ * Público (el checkout es sin registro): validar un cupón no expone datos
+ * del usuario. La validación final se repite server-side al crear la orden.
  */
 export async function POST(request: NextRequest) {
-  const supabase = await createClient();
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ ok: false, reason: 'No autenticado' }, { status: 401 });
-  }
-
   let body: { code?: string; tier?: string; subtotalCop?: number };
   try {
     body = await request.json();
