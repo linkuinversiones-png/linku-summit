@@ -96,12 +96,12 @@ export default function LoginForm({
               required
               inputMode="numeric"
               autoComplete="one-time-code"
-              maxLength={6}
+              maxLength={8}
               placeholder="000000"
               value={code}
-              onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 8))}
               disabled={status === 'verifying'}
-              className="w-full rounded-xl border border-linku-border-2 bg-linku-bg-3 py-3 pl-10 pr-4 text-center text-lg tracking-[0.4em] text-linku-text placeholder:text-linku-text-dim focus:border-linku-coral/60 focus:outline-none focus:ring-2 focus:ring-linku-coral/30 disabled:opacity-60"
+              className="w-full rounded-xl border border-linku-border-2 bg-linku-bg-3 py-3 pl-10 pr-4 text-center text-lg tracking-[0.3em] text-linku-text placeholder:text-linku-text-dim focus:border-linku-coral/60 focus:outline-none focus:ring-2 focus:ring-linku-coral/30 disabled:opacity-60"
             />
           </div>
         </label>
