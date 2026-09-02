@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Info } from 'lucide-react';
 import type { Locale } from '@/lib/i18n/config';
 
 type Copy = {
@@ -11,6 +11,11 @@ type Copy = {
   phone: string;
   docType: string;
   docNumber: string;
+  company: string;
+  position: string;
+  linkedin: string;
+  linkedinOptional: string;
+  linkedinTooltip: string;
   billingSection: string;
   billingSame: string;
   address: string;
@@ -97,6 +102,52 @@ export default function CheckoutForm({
           <input name="buyer_doc_number" required className={inputCls} />
         </label>
       </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="flex flex-col gap-1.5">
+          <span className={labelCls}>{copy.company}</span>
+          <input name="buyer_company" required className={inputCls} autoComplete="organization" />
+        </label>
+        <label className="flex flex-col gap-1.5">
+          <span className={labelCls}>{copy.position}</span>
+          <input
+            name="buyer_position"
+            required
+            className={inputCls}
+            autoComplete="organization-title"
+          />
+        </label>
+      </div>
+
+      <label className="flex flex-col gap-1.5">
+        <span className={`${labelCls} flex items-center gap-1.5`}>
+          {copy.linkedin}
+          <span className="normal-case tracking-normal text-linku-text-dim">
+            ({copy.linkedinOptional})
+          </span>
+          <span className="group relative inline-flex">
+            <Info
+              size={13}
+              className="cursor-help text-linku-text-dim transition group-hover:text-linku-coral"
+              aria-hidden
+            />
+            <span
+              role="tooltip"
+              className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-64 -translate-x-1/2 rounded-lg border border-linku-border-2 bg-linku-bg-3 px-3 py-2 text-[11px] font-normal normal-case leading-relaxed tracking-normal text-linku-text opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100"
+            >
+              {copy.linkedinTooltip}
+            </span>
+          </span>
+        </span>
+        <input
+          name="buyer_linkedin"
+          type="url"
+          inputMode="url"
+          placeholder="https://linkedin.com/in/tu-perfil"
+          title={copy.linkedinTooltip}
+          className={inputCls}
+        />
+      </label>
 
       {/* --- Facturación --- */}
       <div className="mt-2 border-t border-linku-border pt-5">

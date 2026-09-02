@@ -1,5 +1,6 @@
 'use server';
 
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { createClient as createServiceSb } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/server';
@@ -8,6 +9,23 @@ import { validateCoupon } from '@/lib/coupons';
 import { signIntegrity, generateOrderReference } from '@/lib/wompi/signatures';
 import { wompiPublicKey, WOMPI_CHECKOUT_URL } from '@/lib/wompi/config';
 import { localizePath, type Locale } from '@/lib/i18n/config';
+
+/**
+ * Resuelve la URL base pública del sitio para armar `redirect-url` en Wompi.
+ * NEXT_PUBLIC_* NO se puede usar aquí porque Next las inline en build time;
+ * derivamos del host real del request (x-forwarded-host / host) para no
+ * mandar `http://localhost:3000` desde producción y que Wompi bloquee con 403.
+ */
+async function resolveSiteUrl(): Promise<string> {
+  const h = await headers();
+  const forwardedHost = h.get('x-forwarded-host');
+  const host = forwardedHost || h.get('host');
+  if (host && !host.includes('localhost') && !host.startsWith('127.')) {
+    const proto = h.get('x-forwarded-proto') || 'https';
+    return `${proto}://${host}`;
+  }
+  return process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+}
 
 function serviceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -36,7 +54,10 @@ export async function startGuestCheckout(formData: FormData): Promise<void> {
     email: str(formData, 'buyer_email').toLowerCase(),
     phone: str(formData, 'buyer_phone'),
     docType: str(formData, 'buyer_doc_type'),
-    docNumber: str(formData, 'buyer_doc_number')
+    docNumber: str(formData, 'buyer_doc_number'),
+    company: str(formData, 'buyer_company'),
+    position: str(formData, 'buyer_position'),
+    linkedin: str(formData, 'buyer_linkedin')
   };
 
   const billingSame = str(formData, 'billing_same') === 'on' || str(formData, 'billing_same') === 'true';
@@ -103,6 +124,9 @@ export async function startGuestCheckout(formData: FormData): Promise<void> {
     buyer_phone: buyer.phone,
     buyer_doc_type: buyer.docType,
     buyer_doc_number: buyer.docNumber,
+    buyer_company: buyer.company,
+    buyer_position: buyer.position,
+    buyer_linkedin: buyer.linkedin || null,
     billing_same: billingSame,
     billing_name: billing.name,
     billing_doc_type: billing.docType,
@@ -116,7 +140,7 @@ export async function startGuestCheckout(formData: FormData): Promise<void> {
   }
 
   const signature = signIntegrity({ reference, amountInCents, currency });
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+  const siteUrl = await resolveSiteUrl();
   const successPath = localizePath('/checkout/success', locale);
   const redirectUrl = `${siteUrl}${successPath}?ref=${encodeURIComponent(reference)}`;
 
