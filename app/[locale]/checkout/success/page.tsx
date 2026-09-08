@@ -5,7 +5,7 @@ import { localizePath, type Locale } from '@/lib/i18n/config';
 import StatusPoll from './StatusPoll';
 
 export const metadata = {
-  title: 'Checkout · LINKU SUMMIT 2026',
+  title: 'Checkout · LINKU CAPITAL SUMMIT 2026',
   robots: { index: false, follow: false }
 };
 
@@ -22,7 +22,7 @@ const COPY = {
       'Para hacer seguimiento de tu entrada y agendar tus citas, entra a tu cuenta. Inicia sesión solo con tu correo (te enviamos un código de 6 dígitos).',
     accountCta: 'Entrar a mi cuenta',
     leadFailed:
-      'Si crees que fue un error, intenta de nuevo o contáctanos a invites@linkusummit.com.',
+      'Si crees que fue un error, intenta de nuevo o contáctanos a laura.lopez@linku-ventures.co.',
     notFound: 'No encontramos esa referencia de orden.',
     backHome: 'Volver al inicio'
   },
@@ -38,7 +38,7 @@ const COPY = {
       'To track your ticket and book your meetings, sign in to your account. Just use your email (we send you a 6-digit code).',
     accountCta: 'Go to my account',
     leadFailed:
-      'If you think this is a mistake, try again or contact us at invites@linkusummit.com.',
+      'If you think this is a mistake, try again or contact us at laura.lopez@linku-ventures.co.',
     notFound: "We couldn't find that order reference.",
     backHome: 'Back to home'
   }

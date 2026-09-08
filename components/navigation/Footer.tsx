@@ -1,12 +1,12 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Instagram, Linkedin, Mail, BookOpen } from 'lucide-react';
+import { Instagram, Linkedin, Mail, Phone, BookOpen } from 'lucide-react';
 import type { UiContent } from '@/lib/i18n/content';
 
 type Props = {
   site: {
     eventName: string;
-    contacts: { sponsors: string; invites: string; partners: string };
+    contacts: { sponsors: string; invites: string; partners: string; phone?: string };
     social: { instagram: string; linkedin: string; website: string };
   };
   ui: UiContent['footer'];
@@ -61,30 +61,29 @@ export default function Footer({
               {ui.contactTitle}
             </h4>
             <ul className="mt-5 space-y-3 text-sm">
-              <li>
-                <a
-                  href={`mailto:${site.contacts.invites}`}
-                  className="flex items-center gap-2 text-linku-text-muted transition hover:text-linku-coral"
-                >
-                  <Mail size={14} /> {site.contacts.invites}
-                </a>
-              </li>
-              <li>
-                <a
-                  href={`mailto:${site.contacts.sponsors}`}
-                  className="flex items-center gap-2 text-linku-text-muted transition hover:text-linku-coral"
-                >
-                  <Mail size={14} /> {site.contacts.sponsors}
-                </a>
-              </li>
-              <li>
-                <a
-                  href={`mailto:${site.contacts.partners}`}
-                  className="flex items-center gap-2 text-linku-text-muted transition hover:text-linku-coral"
-                >
-                  <Mail size={14} /> {site.contacts.partners}
-                </a>
-              </li>
+              {/* Dedupe: sponsors/invites/partners pueden apuntar al mismo correo */}
+              {Array.from(
+                new Set([site.contacts.invites, site.contacts.sponsors, site.contacts.partners])
+              ).map((email) => (
+                <li key={email}>
+                  <a
+                    href={`mailto:${email}`}
+                    className="flex items-center gap-2 text-linku-text-muted transition hover:text-linku-coral"
+                  >
+                    <Mail size={14} /> {email}
+                  </a>
+                </li>
+              ))}
+              {site.contacts.phone && (
+                <li>
+                  <a
+                    href={`tel:${site.contacts.phone.replace(/\s+/g, '')}`}
+                    className="flex items-center gap-2 text-linku-text-muted transition hover:text-linku-coral"
+                  >
+                    <Phone size={14} /> {site.contacts.phone}
+                  </a>
+                </li>
+              )}
             </ul>
           </div>
 

@@ -7,7 +7,7 @@ import { getContent } from '@/lib/i18n/content';
 import LoginForm from './LoginForm';
 
 export const metadata = {
-  title: 'LINKU SUMMIT 2026'
+  title: 'LINKU CAPITAL SUMMIT 2026'
 };
 
 export default async function LoginPage(

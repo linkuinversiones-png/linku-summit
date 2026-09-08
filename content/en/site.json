@@ -1,14 +1,14 @@
 {
-  "eventName": "LinkU Summit 2026",
+  "eventName": "LinkU Capital Summit 2026",
   "tagline": "Two days to understand how capital moves across Latin America",
   "heroLead": "Education, debate and real connection between investors, managers and founders. Six asset classes in one conversation.",
   "city": "Medellín",
   "country": "Colombia",
-  "venue": "To be announced",
-  "startDate": "2026-10-15T08:30:00-05:00",
-  "endDate": "2026-10-16T20:00:00-05:00",
-  "dateLabel": "October 2026 · 2 days",
-  "heroPill": "OCTOBER 2026 · MEDELLÍN",
+  "venue": "Country Club Ejecutivos",
+  "startDate": "2026-10-05T08:30:00-05:00",
+  "endDate": "2026-10-06T20:00:00-05:00",
+  "dateLabel": "October 5–6, 2026 · Country Club Medellín",
+  "heroPill": "OCTOBER 5–6, 2026 · MEDELLÍN",
   "stats": [
     { "value": "300+", "label": "attendees by invitation" },
     { "value": "6",    "label": "asset classes" },
@@ -31,17 +31,18 @@
     { "icon": "palette",     "title": "Passion Assets",                "desc": "Art, film, music and sports. The asset class growing double-digit annually that global family offices already hold. In Latam, it's just starting." }
   ],
   "finalCTA": {
-    "eyebrow": "OCTOBER 2026 · MEDELLÍN",
-    "title": "October 2026.",
+    "eyebrow": "OCTOBER 5–6, 2026 · MEDELLÍN",
+    "title": "October 5–6, 2026.",
     "highlight": "The conversation that defines capital in Latam.",
-    "lead": "400 people. Six asset classes. Two days. Your seat starts with a decision.",
+    "lead": "Six asset classes. Two days. Your seat starts with a decision.",
     "primaryCta": { "label": "Buy ticket", "href": "#tickets" },
-    "secondaryCta": { "label": "Sponsor the summit", "href": "mailto:sponsors@linkusummit.com?subject=Sponsorship LinkU Summit 2026" }
+    "secondaryCta": { "label": "Sponsor the summit", "href": "mailto:laura.lopez@linku-ventures.co?subject=Sponsorship LinkU Capital Summit 2026" }
   },
   "contacts": {
-    "sponsors": "sponsors@linkusummit.com",
-    "invites":  "invites@linkusummit.com",
-    "partners": "partners@linkusummit.com"
+    "sponsors": "laura.lopez@linku-ventures.co",
+    "invites":  "laura.lopez@linku-ventures.co",
+    "partners": "laura.lopez@linku-ventures.co",
+    "phone":    "+57 320 244 45 01"
   },
   "social": {
     "instagram": "https://instagram.com/linkuventures",

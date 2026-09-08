@@ -19,7 +19,7 @@
   "hero": {
     "ctaBuy": "Comprar entrada",
     "ctaInvite": "Ver agenda",
-    "inviteSubject": "Solicito invitación — LinkU Summit 2026",
+    "inviteSubject": "Solicito invitación — LinkU Capital Summit 2026",
     "assetClasses": [
       "Real Estate",
       "Venture Capital & Private Equity",
@@ -41,10 +41,10 @@
     "titleB": "Es una conversación curada.",
     "factsTitle": "Datos clave",
     "factDate": "Fecha",
-    "factDateValue": "Octubre 2026",
-    "factCity": "Ciudad",
+    "factDateValue": "5 y 6 de octubre de 2026",
+    "factCity": "Lugar",
     "factAttendees": "Asistentes",
-    "factAttendeesValue": "+400 entre inversionistas, gestores y founders",
+    "factAttendeesValue": "Inversionistas, gestores y founders",
     "factAssets": "Asset classes",
     "factAssetsValue": "6 en una conversación"
   },
@@ -148,14 +148,14 @@
     "emptyTitle": "Anunciamos sponsors pronto.",
     "emptyLead": "Estamos cerrando alianzas con los fondos y compañías que mueven el capital LATAM. Si quieres estar acá, escríbenos.",
     "emptyCta": "Quiero ser sponsor",
-    "emptyCtaSubject": "Sponsorship — LinkU Summit 2026"
+    "emptyCtaSubject": "Sponsorship — LinkU Capital Summit 2026"
   },
   "faq": {
     "eyebrow": "Preguntas frecuentes",
     "title": "Lo que la gente nos pregunta antes de entrar."
   },
   "footer": {
-    "tagline": "es el espacio donde el capital real se encuentra con las oportunidades que mueven a Latinoamérica. Octubre 2026 · Medellín.",
+    "tagline": "es el espacio donde el capital real se encuentra con las oportunidades que mueven a Latinoamérica. 5 y 6 de octubre de 2026 · Medellín.",
     "contactTitle": "Contacto",
     "socialTitle": "Síguenos",
     "poweredBy": "Powered by LinkU Ventures",

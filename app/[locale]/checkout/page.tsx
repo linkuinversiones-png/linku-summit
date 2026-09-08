@@ -10,7 +10,7 @@ import CouponBox from './CouponBox';
 import { startGuestCheckout } from './actions';
 
 export const metadata = {
-  title: 'Checkout · LINKU SUMMIT 2026',
+  title: 'Checkout · LINKU CAPITAL SUMMIT 2026',
   robots: { index: false, follow: false }
 };
 
@@ -20,7 +20,7 @@ const COPY = {
     title: 'Confirma tu entrada.',
     summary: 'Resumen de tu compra',
     notConfigured:
-      'La pasarela de pago aún no está configurada. Escríbenos a invites@linkusummit.com.',
+      'La pasarela de pago aún no está configurada. Escríbenos a laura.lopez@linku-ventures.co.',
     notFound: 'Esa entrada no existe o ya no está disponible.',
     backToTickets: 'Volver a entradas',
     secureCheckout:
@@ -62,7 +62,7 @@ const COPY = {
     title: 'Confirm your ticket.',
     summary: 'Order summary',
     notConfigured:
-      "Payments aren't configured yet. Email us at invites@linkusummit.com.",
+      "Payments aren't configured yet. Email us at laura.lopez@linku-ventures.co.",
     notFound: 'That ticket no longer exists or is unavailable.',
     backToTickets: 'Back to tickets',
     secureCheckout: 'Secure payment by Wompi · Card, PSE, Nequi, Bancolombia.',

@@ -83,7 +83,7 @@ export default function Navbar({
       }`}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:h-20 sm:px-8">
-        <Link href={homeHref} className="flex items-center gap-3" aria-label="LinkU Summit 2026">
+        <Link href={homeHref} className="flex items-center gap-3" aria-label="LinkU Capital Summit 2026">
           <Image
             src="/brand/linku-icon.png"
             alt="LinkU"

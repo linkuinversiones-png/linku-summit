@@ -19,7 +19,7 @@
   "hero": {
     "ctaBuy": "Buy ticket",
     "ctaInvite": "See agenda",
-    "inviteSubject": "Invitation request — LinkU Summit 2026",
+    "inviteSubject": "Invitation request — LinkU Capital Summit 2026",
     "assetClasses": [
       "Real Estate",
       "Venture Capital & Private Equity",
@@ -41,10 +41,10 @@
     "titleB": "It's a curated conversation.",
     "factsTitle": "Key facts",
     "factDate": "Date",
-    "factDateValue": "October 2026",
-    "factCity": "City",
+    "factDateValue": "October 5–6, 2026",
+    "factCity": "Venue",
     "factAttendees": "Attendees",
-    "factAttendeesValue": "+400 across investors, managers and founders",
+    "factAttendeesValue": "Investors, managers and founders",
     "factAssets": "Asset classes",
     "factAssetsValue": "6 in one conversation"
   },
@@ -148,14 +148,14 @@
     "emptyTitle": "Sponsors announcing soon.",
     "emptyLead": "We're closing partnerships with the funds and companies moving LATAM capital. If you want to be here, reach out.",
     "emptyCta": "I want to sponsor",
-    "emptyCtaSubject": "Sponsorship — LinkU Summit 2026"
+    "emptyCtaSubject": "Sponsorship — LinkU Capital Summit 2026"
   },
   "faq": {
     "eyebrow": "FAQ",
     "title": "What people ask before walking in."
   },
   "footer": {
-    "tagline": "is the space where real capital meets the opportunities moving Latin America. October 2026 · Medellín.",
+    "tagline": "is the space where real capital meets the opportunities moving Latin America. October 5–6, 2026 · Medellín.",
     "contactTitle": "Contact",
     "socialTitle": "Follow us",
     "poweredBy": "Powered by LinkU Ventures",

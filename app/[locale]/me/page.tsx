@@ -18,7 +18,7 @@ import { claimMyOrders } from '../checkout/actions';
 import SignOutButton from './SignOutButton';
 
 export const metadata = {
-  title: 'LINKU SUMMIT 2026'
+  title: 'LINKU CAPITAL SUMMIT 2026'
 };
 
 export default async function MePage(

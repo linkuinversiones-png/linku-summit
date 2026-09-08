@@ -5,14 +5,18 @@ import type { UiContent } from '@/lib/i18n/content';
 
 type Props = {
   about: { title: string; lead: string; body: string };
-  site: { city: string; country: string };
+  site: { city: string; country: string; venue?: string };
   ui: UiContent['about'];
 };
 
 export default function About({ about, site, ui }: Props) {
   const facts = [
     { icon: Calendar, label: ui.factDate, value: ui.factDateValue },
-    { icon: MapPin, label: ui.factCity, value: `${site.city}, ${site.country}` },
+    {
+      icon: MapPin,
+      label: ui.factCity,
+      value: site.venue ? `${site.venue}, ${site.city}` : `${site.city}, ${site.country}`
+    },
     { icon: Users, label: ui.factAttendees, value: ui.factAttendeesValue },
     { icon: Layers, label: ui.factAssets, value: ui.factAssetsValue }
   ];

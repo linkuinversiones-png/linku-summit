@@ -23,7 +23,7 @@ type Strings = {
 
 const STRINGS: Record<Locale, Strings> = {
   es: {
-    subject: (ref) => `Tu entrada al LinkU Summit 2026 · ${ref}`,
+    subject: (ref) => `Tu entrada al LinkU Capital Summit 2026 · ${ref}`,
     greeting: (n) => `Hola ${n},`,
     paid: (t) => `Tu pago de <strong>${t}</strong> fue confirmado. Estás dentro.`,
     ticketsTitle: 'Tu(s) boleta(s)',
@@ -36,10 +36,10 @@ const STRINGS: Record<Locale, Strings> = {
       'Para gestionar tu entrada y agendar tus reuniones 1:1, entra a tu cuenta en linkusummit.com. Inicia sesión solo con tu correo: te enviaremos un código de 6 dígitos para entrar (sin contraseñas).',
     accountCta: 'Entrar a mi cuenta',
     footer:
-      'LinkU Summit 2026 · Octubre 2026 · Medellín · linkusummit.com'
+      'LinkU Capital Summit 2026 · 5 y 6 de octubre de 2026 · Country Club Medellín · linkusummit.com'
   },
   en: {
-    subject: (ref) => `Your LinkU Summit 2026 ticket · ${ref}`,
+    subject: (ref) => `Your LinkU Capital Summit 2026 ticket · ${ref}`,
     greeting: (n) => `Hi ${n},`,
     paid: (t) => `Your payment of <strong>${t}</strong> was confirmed. You're in.`,
     ticketsTitle: 'Your ticket(s)',
@@ -51,7 +51,8 @@ const STRINGS: Record<Locale, Strings> = {
     accountDesc:
       "To manage your ticket and book your 1:1 meetings, sign in to your account at linkusummit.com. Just use your email: we'll send you a 6-digit code to log in (no passwords).",
     accountCta: 'Go to my account',
-    footer: 'LinkU Summit 2026 · October 2026 · Medellín · linkusummit.com'
+    footer:
+      'LinkU Capital Summit 2026 · October 5–6, 2026 · Country Club Medellín · linkusummit.com'
   }
 };
 
@@ -85,7 +86,7 @@ export function ticketConfirmedEmail(input: {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LinkU Summit 2026</title>
+  <title>LinkU Capital Summit 2026</title>
 </head>
 <body style="margin:0;padding:0;background:#050814;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#E8EEF5;">
   <table cellpadding="0" cellspacing="0" border="0" style="width:100%;background:#050814;padding:24px 0;">

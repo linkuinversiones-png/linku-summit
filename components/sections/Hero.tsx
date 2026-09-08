@@ -44,10 +44,8 @@ export default function Hero({ site, ui, countdownLabels }: Props) {
             <Pill>{site.heroPill}</Pill>
           </div>
 
-          <h1 className="font-bold tracking-tighter2 text-linku-text leading-[0.95] text-[clamp(2.75rem,9vw,7rem)]">
-            LINKU <span className="text-linku-coral">SUMMIT</span>
-            <br />
-            2026
+          <h1 className="font-bold tracking-tighter2 text-linku-text leading-[0.95] text-[clamp(2.25rem,6.5vw,5rem)]">
+            LINKU CAPITAL <span className="text-linku-coral">SUMMIT</span>
           </h1>
 
           <p className="max-w-3xl text-base text-linku-text-muted sm:text-xl lg:text-2xl leading-relaxed">

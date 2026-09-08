@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import AdminShell from '@/components/admin/AdminShell';
 
 export const metadata = {
-  title: 'Admin · LINKU SUMMIT 2026',
+  title: 'Admin · LINKU CAPITAL SUMMIT 2026',
   robots: { index: false, follow: false }
 };
 

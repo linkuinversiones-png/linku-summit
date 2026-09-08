@@ -4,7 +4,7 @@
  */
 
 const RESEND_API = 'https://api.resend.com/emails';
-const FROM_DEFAULT = 'LinkU Summit <noreply@linkusummit.com>';
+const FROM_DEFAULT = 'LinkU Capital Summit <noreply@linkusummit.com>';
 
 export type SendEmailInput = {
   to: string;
@@ -35,7 +35,7 @@ export async function sendEmail(input: SendEmailInput): Promise<{
       to: [input.to],
       subject: input.subject,
       html: input.html,
-      reply_to: input.replyTo ?? 'invites@linkusummit.com'
+      reply_to: input.replyTo ?? 'laura.lopez@linku-ventures.co'
     })
   });
 

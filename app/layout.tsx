@@ -14,15 +14,15 @@ const SITE_URL = 'https://www.linkusummit.com';
 
 const META: Record<Locale, { title: string; description: string; ogLocale: string }> = {
   es: {
-    title: 'LINKU SUMMIT 2026 — La cumbre de inversión multi-activo en Medellín',
+    title: 'LINKU CAPITAL SUMMIT 2026 — La cumbre de inversión multi-activo en Medellín',
     description:
-      'Octubre 2026 · Medellín. Dos días para entender cómo se mueve el capital en Latinoamérica. Seis clases de activo en una sola conversación.',
+      '5 y 6 de octubre de 2026 · Country Club Medellín. Dos días para entender cómo se mueve el capital en Latinoamérica. Seis clases de activo en una sola conversación.',
     ogLocale: 'es_CO'
   },
   en: {
-    title: 'LINKU SUMMIT 2026 — The multi-asset investment summit in Medellín',
+    title: 'LINKU CAPITAL SUMMIT 2026 — The multi-asset investment summit in Medellín',
     description:
-      'October 2026 · Medellín. Two days to understand how capital moves across Latin America. Six asset classes in one conversation.',
+      'October 5–6, 2026 · Country Club Medellín. Two days to understand how capital moves across Latin America. Six asset classes in one conversation.',
     ogLocale: 'en_US'
   }
 };
@@ -42,6 +42,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: m.title,
     description: m.description,
     keywords: [
+      'LinkU Capital Summit',
       'LinkU Summit',
       'inversión',
       'investment',
@@ -65,7 +66,7 @@ export async function generateMetadata(): Promise<Metadata> {
       type: 'website',
       locale: m.ogLocale,
       url,
-      siteName: 'LINKU SUMMIT 2026',
+      siteName: 'LINKU CAPITAL SUMMIT 2026',
       title: m.title,
       description: m.description,
       images: [
@@ -73,7 +74,7 @@ export async function generateMetadata(): Promise<Metadata> {
           url: '/og/og-image.jpg',
           width: 1200,
           height: 630,
-          alt: 'LinkU Summit 2026'
+          alt: 'LinkU Capital Summit 2026'
         }
       ]
     },
@@ -89,7 +90,7 @@ export async function generateMetadata(): Promise<Metadata> {
       apple: '/brand/linku-icon.png'
     },
     appleWebApp: {
-      title: 'LINKU SUMMIT 2026',
+      title: 'LINKU CAPITAL SUMMIT 2026',
       statusBarStyle: 'black-translucent'
     }
   };
