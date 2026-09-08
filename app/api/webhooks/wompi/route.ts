@@ -4,6 +4,7 @@ import { verifyEventChecksum, mapWompiStatus } from '@/lib/wompi/signatures';
 import { uploadTicketQr } from '@/lib/qr/upload';
 import { sendEmail } from '@/lib/email/send';
 import { ticketConfirmedEmail } from '@/lib/email/templates';
+import { registerAttendee, hasIncontactoConfigured } from '@/lib/incontacto';
 import type { Locale } from '@/lib/i18n/config';
 
 /**
@@ -181,6 +182,27 @@ export async function POST(request: NextRequest) {
       locale === 'es'
         ? tierRow?.name_es ?? order.ticket_tier
         : tierRow?.name_en ?? order.ticket_tier;
+
+    // Registrar al asistente en InContacto (plataforma de acreditación).
+    // La API deduplica por documento, así que los reintentos de Wompi son
+    // seguros. Si falla no rompemos el webhook: el pago ya ocurrió y la
+    // acreditación se puede reconciliar manualmente desde /admin/orders.
+    if (hasIncontactoConfigured() && order.buyer_doc_number) {
+      const reg = await registerAttendee({
+        docNumber: order.buyer_doc_number,
+        docType: order.buyer_doc_type ?? 'CC',
+        fullName: attendeeName,
+        company: order.buyer_company,
+        position: order.buyer_position,
+        linkedin: order.buyer_linkedin,
+        email: attendeeEmail,
+        phone: order.buyer_phone,
+        ticketTierName: tierName
+      });
+      if (!reg.ok) {
+        console.error('InContacto registro falló:', reg.error, 'orden:', order.payment_reference);
+      }
+    }
 
     if (attendeeEmail) {
       let qrUrl: string;
