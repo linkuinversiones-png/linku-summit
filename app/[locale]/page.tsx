@@ -4,6 +4,7 @@ import { localizePath } from '@/lib/i18n/config';
 import { getContent } from '@/lib/i18n/content';
 import { getActiveTiers } from '@/lib/tickets';
 import { getActiveSpeakers } from '@/lib/speakers';
+import { getAgenda } from '@/lib/agenda';
 
 // El landing siempre se renderiza fresh contra DB (tiers, sesión Supabase).
 // Sin esto Next puede servir una versión cacheada después de un edit en admin.
@@ -50,10 +51,11 @@ export default async function HomePage(
   }
 ) {
   const params = await props.params;
-  const [user, dbTiers, dbSpeakers] = await Promise.all([
+  const [user, dbTiers, dbSpeakers, dbAgenda] = await Promise.all([
     getCurrentUser(),
     getActiveTiers(params.locale),
-    getActiveSpeakers(params.locale)
+    getActiveSpeakers(params.locale),
+    getAgenda(params.locale)
   ]);
   const c = getContent(params.locale);
   const ui = c.ui;
@@ -99,7 +101,7 @@ export default async function HomePage(
       <main>
         <Hero site={c.site} ui={ui.hero} countdownLabels={ui.countdown} />
         <Speakers speakers={dbSpeakers} ui={ui.speakers} />
-        <Agenda agenda={c.agenda} ui={ui.agenda} />
+        <Agenda agenda={dbAgenda} ui={ui.agenda} />
         <About about={c.site.about} site={c.site} ui={ui.about} />
         <ForWhom ui={ui.forWhom} />
         <Thesis items={c.site.thesis} ui={ui.thesis} />

@@ -15,6 +15,7 @@
 | `/me` con perfil + boletas + QR | ✅ Operativo | QR firmado HMAC se renderiza inline |
 | Admin `/admin` con guard por rol | ✅ Operativo | Solo `profiles.role = 'admin'` entra |
 | CRUD de entradas `/admin/tiers` | ✅ Operativo | Tabla `ticket_tiers` con campos bilingües |
+| Agenda del summit `/admin/agenda` | ✅ Operativo | Migración 0014. Días, bloques, salones paralelos y subagendas, con reordenar arrastrando. El landing lee de DB con fallback al JSON |
 | Checkout `/checkout` + ePayco | ⚠️ **Bloqueado** | Falta pegar 4 llaves de ePayco en `.env.local`. Migración 0008 renombra columnas a `payment_reference` / `payment_provider_id` |
 | Email transaccional con QR (Resend) | ⚠️ Implementado, sin probar | El webhook lo dispara cuando una orden pasa a `paid` |
 | Portería QR (scan + check-in) | ❌ No empezado | Schema listo (`tickets_issued.used_at`), falta UI |

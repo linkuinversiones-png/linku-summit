@@ -5,7 +5,15 @@ import SectionHeading from '@/components/ui/SectionHeading';
 import Reveal from '@/components/ui/Reveal';
 import type { UiContent } from '@/lib/i18n/content';
 
-type SubItem = { code: string; name: string; tag?: string };
+type SalonTalk = {
+  time?: string;
+  endTime?: string;
+  title: string;
+  speaker?: string;
+  desc?: string;
+};
+
+type SubItem = { code: string; name: string; tag?: string; talks?: SalonTalk[] };
 
 type AgendaItem = {
   time: string;
@@ -126,21 +134,51 @@ export default function Agenda({ agenda, ui }: Props) {
                             {item.subItems.map((sub) => (
                               <li
                                 key={sub.code}
-                                className="linku-card flex items-start gap-3 p-4"
+                                className="linku-card flex flex-col gap-3 p-4"
                               >
-                                <span className="flex h-9 min-w-[36px] items-center justify-center rounded-lg border border-linku-coral/40 bg-linku-coral/10 px-2 text-xs font-bold uppercase tracking-tightish text-linku-coral">
-                                  {sub.code}
-                                </span>
-                                <div className="flex flex-col">
-                                  <span className="text-sm font-semibold text-linku-text">
-                                    {sub.name}
+                                <div className="flex items-start gap-3">
+                                  <span className="flex h-9 min-w-[36px] items-center justify-center rounded-lg border border-linku-coral/40 bg-linku-coral/10 px-2 text-xs font-bold uppercase tracking-tightish text-linku-coral">
+                                    {sub.code}
                                   </span>
-                                  {sub.tag && (
-                                    <span className="mt-0.5 text-[11px] uppercase tracking-[0.14em] text-linku-text-dim">
-                                      {sub.tag}
+                                  <div className="flex flex-col">
+                                    <span className="text-sm font-semibold text-linku-text">
+                                      {sub.name}
                                     </span>
-                                  )}
+                                    {sub.tag && (
+                                      <span className="mt-0.5 text-[11px] uppercase tracking-[0.14em] text-linku-text-dim">
+                                        {sub.tag}
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
+                                {sub.talks && sub.talks.length > 0 && (
+                                  <ul className="space-y-2 border-t border-linku-border pt-3">
+                                    {sub.talks.map((talk, ti) => (
+                                      <li key={`${talk.title}-${ti}`} className="flex flex-col">
+                                        <span className="text-[13px] font-medium text-linku-text">
+                                          {talk.time && (
+                                            <span className="mr-1.5 font-bold tabular-nums text-linku-coral">
+                                              {talk.endTime
+                                                ? `${talk.time}–${talk.endTime}`
+                                                : talk.time}
+                                            </span>
+                                          )}
+                                          {talk.title}
+                                        </span>
+                                        {talk.speaker && (
+                                          <span className="mt-0.5 text-[12px] italic text-linku-coral/80">
+                                            {talk.speaker}
+                                          </span>
+                                        )}
+                                        {talk.desc && (
+                                          <span className="mt-0.5 text-[12px] leading-relaxed text-linku-text-muted">
+                                            {talk.desc}
+                                          </span>
+                                        )}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                )}
                               </li>
                             ))}
                           </ul>
