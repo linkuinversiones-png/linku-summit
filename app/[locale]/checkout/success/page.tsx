@@ -17,7 +17,7 @@ const COPY = {
     titleFailed: 'El pago no se pudo procesar.',
     leadPending: 'Wompi nos avisa por webhook en segundos. No cierres esta página.',
     leadPaid:
-      'Revisa tu correo: te enviamos tu boleta con el QR — esa es tu entrada para el evento.',
+      'Tu entrada quedó registrada a tu nombre. Antes del evento recibirás la información de acreditación.',
     accountNote:
       'Para hacer seguimiento de tu entrada y agendar tus citas, entra a tu cuenta. Inicia sesión solo con tu correo (te enviamos un código de 6 dígitos).',
     accountCta: 'Entrar a mi cuenta',
@@ -33,7 +33,7 @@ const COPY = {
     titleFailed: 'Payment could not be processed.',
     leadPending: "Wompi notifies us via webhook within seconds. Don't close this page.",
     leadPaid:
-      'Check your email: we sent your ticket with the QR — that is your entry to the event.',
+      'Your ticket is registered under your name. You will receive accreditation details before the event.',
     accountNote:
       'To track your ticket and book your meetings, sign in to your account. Just use your email (we send you a 6-digit code).',
     accountCta: 'Go to my account',

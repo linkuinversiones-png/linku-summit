@@ -36,7 +36,7 @@ const COPY = {
     couponInvalid: 'Cupón no válido',
     freeTitle: 'Entrada de cortesía',
     freeNote:
-      'Tu código cubre el 100 % de la entrada. No pasas por la pasarela de pagos: al confirmar, tu boleta con QR llega de inmediato a tu correo.',
+      'Tu código cubre el 100 % de la entrada. No pasas por la pasarela de pagos: al confirmar, tu entrada queda registrada de inmediato.',
     errors: {
       coupon: 'Ese código ya no está disponible: se agotó, expiró o no aplica a esta entrada.',
       missing: 'Faltan datos obligatorios. Revisa nombre, correo y número de documento.',
@@ -86,7 +86,7 @@ const COPY = {
     couponInvalid: 'Invalid coupon',
     freeTitle: 'Complimentary ticket',
     freeNote:
-      'Your code covers 100% of the ticket. You skip the payment gateway: once you confirm, your QR ticket is emailed right away.',
+      'Your code covers 100% of the ticket. You skip the payment gateway: once you confirm, your ticket is registered right away.',
     errors: {
       coupon: 'That code is no longer available: it ran out, expired or does not apply to this ticket.',
       missing: 'Required details are missing. Check name, email and document number.',

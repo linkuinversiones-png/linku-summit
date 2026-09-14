@@ -7,7 +7,9 @@ import type { Locale } from '@/lib/i18n/config';
 
 /**
  * Entrega de una orden pagada: cupón, boleta con QR, cupo del tier,
- * registro en InContacto y email al comprador.
+ * registro en InContacto. El correo con QR existe pero va apagado: la
+ * acreditación del asistente la hace InContacto, así que lo que importa es
+ * que el registro llegue allá (ver /admin/incontacto).
  *
  * Vive aquí y no en el webhook porque hay dos caminos que llegan al mismo
  * sitio: el pago por Wompi y el alta manual desde /admin/orders (efectivo,
@@ -120,7 +122,7 @@ export async function syncOrderToIncontacto(
 export async function fulfillPaidOrder(
   sb: SupabaseClient,
   order: FulfillableOrder,
-  opts: { locale?: Locale; sendTicketEmail?: boolean } = {}
+  opts: { locale?: Locale; /** Apagado por defecto: la acreditación va por InContacto, no por correo con QR. */ sendTicketEmail?: boolean } = {}
 ): Promise<FulfillResult> {
   const locale: Locale = opts.locale ?? 'es';
   const warnings: string[] = [];
@@ -212,7 +214,7 @@ export async function fulfillPaidOrder(
 
   // --- Email con la boleta ---------------------------------------------
   let emailSent = false;
-  if (opts.sendTicketEmail !== false && attendeeEmail && ticketId) {
+  if (opts.sendTicketEmail === true && attendeeEmail && ticketId) {
     let qrUrl = '';
     try {
       qrUrl = await uploadTicketQr(sb, ticketId);
