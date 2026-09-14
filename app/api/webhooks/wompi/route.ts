@@ -1,11 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient as createServerSb } from '@supabase/supabase-js';
 import { verifyEventChecksum, mapWompiStatus } from '@/lib/wompi/signatures';
-import { uploadTicketQr } from '@/lib/qr/upload';
-import { sendEmail } from '@/lib/email/send';
-import { ticketConfirmedEmail } from '@/lib/email/templates';
-import { registerAttendee, hasIncontactoConfigured } from '@/lib/incontacto';
-import type { Locale } from '@/lib/i18n/config';
+import { fulfillPaidOrder, type FulfillableOrder } from '@/lib/orders/fulfill';
+import { logStatusChange } from '@/lib/orders/status-log';
 
 /**
  * Webhook que recibe los eventos (server-to-server) de Wompi.
@@ -15,12 +12,13 @@ import type { Locale } from '@/lib/i18n/config';
  *   1. Lee el JSON del evento.
  *   2. Valida `signature.checksum` con WOMPI_EVENTS_SECRET.
  *   3. Busca la orden por payment_reference (= data.transaction.reference).
- *   4. Si status = APPROVED:
- *        - marca orden 'paid' (idempotente)
- *        - emite tickets_issued con qr_code random + HMAC del id
- *        - dispara email con boleta+QR via Resend
- *   5. Si DECLINED/VOIDED/ERROR: marca orden 'failed'.
+ *   4. Si status = APPROVED: marca 'paid' y corre la entrega completa
+ *      (boleta + QR, cupón, InContacto, email) en lib/orders/fulfill.
+ *   5. Si DECLINED/VOIDED/ERROR: marca la orden 'failed'.
  *   6. PENDING / otros: no toca la orden.
+ *
+ * Cada cambio de estado queda en order_status_log, igual que los que hace
+ * un admin a mano, para que la bitácora cuente la historia completa.
  *
  * Siempre retorna 200 salvo payload/firma inválida (Wompi reintenta en no-2xx).
  */
@@ -99,132 +97,36 @@ export async function POST(request: NextRequest) {
   }
 
   if (newStatus === 'paid') {
+    const previous = order.status as string;
     await sb
       .from('orders')
       .update({
         status: 'paid',
         payment_provider_id: providerId,
+        payment_method: 'wompi',
         paid_at: new Date().toISOString()
       })
       .eq('id', order.id);
 
-    // Si la orden usó un cupón, registrar redención + incrementar contador.
-    // El unique(order_id) en coupon_redemptions previene doble-registro si
-    // el webhook llega dos veces.
-    if (order.coupon_code && order.discount_cop > 0) {
-      const { data: coupon } = await sb
-        .from('coupons')
-        .select('id')
-        .eq('code', order.coupon_code)
-        .maybeSingle();
+    await logStatusChange(sb, {
+      orderId: order.id,
+      fromStatus: previous,
+      toStatus: 'paid',
+      reason: 'pago_wompi',
+      note: providerId ? `Transacción Wompi ${providerId}` : null,
+      source: 'webhook'
+    });
 
-      if (coupon) {
-        const { error: redErr } = await sb.from('coupon_redemptions').insert({
-          coupon_id: coupon.id,
-          order_id: order.id,
-          user_id: order.user_id,
-          code_snapshot: order.coupon_code,
-          discount_cop: order.discount_cop
-        });
-        // Si ya existía (segundo webhook), no incrementamos contador.
-        if (!redErr) {
-          await sb.rpc('increment_coupon_uses', { coupon_id: coupon.id });
-        } else if (redErr.code !== '23505') {
-          console.error('Error registrando redemption:', redErr);
-        }
-      }
-    }
-
-    // Emitir 1 ticket (MVP: 1 orden = 1 boleta).
-    // Checkout de invitado: los datos vienen de la orden (buyer_*), no de un
-    // usuario logueado (user_id puede ser null hasta que se registre por OTP).
-    const attendeeEmail = order.buyer_email ?? '';
-    const attendeeName =
-      order.buyer_name || attendeeEmail.split('@')[0] || '';
-
-    const { data: ticket, error: ticketErr } = await sb
-      .from('tickets_issued')
-      .insert({
-        order_id: order.id,
-        user_id: order.user_id,
-        qr_code: cryptoRandom(),
-        ticket_tier: order.ticket_tier,
-        attendee_name: attendeeName,
-        attendee_email: attendeeEmail
-      })
-      .select('id, qr_code')
-      .single();
-
-    if (ticketErr || !ticket) {
-      console.error('Error emitiendo ticket', ticketErr);
-      return NextResponse.json({ ok: true, note: 'ticket emit failed' });
-    }
-
-    // Incrementar sold_count (no atómico; OK para MVP).
-    const { data: tierCount } = await sb
-      .from('ticket_tiers')
-      .select('sold_count')
-      .eq('slug', order.ticket_tier)
-      .single();
-    await sb
-      .from('ticket_tiers')
-      .update({ sold_count: (tierCount?.sold_count ?? 0) + 1 })
-      .eq('slug', order.ticket_tier);
-
-    const { data: tierRow } = await sb
-      .from('ticket_tiers')
-      .select('name_es, name_en')
-      .eq('slug', order.ticket_tier)
-      .single();
-
-    const locale: Locale = 'es'; // TODO leer locale de perfil / orden
-    const tierName =
-      locale === 'es'
-        ? tierRow?.name_es ?? order.ticket_tier
-        : tierRow?.name_en ?? order.ticket_tier;
-
-    // Registrar al asistente en InContacto (plataforma de acreditación).
-    // La API deduplica por documento, así que los reintentos de Wompi son
-    // seguros. Si falla no rompemos el webhook: el pago ya ocurrió y la
-    // acreditación se puede reconciliar manualmente desde /admin/orders.
-    if (hasIncontactoConfigured() && order.buyer_doc_number) {
-      const reg = await registerAttendee({
-        docNumber: order.buyer_doc_number,
-        docType: order.buyer_doc_type ?? 'CC',
-        fullName: attendeeName,
-        company: order.buyer_company,
-        position: order.buyer_position,
-        linkedin: order.buyer_linkedin,
-        email: attendeeEmail,
-        phone: order.buyer_phone,
-        ticketTierName: tierName
-      });
-      if (!reg.ok) {
-        console.error('InContacto registro falló:', reg.error, 'orden:', order.payment_reference);
-      }
-    }
-
-    if (attendeeEmail) {
-      let qrUrl: string;
-      try {
-        qrUrl = await uploadTicketQr(sb, ticket.id);
-      } catch (e) {
-        console.error('Error subiendo QR a Storage:', e);
-        qrUrl = ''; // el email se manda igual, sin QR visible (degradación graceful)
-      }
-      const { subject, html } = ticketConfirmedEmail({
-        locale,
-        attendeeName: attendeeName || attendeeEmail,
-        orderRef: order.payment_reference,
-        totalCop: formatCop(order.total_cop),
-        tickets: [
-          { qrDataUrl: qrUrl, tierName, qrCodeShort: ticket.qr_code.slice(0, 8) }
-        ]
-      });
-      const result = await sendEmail({ to: attendeeEmail, subject, html });
-      if (!result.ok) console.error('Resend error:', result.error);
+    const result = await fulfillPaidOrder(sb, order as FulfillableOrder);
+    if (result.warnings.length > 0) {
+      console.error(
+        'Entrega con avisos, orden',
+        order.payment_reference,
+        result.warnings
+      );
     }
   } else if (newStatus === 'failed') {
+    const previous = order.status as string;
     await sb
       .from('orders')
       .update({
@@ -232,22 +134,17 @@ export async function POST(request: NextRequest) {
         payment_provider_id: providerId
       })
       .eq('id', order.id);
+
+    await logStatusChange(sb, {
+      orderId: order.id,
+      fromStatus: previous,
+      toStatus: 'failed',
+      reason: 'pago_rechazado',
+      note: tx?.status ? `Wompi reportó ${tx.status}` : null,
+      source: 'webhook'
+    });
   }
   // pending / null → no tocamos la orden, esperamos otro evento
 
   return NextResponse.json({ ok: true });
-}
-
-function cryptoRandom(): string {
-  // 24 caracteres random base36 — único pero no firmado.
-  // La firma del QR la da el HMAC (lib/qr/sign.ts).
-  return (
-    Date.now().toString(36) +
-    Math.random().toString(36).slice(2, 14) +
-    Math.random().toString(36).slice(2, 10)
-  ).toUpperCase();
-}
-
-function formatCop(n: number): string {
-  return `COP $${Number(n).toLocaleString('es-CO')}`;
 }

@@ -3,7 +3,7 @@ import { formatCop } from '@/lib/tickets';
 import {
   listOrdersEnriched,
   getOrdersStats,
-  type OrderRow
+  type OrderStatus
 } from '@/lib/admin/orders';
 import {
   CheckCircle2,
@@ -15,10 +15,10 @@ import {
   Search
 } from 'lucide-react';
 
-export const metadata = { title: 'Ventas · Admin · LINKU SUMMIT' };
+export const metadata = { title: 'Ventas · Admin · LINKU CAPITAL SUMMIT 2026' };
 export const dynamic = 'force-dynamic';
 
-const STATUS_LABEL: Record<OrderRow['status'], string> = {
+const STATUS_LABEL: Record<OrderStatus, string> = {
   paid: 'Pagada',
   pending: 'Pendiente',
   failed: 'Fallida',
@@ -26,7 +26,7 @@ const STATUS_LABEL: Record<OrderRow['status'], string> = {
   expired: 'Expirada'
 };
 
-const STATUS_BADGE: Record<OrderRow['status'], string> = {
+const STATUS_BADGE: Record<OrderStatus, string> = {
   paid: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
   pending: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
   failed: 'bg-red-500/15 text-red-300 border-red-500/30',
@@ -46,7 +46,7 @@ function fmtDate(iso: string | null): string {
 }
 
 type Search = {
-  status?: OrderRow['status'];
+  status?: OrderStatus;
   tier?: string;
   q?: string;
 };
@@ -104,6 +104,13 @@ export default async function AdminOrdersPage(
           tone="amber"
         />
       </section>
+
+      {stats.incontactoPending > 0 && (
+        <p className="mb-6 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+          Hay {stats.incontactoPending} venta(s) pagada(s) sin confirmación de envío a
+          InContacto. Entra al detalle de cada una y usa &quot;Reintentar envío&quot;.
+        </p>
+      )}
 
       <form
         method="GET"
@@ -190,6 +197,7 @@ export default async function AdminOrdersPage(
                 <th className="px-4 py-3 text-right">Monto</th>
                 <th className="px-4 py-3">Estado</th>
                 <th className="px-4 py-3">Boleta</th>
+                <th className="px-4 py-3">InContacto</th>
                 <th className="px-4 py-3"></th>
               </tr>
             </thead>
@@ -203,8 +211,13 @@ export default async function AdminOrdersPage(
                     {fmtDate(o.paid_at ?? o.created_at)}
                   </td>
                   <td className="px-4 py-3">
-                    <p className="text-linku-text">{o.user_full_name || '—'}</p>
-                    <p className="text-xs text-linku-text-dim">{o.user_email || o.user_id.slice(0, 8)}</p>
+                    <p className="text-linku-text">{o.display_name || '—'}</p>
+                    <p className="text-xs text-linku-text-dim">
+                      {o.display_email || 'sin correo'}
+                    </p>
+                    {o.buyer_company && (
+                      <p className="text-[11px] text-linku-text-dim">{o.buyer_company}</p>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-linku-text-muted">
                     {o.tier_name}
@@ -239,6 +252,25 @@ export default async function AdminOrdersPage(
                       <span className="inline-flex items-center gap-1 text-xs text-amber-300">
                         <XCircle size={12} /> Sin emitir
                       </span>
+                    ) : (
+                      <span className="text-xs text-linku-text-dim">—</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    {o.incontacto_status === 'sent' ? (
+                      <span className="inline-flex items-center gap-1 text-xs text-emerald-300">
+                        <CheckCircle2 size={12} /> Enviado
+                      </span>
+                    ) : o.incontacto_status === 'error' ? (
+                      <span className="inline-flex items-center gap-1 text-xs text-red-300">
+                        <XCircle size={12} /> Falló
+                      </span>
+                    ) : o.incontacto_status === 'skipped' ? (
+                      <span className="inline-flex items-center gap-1 text-xs text-amber-300">
+                        <XCircle size={12} /> Omitido
+                      </span>
+                    ) : o.status === 'paid' ? (
+                      <span className="text-xs text-linku-text-dim">Sin registro</span>
                     ) : (
                       <span className="text-xs text-linku-text-dim">—</span>
                     )}
