@@ -34,6 +34,14 @@ const COPY = {
     couponRemove: 'Quitar cupón',
     couponApplied: 'Cupón aplicado:',
     couponInvalid: 'Cupón no válido',
+    freeTitle: 'Entrada de cortesía',
+    freeNote:
+      'Tu código cubre el 100 % de la entrada. No pasas por la pasarela de pagos: al confirmar, tu boleta con QR llega de inmediato a tu correo.',
+    errors: {
+      coupon: 'Ese código ya no está disponible: se agotó, expiró o no aplica a esta entrada.',
+      missing: 'Faltan datos obligatorios. Revisa nombre, correo y número de documento.',
+      order: 'No pudimos crear tu orden. Intenta de nuevo en un momento.'
+    },
     noRegister:
       'No necesitas registrarte para comprar. Después de pagar, te enviamos un código para crear tu cuenta y ver tu boleta.',
     sandboxNote:
@@ -54,7 +62,8 @@ const COPY = {
       billingSection: 'Datos de facturación',
       billingSame: 'Los datos de facturación son los mismos del comprador',
       address: 'Dirección',
-      pay: 'Pagar con Wompi'
+      pay: 'Pagar con Wompi',
+      payFree: 'Confirmar mi entrada de cortesía'
     }
   },
   en: {
@@ -75,6 +84,14 @@ const COPY = {
     couponRemove: 'Remove coupon',
     couponApplied: 'Coupon applied:',
     couponInvalid: 'Invalid coupon',
+    freeTitle: 'Complimentary ticket',
+    freeNote:
+      'Your code covers 100% of the ticket. You skip the payment gateway: once you confirm, your QR ticket is emailed right away.',
+    errors: {
+      coupon: 'That code is no longer available: it ran out, expired or does not apply to this ticket.',
+      missing: 'Required details are missing. Check name, email and document number.',
+      order: 'We could not create your order. Please try again in a moment.'
+    },
     noRegister:
       "No need to register to buy. After paying, we'll email you a code to create your account and view your ticket.",
     sandboxNote:
@@ -95,14 +112,15 @@ const COPY = {
       billingSection: 'Billing details',
       billingSame: 'Billing details are the same as the buyer',
       address: 'Address',
-      pay: 'Pay with Wompi'
+      pay: 'Pay with Wompi',
+      payFree: 'Confirm my complimentary ticket'
     }
   }
 } as const;
 
 export default async function CheckoutPage(props: {
   params: Promise<{ locale: Locale }>;
-  searchParams: Promise<{ tier?: string; coupon?: string }>;
+  searchParams: Promise<{ tier?: string; coupon?: string; error?: string }>;
 }) {
   const searchParams = await props.searchParams;
   const params = await props.params;
@@ -150,6 +168,9 @@ export default async function CheckoutPage(props: {
 
   const subtotalCop = tier.priceCop;
   const totalCop = subtotalCop - discountCop;
+  const isFree = totalCop === 0 && appliedCouponCode !== null;
+  const errorKey = searchParams.error as keyof typeof t.errors | undefined;
+  const errorMsg = errorKey && t.errors[errorKey] ? t.errors[errorKey] : null;
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-linku-bg pb-20">
@@ -187,6 +208,12 @@ export default async function CheckoutPage(props: {
         <h1 className="mt-2 text-3xl font-bold tracking-tightish text-linku-text sm:text-4xl">
           {t.title}
         </h1>
+
+        {errorMsg && (
+          <p className="mt-5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+            {errorMsg}
+          </p>
+        )}
 
         <section className="mt-10 linku-card p-7 sm:p-8">
           <h2 className="text-sm font-bold uppercase tracking-[0.18em] text-linku-coral">
@@ -255,9 +282,16 @@ export default async function CheckoutPage(props: {
             </span>
           </div>
 
-          <p className="mt-4 rounded-lg border border-linku-border bg-linku-bg-3/40 px-3 py-2.5 text-[12px] leading-relaxed text-linku-text-muted">
-            {t.noRegister}
-          </p>
+          {isFree ? (
+            <div className="mt-4 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2.5 text-[12px] leading-relaxed text-emerald-100">
+              <p className="font-semibold uppercase tracking-[0.14em] text-emerald-300">{t.freeTitle}</p>
+              <p className="mt-1">{t.freeNote}</p>
+            </div>
+          ) : (
+            <p className="mt-4 rounded-lg border border-linku-border bg-linku-bg-3/40 px-3 py-2.5 text-[12px] leading-relaxed text-linku-text-muted">
+              {t.noRegister}
+            </p>
+          )}
 
           <div className="mt-7">
             <CheckoutForm
@@ -265,12 +299,15 @@ export default async function CheckoutPage(props: {
               tier={tier.slug}
               locale={params.locale}
               coupon={appliedCouponCode ?? undefined}
+              isFree={isFree}
               copy={t.form}
             />
-            <p className="mt-4 text-center text-[11px] text-linku-text-dim">
-              {t.secureCheckout}
-            </p>
-            {WOMPI_TEST_MODE && (
+            {!isFree && (
+              <p className="mt-4 text-center text-[11px] text-linku-text-dim">
+                {t.secureCheckout}
+              </p>
+            )}
+            {!isFree && WOMPI_TEST_MODE && (
               <p className="mt-3 rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-center text-[11px] text-amber-200">
                 {t.sandboxNote}
               </p>

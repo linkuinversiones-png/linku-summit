@@ -39,3 +39,6 @@ Thumbs.db
 
 # supabase cli temp
 supabase/.temp/
+
+# Respaldos con datos personales, no van al repo
+respaldo_*.json

@@ -8,6 +8,8 @@ import { getActiveTiers } from '@/lib/tickets';
 import { validateCoupon } from '@/lib/coupons';
 import { signIntegrity, generateOrderReference } from '@/lib/wompi/signatures';
 import { wompiPublicKey, WOMPI_CHECKOUT_URL } from '@/lib/wompi/config';
+import { fulfillPaidOrder, type FulfillableOrder } from '@/lib/orders/fulfill';
+import { logStatusChange } from '@/lib/orders/status-log';
 import { localizePath, type Locale } from '@/lib/i18n/config';
 
 /**
@@ -42,8 +44,12 @@ function str(fd: FormData, key: string): string {
 
 /**
  * Checkout de INVITADO (sin registro previo). Crea la orden con los datos
- * del comprador + facturación y redirige al Web Checkout de Wompi.
- * El registro (OTP) ocurre DESPUÉS de pagar, en la página de éxito.
+ * del comprador + facturación y:
+ *   - si queda saldo, redirige al Web Checkout de Wompi;
+ *   - si un cupón de cortesía la deja en $0, la marca pagada de una vez y
+ *     corre la entrega (boleta, InContacto, correo). Wompi no acepta
+ *     cobros de cero pesos, así que la pasarela se salta por completo.
+ * El registro (OTP) ocurre DESPUÉS, en la página de éxito.
  */
 export async function startGuestCheckout(formData: FormData): Promise<void> {
   const locale = (str(formData, 'locale') || 'es') as Locale;
@@ -87,7 +93,8 @@ export async function startGuestCheckout(formData: FormData): Promise<void> {
     redirect(localizePath('/#tickets', locale));
   }
 
-  // Cupón opcional
+  // Cupón opcional. Si venía uno y ya no es válido (se agotó, expiró),
+  // devolvemos al checkout en vez de cobrar el precio completo en silencio.
   let discountCop = 0;
   let appliedCouponCode: string | null = null;
   const couponInput = str(formData, 'coupon');
@@ -97,27 +104,28 @@ export async function startGuestCheckout(formData: FormData): Promise<void> {
       tierSlug: tier!.slug,
       subtotalCop: tier!.priceCop
     });
-    if (validation.ok) {
-      discountCop = validation.discountCop;
-      appliedCouponCode = validation.coupon.code;
+    if (!validation.ok) {
+      redirect(
+        localizePath(`/checkout?tier=${encodeURIComponent(tierSlug)}&error=coupon`, locale)
+      );
     }
+    discountCop = validation.discountCop;
+    appliedCouponCode = validation.coupon.code;
   }
 
   const subtotalCop = tier!.priceCop;
   const totalCop = subtotalCop - discountCop;
   const reference = generateOrderReference();
-  const currency = 'COP';
-  const amountInCents = totalCop * 100;
+  const isFree = totalCop === 0 && appliedCouponCode !== null;
 
   const sb = serviceClient();
-  const { error: insertErr } = await sb.from('orders').insert({
+  const orderRow = {
     user_id: null,
     ticket_tier: tier!.slug,
     subtotal_cop: subtotalCop,
     discount_cop: discountCop,
     total_cop: totalCop,
     coupon_code: appliedCouponCode,
-    status: 'pending',
     payment_reference: reference,
     buyer_name: buyer.name,
     buyer_email: buyer.email,
@@ -133,12 +141,51 @@ export async function startGuestCheckout(formData: FormData): Promise<void> {
     billing_doc_number: billing.docNumber,
     billing_email: billing.email,
     billing_address: billing.address
-  });
+  };
+
+  // --- Cortesía: nace pagada y se entrega ya --------------------------
+  if (isFree) {
+    const { data: order, error: insertErr } = await sb
+      .from('orders')
+      .insert({
+        ...orderRow,
+        status: 'paid',
+        paid_at: new Date().toISOString(),
+        payment_method: 'cortesia'
+      })
+      .select('*')
+      .single();
+
+    if (insertErr || !order) {
+      redirect(localizePath(`/checkout?tier=${encodeURIComponent(tierSlug)}&error=order`, locale));
+    }
+
+    await logStatusChange(sb, {
+      orderId: order.id,
+      fromStatus: null,
+      toStatus: 'paid',
+      reason: 'cortesia',
+      note: `Cupón ${appliedCouponCode} cubrió el 100 % de la entrada`,
+      source: 'sistema'
+    });
+
+    const result = await fulfillPaidOrder(sb, order as FulfillableOrder);
+    if (result.warnings.length > 0) {
+      console.error('Cortesía entregada con avisos', reference, result.warnings);
+    }
+
+    redirect(localizePath(`/checkout/success?ref=${encodeURIComponent(reference)}`, locale));
+  }
+
+  // --- Pago normal: la orden espera al webhook de Wompi ----------------
+  const { error: insertErr } = await sb.from('orders').insert({ ...orderRow, status: 'pending' });
 
   if (insertErr) {
     redirect(localizePath(`/checkout?tier=${encodeURIComponent(tierSlug)}&error=order`, locale));
   }
 
+  const currency = 'COP';
+  const amountInCents = totalCop * 100;
   const signature = signIntegrity({ reference, amountInCents, currency });
   const siteUrl = await resolveSiteUrl();
   const successPath = localizePath('/checkout/success', locale);

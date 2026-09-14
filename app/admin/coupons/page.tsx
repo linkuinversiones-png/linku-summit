@@ -1,10 +1,10 @@
 import Link from 'next/link';
-import { Plus, TicketPercent, Edit3 } from 'lucide-react';
+import { Plus, TicketPercent, Edit3, Gift } from 'lucide-react';
 import { getAllCouponsAdmin } from '@/lib/coupons';
 import { formatCop } from '@/lib/tickets';
 import RowActions from './RowActions';
 
-export const metadata = { title: 'Cupones · Admin · LINKU SUMMIT' };
+export const metadata = { title: 'Cupones · Admin · LINKU CAPITAL SUMMIT 2026' };
 export const dynamic = 'force-dynamic';
 
 function fmtDate(iso: string | null): string {
@@ -21,15 +21,21 @@ export default async function AdminCouponsPage() {
 
   return (
     <div className="mx-auto max-w-6xl">
-      <header className="mb-8 flex items-start justify-between gap-4">
+      <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tightish text-linku-text">
             Cupones
           </h1>
           <p className="mt-1 text-sm text-linku-text-muted">
-            Códigos de descuento. Cada uso queda registrado para auditoría.
+            Códigos de descuento y cortesías. Cada uso queda registrado para auditoría.
           </p>
         </div>
+        <Link
+          href="/admin/cortesias"
+          className="inline-flex items-center gap-2 rounded-xl border border-linku-border-2 px-4 py-2.5 text-sm font-medium text-linku-text-muted transition hover:border-white/25 hover:text-linku-text"
+        >
+          <Gift size={16} /> Ver cortesías
+        </Link>
         <Link
           href="/admin/coupons/new"
           className="inline-flex items-center gap-2 rounded-xl bg-linku-coral px-4 py-2.5 text-sm font-semibold text-white shadow-coral-glow transition hover:bg-linku-coral-soft"
@@ -66,7 +72,14 @@ export default async function AdminCouponsPage() {
                   className="border-t border-linku-border transition hover:bg-white/5"
                 >
                   <td className="px-4 py-3">
-                    <p className="font-mono font-semibold text-linku-text">{c.code}</p>
+                    <p className="flex items-center gap-2 font-mono font-semibold text-linku-text">
+                      {c.code}
+                      {c.kind === 'cortesia' && (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-linku-coral/40 bg-linku-coral/10 px-2 py-0.5 font-sans text-[10px] font-bold uppercase tracking-wider text-linku-coral">
+                          <Gift size={10} /> Cortesía
+                        </span>
+                      )}
+                    </p>
                     {c.description && (
                       <p className="text-[11px] text-linku-text-dim">{c.description}</p>
                     )}

@@ -4,7 +4,7 @@ import { validateCoupon } from '@/lib/coupons';
 /**
  * POST /api/coupons/validate
  * Body: { code: string, tier: string, subtotalCop: number }
- * Resp: { ok, discountCop, totalCop, reason? }
+ * Resp: { ok, discountCop, totalCop, couponCode, kind, isFree, reason? }
  *
  * Público (el checkout es sin registro): validar un cupón no expone datos
  * del usuario. La validación final se repite server-side al crear la orden.
@@ -33,6 +33,8 @@ export async function POST(request: NextRequest) {
     ok: true,
     discountCop: result.discountCop,
     totalCop: result.totalCop,
-    couponCode: result.coupon.code
+    couponCode: result.coupon.code,
+    kind: result.coupon.kind,
+    isFree: result.isFree
   });
 }

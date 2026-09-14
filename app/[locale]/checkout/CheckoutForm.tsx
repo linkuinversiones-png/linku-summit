@@ -20,6 +20,8 @@ type Copy = {
   billingSame: string;
   address: string;
   pay: string;
+  /** Texto del botón cuando un cupón de cortesía deja la entrada en $0. */
+  payFree: string;
 };
 
 const DOC_TYPES = [
@@ -42,12 +44,15 @@ export default function CheckoutForm({
   tier,
   locale,
   coupon,
+  isFree = false,
   copy
 }: {
   action: (formData: FormData) => void | Promise<void>;
   tier: string;
   locale: Locale;
   coupon?: string;
+  /** Sin saldo por pagar: el envío confirma la cortesía en vez de ir a Wompi. */
+  isFree?: boolean;
   copy: Copy;
 }) {
   const [billingSame, setBillingSame] = useState(true);
@@ -202,9 +207,13 @@ export default function CheckoutForm({
 
       <button
         type="submit"
-        className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-linku-coral px-6 py-4 text-base font-semibold text-white shadow-coral-glow transition hover:bg-linku-coral-soft hover:shadow-coral-glow-strong"
+        className={`mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-4 text-base font-semibold text-white transition ${
+          isFree
+            ? 'bg-emerald-500 hover:bg-emerald-400'
+            : 'bg-linku-coral shadow-coral-glow hover:bg-linku-coral-soft hover:shadow-coral-glow-strong'
+        }`}
       >
-        {copy.pay}
+        {isFree ? copy.payFree : copy.pay}
         <ArrowRight size={18} />
       </button>
     </form>
