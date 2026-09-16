@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { createClient as createServiceSb } from '@supabase/supabase-js';
 import { localizePath, type Locale } from '@/lib/i18n/config';
 import StatusPoll from './StatusPoll';
+import { getMeetingsSettings } from '@/lib/settings';
 
 export const metadata = {
   title: 'Checkout · LINKU CAPITAL SUMMIT 2026',
@@ -20,6 +21,8 @@ const COPY = {
       'Tu registro quedó a tu nombre. Antes del evento recibirás la información de acreditación.',
     accountNote:
       'Para ver tu información de registro y agendar tus citas, entra a tu cuenta. Inicia sesión solo con tu correo (te enviamos un código de 6 dígitos).',
+    accountNoteBasic:
+      'Para ver tu información de registro, entra a tu cuenta. Inicia sesión solo con tu correo (te enviamos un código de 6 dígitos).',
     accountCta: 'Entrar a mi cuenta',
     leadFailed:
       'Si crees que fue un error, intenta de nuevo o contáctanos a laura.lopez@linku-ventures.co.',
@@ -36,6 +39,8 @@ const COPY = {
       'Your registration is under your name. You will receive accreditation details before the event.',
     accountNote:
       'To see your registration details and book your meetings, sign in to your account. Just use your email (we send you a 6-digit code).',
+    accountNoteBasic:
+      'To see your registration details, sign in to your account. Just use your email (we send you a 6-digit code).',
     accountCta: 'Go to my account',
     leadFailed:
       'If you think this is a mistake, try again or contact us at laura.lopez@linku-ventures.co.',
@@ -64,14 +69,20 @@ export default async function CheckoutSuccessPage(props: {
   const ref = (searchParams.ref || searchParams.id || '').split('?')[0] || undefined;
 
   let order:
-    | { id: string; status: string; payment_reference: string; buyer_email: string | null }
+    | {
+        id: string;
+        status: string;
+        payment_reference: string;
+        buyer_email: string | null;
+        ticket_tier: string;
+      }
     | null = null;
 
   if (ref) {
     const sb = serviceClient();
     const { data } = await sb
       .from('orders')
-      .select('id, status, payment_reference, buyer_email')
+      .select('id, status, payment_reference, buyer_email, ticket_tier')
       .eq('payment_reference', ref)
       .single();
     order = data;
@@ -98,6 +109,9 @@ export default async function CheckoutSuccessPage(props: {
   const loginHref = localizePath('/login', params.locale);
   const isPaid = order.status === 'paid';
   const isFailed = order.status === 'failed';
+  // Las citas 1:1 son un beneficio de ciertas entradas (Ajustes → Quién la ve).
+  const meetings = await getMeetingsSettings();
+  const canBookMeetings = meetings.value.tiers.includes(order.ticket_tier);
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-linku-bg pb-20">
@@ -141,7 +155,9 @@ export default async function CheckoutSuccessPage(props: {
 
         {isPaid && (
           <div className="mx-auto mt-8 max-w-md rounded-xl border border-linku-coral/25 bg-linku-bg-3/40 p-5">
-            <p className="text-sm leading-relaxed text-linku-text-muted">{t.accountNote}</p>
+            <p className="text-sm leading-relaxed text-linku-text-muted">
+              {canBookMeetings ? t.accountNote : t.accountNoteBasic}
+            </p>
             <Link
               href={loginHref}
               className="mt-4 inline-flex items-center gap-2 rounded-xl bg-linku-coral px-5 py-3 text-sm font-semibold text-white shadow-coral-glow transition hover:bg-linku-coral-soft"
