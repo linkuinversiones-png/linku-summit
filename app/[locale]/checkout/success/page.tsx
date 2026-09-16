@@ -13,13 +13,13 @@ const COPY = {
   es: {
     eyebrow: 'Pago',
     titlePending: 'Estamos confirmando tu pago…',
-    titlePaid: '¡Tu entrada está confirmada!',
+    titlePaid: '¡Registro confirmado!',
     titleFailed: 'El pago no se pudo procesar.',
     leadPending: 'Wompi nos avisa por webhook en segundos. No cierres esta página.',
     leadPaid:
-      'Tu entrada quedó registrada a tu nombre. Antes del evento recibirás la información de acreditación.',
+      'Tu registro quedó a tu nombre. Antes del evento recibirás la información de acreditación.',
     accountNote:
-      'Para hacer seguimiento de tu entrada y agendar tus citas, entra a tu cuenta. Inicia sesión solo con tu correo (te enviamos un código de 6 dígitos).',
+      'Para ver tu información de registro y agendar tus citas, entra a tu cuenta. Inicia sesión solo con tu correo (te enviamos un código de 6 dígitos).',
     accountCta: 'Entrar a mi cuenta',
     leadFailed:
       'Si crees que fue un error, intenta de nuevo o contáctanos a laura.lopez@linku-ventures.co.',
@@ -29,13 +29,13 @@ const COPY = {
   en: {
     eyebrow: 'Payment',
     titlePending: 'Confirming your payment…',
-    titlePaid: 'Your ticket is confirmed!',
+    titlePaid: 'Registration confirmed!',
     titleFailed: 'Payment could not be processed.',
     leadPending: "Wompi notifies us via webhook within seconds. Don't close this page.",
     leadPaid:
-      'Your ticket is registered under your name. You will receive accreditation details before the event.',
+      'Your registration is under your name. You will receive accreditation details before the event.',
     accountNote:
-      'To track your ticket and book your meetings, sign in to your account. Just use your email (we send you a 6-digit code).',
+      'To see your registration details and book your meetings, sign in to your account. Just use your email (we send you a 6-digit code).',
     accountCta: 'Go to my account',
     leadFailed:
       'If you think this is a mistake, try again or contact us at laura.lopez@linku-ventures.co.',
