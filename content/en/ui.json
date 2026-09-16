@@ -201,6 +201,11 @@
       "partner": "Partner",
       "attendee": "Attendee",
       "admin": "Admin"
-    }
+    },
+    "meetingsSoon": "Coming soon",
+    "meetingsExternal": "Opens on our scheduling provider’s site, in a new tab.",
+    "ticketsActive": "Active",
+    "ticketsIssued": "Issued on",
+    "ticketsAccreditation": "Your accreditation at the venue is handled with your ID number. Nothing to print."
   }
 }

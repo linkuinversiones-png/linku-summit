@@ -201,6 +201,11 @@
       "partner": "Aliado",
       "attendee": "Asistente",
       "admin": "Admin"
-    }
+    },
+    "meetingsSoon": "Próximamente",
+    "meetingsExternal": "Se abre en el sitio de nuestro proveedor de agendamiento, en una pestaña nueva.",
+    "ticketsActive": "Activa",
+    "ticketsIssued": "Emitida el",
+    "ticketsAccreditation": "Tu acreditación para entrar al evento se gestiona con tu número de documento. No necesitas imprimir nada."
   }
 }

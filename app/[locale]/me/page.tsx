@@ -8,12 +8,15 @@ import {
   Briefcase,
   Mail,
   ArrowRight,
+  CalendarClock,
+  ExternalLink,
+  CheckCircle2,
   type LucideIcon
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { localizePath, type Locale } from '@/lib/i18n/config';
 import { getContent } from '@/lib/i18n/content';
-import { renderTicketQrDataUrl } from '@/lib/qr/render';
+import { getMeetingsSettings, meetingsCopy } from '@/lib/settings';
 import { claimMyOrders } from '../checkout/actions';
 import SignOutButton from './SignOutButton';
 
@@ -21,11 +24,16 @@ export const metadata = {
   title: 'LINKU CAPITAL SUMMIT 2026'
 };
 
-export default async function MePage(
-  props: {
-    params: Promise<{ locale: Locale }>;
-  }
-) {
+function fmtDate(iso: string, locale: Locale): string {
+  return new Date(iso).toLocaleDateString(locale === 'es' ? 'es-CO' : 'en-US', {
+    timeZone: 'America/Bogota',
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
+  });
+}
+
+export default async function MePage(props: { params: Promise<{ locale: Locale }> }) {
   const params = await props.params;
   const supabase = await createClient();
   const {
@@ -39,48 +47,41 @@ export default async function MePage(
   // Vincula compras hechas como invitado (mismo email) a esta cuenta. Idempotente.
   await claimMyOrders();
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
-
-  const { data: tickets } = await supabase
-    .from('tickets_issued')
-    .select('id, qr_code, ticket_tier, status, used_at, created_at')
-    .eq('user_id', user.id)
-    .eq('status', 'active')
-    .order('created_at', { ascending: false });
+  const [{ data: profile }, { data: tickets }, meetings] = await Promise.all([
+    supabase.from('profiles').select('*').eq('id', user.id).single(),
+    supabase
+      .from('tickets_issued')
+      .select('id, qr_code, ticket_tier, status, used_at, created_at')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false }),
+    getMeetingsSettings()
+  ]);
 
   // Mapa slug → nombre del tier en el idioma del usuario
   const tierSlugs = Array.from(new Set((tickets ?? []).map((t) => t.ticket_tier)));
-  const tierNameByslug: Record<string, string> = {};
+  const tierNameBySlug: Record<string, string> = {};
   if (tierSlugs.length > 0) {
     const { data: tierRows } = await supabase
       .from('ticket_tiers')
       .select('slug, name_es, name_en')
       .in('slug', tierSlugs);
     for (const r of tierRows ?? []) {
-      tierNameByslug[r.slug] =
-        params.locale === 'es' ? r.name_es : r.name_en;
+      tierNameBySlug[r.slug] = params.locale === 'es' ? r.name_es : r.name_en;
     }
   }
 
-  // QR data URLs (server-side render para evitar lib en cliente)
-  const ticketsWithQr = await Promise.all(
-    (tickets ?? []).map(async (tk) => ({
-      ...tk,
-      tierName: tierNameByslug[tk.ticket_tier] ?? tk.ticket_tier,
-      qrDataUrl: await renderTicketQrDataUrl(tk.id, 280)
-    }))
-  );
-
   const t = getContent(params.locale).ui.me;
   const displayName = profile?.full_name?.trim() || user.email?.split('@')[0] || '';
+  const m = meetingsCopy(meetings.value, params.locale);
+  const meetingsOpen = meetings.value.enabled && meetings.value.url.trim() !== '';
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-linku-bg pb-20">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[480px] bg-hero-glow opacity-60" aria-hidden />
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-[480px] bg-hero-glow opacity-60"
+        aria-hidden
+      />
 
       <header className="relative border-b border-linku-border">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-5 sm:px-8 sm:py-6">
@@ -119,19 +120,49 @@ export default async function MePage(
           </h1>
         </div>
 
-        <div className="mt-10 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+        {/* CITAS 1:1 — enlace al proveedor externo, editable desde /admin/settings */}
+        <section className="mt-10 linku-card linku-card-coral p-7 sm:p-8">
+          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-start gap-4">
+              <span className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-linku-coral/15 text-linku-coral">
+                <CalendarClock size={22} strokeWidth={1.75} />
+              </span>
+              <div>
+                <h2 className="text-lg font-bold tracking-tightish text-linku-text">{m.title}</h2>
+                <p className="mt-1 max-w-xl text-sm text-linku-text-muted">{m.desc}</p>
+                {!meetingsOpen && m.note && (
+                  <p className="mt-2 text-xs text-linku-text-dim">{m.note}</p>
+                )}
+              </div>
+            </div>
+            {meetingsOpen ? (
+              <a
+                href={meetings.value.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-linku-coral px-5 py-3 text-sm font-semibold text-white shadow-coral-glow transition hover:bg-linku-coral-soft"
+              >
+                {m.cta}
+                <ExternalLink size={15} />
+              </a>
+            ) : (
+              <span className="inline-flex shrink-0 items-center justify-center rounded-xl border border-linku-border-2 px-5 py-3 text-sm font-semibold text-linku-text-dim">
+                {t.meetingsSoon}
+              </span>
+            )}
+          </div>
+          {meetingsOpen && (
+            <p className="mt-4 text-[11px] text-linku-text-dim">{t.meetingsExternal}</p>
+          )}
+        </section>
+
+        <div className="mt-6 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
           {/* PERFIL */}
           <section className="linku-card p-7 sm:p-8">
             <header className="flex items-center justify-between">
-              <h2 className="text-lg font-bold tracking-tightish text-linku-text">{t.profileTitle}</h2>
-              <button
-                type="button"
-                disabled
-                className="text-xs font-medium uppercase tracking-[0.18em] text-linku-text-dim"
-                title={t.soon}
-              >
-                {t.edit}
-              </button>
+              <h2 className="text-lg font-bold tracking-tightish text-linku-text">
+                {t.profileTitle}
+              </h2>
             </header>
 
             <dl className="mt-6 grid gap-5 sm:grid-cols-2">
@@ -146,7 +177,11 @@ export default async function MePage(
                     : t.roleTBD
                 }
               />
-              <ProfileField icon={Building2} label={t.fieldCompany} value={profile?.company || '—'} />
+              <ProfileField
+                icon={Building2}
+                label={t.fieldCompany}
+                value={profile?.company || '—'}
+              />
             </dl>
 
             <p className="mt-7 rounded-xl border border-linku-border bg-linku-bg-3/60 p-4 text-sm text-linku-text-muted">
@@ -154,48 +189,47 @@ export default async function MePage(
             </p>
           </section>
 
-          {/* BOLETAS */}
+          {/* ENTRADAS — sin QR: la acreditación en el evento la hace InContacto */}
           <section className="linku-card p-7 sm:p-8">
             <header className="flex items-center justify-between">
-              <h2 className="text-lg font-bold tracking-tightish text-linku-text">{t.ticketsTitle}</h2>
-              {ticketsWithQr.length > 0 && (
+              <h2 className="text-lg font-bold tracking-tightish text-linku-text">
+                {t.ticketsTitle}
+              </h2>
+              {(tickets ?? []).length > 0 && (
                 <span className="rounded-full bg-linku-coral/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-linku-coral">
-                  {ticketsWithQr.length}
+                  {(tickets ?? []).length}
                 </span>
               )}
             </header>
 
-            {ticketsWithQr.length > 0 ? (
-              <ul className="mt-6 space-y-5">
-                {ticketsWithQr.map((row) => (
-                  <li
-                    key={row.id}
-                    className="rounded-xl border border-linku-border bg-linku-bg-3/50 p-5"
-                  >
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-linku-coral">
-                      {row.tierName}
-                    </p>
-                    <div className="mt-4 flex justify-center">
-                      <img
-                        src={row.qrDataUrl}
-                        alt="QR"
-                        width={220}
-                        height={220}
-                        className="rounded-lg bg-white p-2"
-                      />
-                    </div>
-                    <p className="mt-3 text-center text-[11px] font-mono text-linku-text-dim">
-                      {row.qr_code.slice(0, 8)}…
-                    </p>
-                  </li>
-                ))}
-              </ul>
+            {(tickets ?? []).length > 0 ? (
+              <>
+                <ul className="mt-6 space-y-4">
+                  {(tickets ?? []).map((row) => (
+                    <li
+                      key={row.id}
+                      className="flex items-start justify-between gap-4 rounded-xl border border-linku-border bg-linku-bg-3/50 p-5"
+                    >
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-linku-coral">
+                          {tierNameBySlug[row.ticket_tier] ?? row.ticket_tier}
+                        </p>
+                        <p className="mt-1.5 text-[11px] text-linku-text-dim">
+                          {t.ticketsIssued} {fmtDate(row.created_at, params.locale)}
+                        </p>
+                      </div>
+                      <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2.5 py-1 text-[11px] font-semibold text-emerald-300">
+                        <CheckCircle2 size={12} /> {t.ticketsActive}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-5 text-xs text-linku-text-dim">{t.ticketsAccreditation}</p>
+              </>
             ) : (
               <div className="mt-6 flex flex-col items-center gap-4 rounded-xl border border-dashed border-linku-border-2 bg-linku-bg-3/30 px-5 py-10 text-center">
                 <Ticket size={28} strokeWidth={1.5} className="text-linku-text-dim" />
-                <p className="text-sm text-linku-text-muted">
-                  {t.ticketsEmpty}
-                </p>
+                <p className="text-sm text-linku-text-muted">{t.ticketsEmpty}</p>
                 <Link
                   href={localizePath('/#tickets', params.locale)}
                   className="inline-flex items-center gap-2 text-sm font-semibold text-linku-coral hover:text-linku-coral-soft"

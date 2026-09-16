@@ -45,7 +45,7 @@ const NAV: NavItem[] = [
   { href: '/admin/meetings', label: 'Citas', icon: CalendarClock, soon: true },
   { href: '/admin/emails', label: 'Correos', icon: Mail, soon: true },
   { href: '/admin/gate', label: 'Portería', icon: ScanLine, soon: true },
-  { href: '/admin/settings', label: 'Ajustes', icon: Settings, soon: true }
+  { href: '/admin/settings', label: 'Ajustes', icon: Settings }
 ];
 
 export default function AdminShell({
