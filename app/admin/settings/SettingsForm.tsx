@@ -1,7 +1,7 @@
 'use client';
 
 import { useFormState, useFormStatus } from 'react-dom';
-import { CalendarClock, ExternalLink, Loader2, Save } from 'lucide-react';
+import { CalendarClock, ExternalLink, Loader2, Save, Ticket } from 'lucide-react';
 import type { MeetingsSettingsRow } from '@/lib/settings';
 import { saveMeetingsSettings, type SettingsActionResult } from './actions';
 
@@ -36,7 +36,13 @@ function fmt(iso: string | null): string {
   });
 }
 
-export default function SettingsForm({ meetings }: { meetings: MeetingsSettingsRow }) {
+export default function SettingsForm({
+  meetings,
+  tiers
+}: {
+  meetings: MeetingsSettingsRow;
+  tiers: Array<{ slug: string; name: string }>;
+}) {
   const [state, formAction] = useFormState<SettingsActionResult | null, FormData>(
     saveMeetingsSettings,
     null
@@ -92,6 +98,34 @@ export default function SettingsForm({ meetings }: { meetings: MeetingsSettingsR
               </span>
             </span>
           </label>
+
+          <fieldset className="flex flex-col gap-2">
+            <legend className={`${LABEL} flex items-center gap-1.5`}>
+              <Ticket size={13} /> Quién la ve
+            </legend>
+            <div className="flex flex-wrap gap-2">
+              {tiers.map((tier) => (
+                <label
+                  key={tier.slug}
+                  className="flex cursor-pointer items-center gap-2 rounded-lg border border-linku-border-2 bg-linku-bg-3 px-3 py-2 text-sm text-linku-text"
+                >
+                  <input
+                    type="checkbox"
+                    name="tiers"
+                    value={tier.slug}
+                    defaultChecked={v.tiers.includes(tier.slug)}
+                    className="h-4 w-4 rounded border-linku-border-2 bg-linku-bg accent-linku-coral"
+                  />
+                  {tier.name}
+                </label>
+              ))}
+            </div>
+            <span className={HINT}>
+              Solo quien tenga una entrada activa de estos tipos ve la tarjeta de citas en su cuenta.
+              Los demás no ven nada, ni el aviso de próximamente.
+            </span>
+            {errs.tiers && <span className="text-xs text-red-300">{errs.tiers}</span>}
+          </fieldset>
 
           <label className="flex flex-col gap-1.5">
             <span className={LABEL}>Enlace del proveedor</span>

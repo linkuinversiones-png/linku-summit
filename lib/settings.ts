@@ -9,6 +9,8 @@ import type { Locale } from '@/lib/i18n/config';
 export type MeetingsSettings = {
   enabled: boolean;
   url: string;
+  /** Slugs de entrada que ven la tarjeta de citas (p. ej. solo smart-access). */
+  tiers: string[];
   title_es: string;
   title_en: string;
   desc_es: string;
@@ -22,6 +24,7 @@ export type MeetingsSettings = {
 export const MEETINGS_DEFAULTS: MeetingsSettings = {
   enabled: false,
   url: '',
+  tiers: ['smart-access'],
   title_es: 'Agenda tus citas 1:1',
   title_en: 'Book your 1:1 meetings',
   desc_es:
@@ -50,8 +53,9 @@ export async function getMeetingsSettings(): Promise<MeetingsSettingsRow> {
     .maybeSingle();
 
   const raw = (data?.value ?? {}) as Partial<MeetingsSettings>;
+  const tiers = Array.isArray(raw.tiers) ? raw.tiers : MEETINGS_DEFAULTS.tiers;
   return {
-    value: { ...MEETINGS_DEFAULTS, ...raw },
+    value: { ...MEETINGS_DEFAULTS, ...raw, tiers },
     updated_at: data?.updated_at ?? null,
     updated_by_email: data?.updated_by_email ?? null
   };

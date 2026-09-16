@@ -32,9 +32,15 @@ export async function saveMeetingsSettings(
   const admin = await assertAdmin();
   const get = (k: string) => String(form.get(k) ?? '').trim();
 
+  const tiers = form
+    .getAll('tiers')
+    .map((v) => String(v).trim())
+    .filter((v) => /^[a-z0-9-]+$/.test(v));
+
   const value: MeetingsSettings = {
     enabled: form.get('enabled') === 'on',
     url: get('url'),
+    tiers,
     title_es: get('title_es') || MEETINGS_DEFAULTS.title_es,
     title_en: get('title_en'),
     desc_es: get('desc_es'),
@@ -55,6 +61,9 @@ export async function saveMeetingsSettings(
       ok = false;
     }
     if (!ok) fieldErrors.url = 'Pega la dirección completa, empezando por https://';
+  }
+  if (tiers.length === 0) {
+    fieldErrors.tiers = 'Marca al menos un tipo de entrada; si no, nadie vería la tarjeta';
   }
   if (value.enabled && !value.url) {
     fieldErrors.url = 'Para activar la agenda hace falta el enlace del proveedor';

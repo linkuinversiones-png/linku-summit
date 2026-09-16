@@ -75,6 +75,10 @@ export default async function MePage(props: { params: Promise<{ locale: Locale }
   const displayName = profile?.full_name?.trim() || user.email?.split('@')[0] || '';
   const m = meetingsCopy(meetings.value, params.locale);
   const meetingsOpen = meetings.value.enabled && meetings.value.url.trim() !== '';
+  // La agenda de citas es un beneficio de ciertas entradas (por defecto Smart Access).
+  const canBookMeetings = (tickets ?? []).some((tk) =>
+    meetings.value.tiers.includes(tk.ticket_tier)
+  );
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-linku-bg pb-20">
@@ -120,7 +124,8 @@ export default async function MePage(props: { params: Promise<{ locale: Locale }
           </h1>
         </div>
 
-        {/* CITAS 1:1 — enlace al proveedor externo, editable desde /admin/settings */}
+        {/* CITAS 1:1 — solo para entradas habilitadas; enlace y textos en /admin/settings */}
+        {canBookMeetings && (
         <section className="mt-10 linku-card linku-card-coral p-7 sm:p-8">
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div className="flex items-start gap-4">
@@ -155,8 +160,11 @@ export default async function MePage(props: { params: Promise<{ locale: Locale }
             <p className="mt-4 text-[11px] text-linku-text-dim">{t.meetingsExternal}</p>
           )}
         </section>
+        )}
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+        <div
+          className={`${canBookMeetings ? 'mt-6' : 'mt-10'} grid gap-6 lg:grid-cols-[1.4fr_1fr]`}
+        >
           {/* PERFIL */}
           <section className="linku-card p-7 sm:p-8">
             <header className="flex items-center justify-between">
