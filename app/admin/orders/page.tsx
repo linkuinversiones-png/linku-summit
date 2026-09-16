@@ -12,7 +12,8 @@ import {
   Receipt,
   Users,
   TrendingUp,
-  Search
+  Search,
+  FileSpreadsheet
 } from 'lucide-react';
 
 export const metadata = { title: 'Ventas · Admin · LINKU CAPITAL SUMMIT 2026' };
@@ -68,7 +69,8 @@ export default async function AdminOrdersPage(
 
   return (
     <div className="mx-auto max-w-7xl">
-      <header className="mb-8">
+      <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
+        <div>
         <h1 className="text-3xl font-bold tracking-tightish text-linku-text">
           Ventas
         </h1>
@@ -76,6 +78,8 @@ export default async function AdminOrdersPage(
           Todas las órdenes registradas. Cada compra que entra al sistema queda
           aquí, sin importar si el pago se confirmó o no.
         </p>
+        </div>
+        <ExportForm today={todayBogota()} />
       </header>
 
       <section className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -320,5 +324,48 @@ function StatCard({
         {value}
       </p>
     </div>
+  );
+}
+
+/** Hoy en Colombia como YYYY-MM-DD, para el valor por defecto del corte. */
+function todayBogota(): string {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Bogota' });
+}
+
+/**
+ * Descarga el Excel con todos los campos del registro hasta la fecha de
+ * corte inclusive. Es un GET a /admin/orders/export: el navegador recibe el
+ * archivo directamente, sin JavaScript.
+ */
+function ExportForm({ today }: { today: string }) {
+  return (
+    <form
+      method="GET"
+      action="/admin/orders/export"
+      className="flex flex-wrap items-end gap-2 rounded-2xl border border-linku-border-2 bg-linku-bg-2 p-3"
+    >
+      <label className="flex flex-col gap-1">
+        <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-linku-text-dim">
+          Fecha de corte
+        </span>
+        <input
+          type="date"
+          name="corte"
+          defaultValue={today}
+          max={today}
+          required
+          className="rounded-lg border border-linku-border-2 bg-linku-bg-3 px-3 py-2 text-sm text-linku-text focus:border-linku-coral/50 focus:outline-none focus:ring-2 focus:ring-linku-coral/30"
+        />
+      </label>
+      <button
+        type="submit"
+        className="inline-flex items-center gap-2 rounded-lg bg-linku-coral px-4 py-2 text-sm font-semibold text-white transition hover:bg-linku-coral-soft"
+      >
+        <FileSpreadsheet size={16} /> Descargar Excel
+      </button>
+      <p className="basis-full text-[11px] text-linku-text-dim">
+        Incluye todas las órdenes registradas hasta ese día, con todos los campos del formulario.
+      </p>
+    </form>
   );
 }
