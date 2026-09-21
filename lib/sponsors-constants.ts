@@ -20,5 +20,11 @@ export const SPONSOR_CATEGORIES: SponsorCategory[] = [
   { slug: 'seed', titleEs: 'Seed Sponsors', titleEn: 'Seed Sponsors' },
   { slug: 'pre-seed', titleEs: 'Pre-Seed Sponsors', titleEn: 'Pre-Seed Sponsors' },
   { slug: 'angel', titleEs: 'Angel Sponsors', titleEn: 'Angel Sponsors' },
-  { slug: 'aliados', titleEs: 'Aliados', titleEn: 'Partners', aliado: true }
+  { slug: 'aliados', titleEs: 'Aliados', titleEn: 'Partners', aliado: true },
+  {
+    slug: 'aliado-academico',
+    titleEs: 'Aliado Académico',
+    titleEn: 'Academic Partner',
+    aliado: true
+  }
 ];

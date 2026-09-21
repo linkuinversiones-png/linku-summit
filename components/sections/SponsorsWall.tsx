@@ -22,9 +22,11 @@ export default async function SponsorsWall({
 }) {
   const groups = await getSponsorGroups(locale);
   const tiers = groups.filter((g) => !g.category.aliado);
-  const aliados = groups.find((g) => g.category.aliado);
+  // Puede haber varios grupos de aliados (Aliados, Aliado Académico…): van
+  // todos al bloque inferior, en el orden de SPONSOR_CATEGORIES.
+  const aliados = groups.filter((g) => g.category.aliado);
 
-  if (tiers.length === 0 && !aliados) {
+  if (tiers.length === 0 && aliados.length === 0) {
     return (
       <section id="sponsors" className="relative bg-linku-bg-2/40">
         <div className="mx-auto max-w-4xl px-5 py-20 text-center sm:px-8 sm:py-24">
@@ -66,10 +68,12 @@ export default async function SponsorsWall({
               </div>
             )}
 
-            {aliados && (
+            {aliados.length > 0 && (
               <div className="mt-12 border-t-2 border-linku-border-2 pt-2 lg:mt-16">
                 <div className="divide-y divide-linku-border">
-                  <CategoryRow group={aliados} />
+                  {aliados.map((group) => (
+                    <CategoryRow key={group.category.slug} group={group} />
+                  ))}
                 </div>
               </div>
             )}
@@ -107,7 +111,8 @@ const SIZE_BY_SLUG: Record<string, string> = {
   seed: 'h-8 max-w-[110px] sm:h-9 sm:max-w-[125px]',
   'pre-seed': 'h-7 max-w-[100px] sm:h-8 sm:max-w-[115px]',
   angel: 'h-6 max-w-[90px] sm:h-7 sm:max-w-[105px]',
-  aliados: 'h-14 max-w-[180px] sm:h-16 sm:max-w-[200px]'
+  aliados: 'h-14 max-w-[180px] sm:h-16 sm:max-w-[200px]',
+  'aliado-academico': 'h-14 max-w-[180px] sm:h-16 sm:max-w-[200px]'
 };
 
 const DEFAULT_SIZE = 'h-9 max-w-[120px] sm:h-10 sm:max-w-[140px]';
@@ -123,7 +128,8 @@ const GAP_BY_SLUG: Record<string, string> = {
   seed: 'gap-x-6 gap-y-5',
   'pre-seed': 'gap-x-5 gap-y-4',
   angel: 'gap-x-5 gap-y-4',
-  aliados: 'gap-x-10 gap-y-7'
+  aliados: 'gap-x-10 gap-y-7',
+  'aliado-academico': 'gap-x-10 gap-y-7'
 };
 
 function CategoryRow({ group }: { group: SponsorGroup }) {
