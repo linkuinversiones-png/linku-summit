@@ -112,7 +112,8 @@ const SIZE_BY_SLUG: Record<string, string> = {
   'pre-seed': 'h-7 max-w-[100px] sm:h-8 sm:max-w-[115px]',
   angel: 'h-6 max-w-[90px] sm:h-7 sm:max-w-[105px]',
   aliados: 'h-14 max-w-[180px] sm:h-16 sm:max-w-[200px]',
-  'aliado-academico': 'h-14 max-w-[180px] sm:h-16 sm:max-w-[200px]'
+  'aliado-academico': 'h-14 max-w-[180px] sm:h-16 sm:max-w-[200px]',
+  'media-partner': 'h-14 max-w-[180px] sm:h-16 sm:max-w-[200px]'
 };
 
 const DEFAULT_SIZE = 'h-9 max-w-[120px] sm:h-10 sm:max-w-[140px]';
@@ -129,7 +130,8 @@ const GAP_BY_SLUG: Record<string, string> = {
   'pre-seed': 'gap-x-5 gap-y-4',
   angel: 'gap-x-5 gap-y-4',
   aliados: 'gap-x-10 gap-y-7',
-  'aliado-academico': 'gap-x-10 gap-y-7'
+  'aliado-academico': 'gap-x-10 gap-y-7',
+  'media-partner': 'gap-x-10 gap-y-7'
 };
 
 function CategoryRow({ group }: { group: SponsorGroup }) {
