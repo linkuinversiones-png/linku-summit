@@ -1,0 +1,144 @@
+# Publicación automática a Cloudflare Workers.
+#
+# Cada push a `main` (o "Run workflow" a mano) compila el sitio y lo publica.
+# Es el equivalente de los pasos 3 a 5 del pipeline manual de docs/DEPLOY.md.
+#
+# Lo que NO hace, a propósito:
+#   - Migraciones de Supabase: siguen siendo manuales (node scripts/run-migrations.mjs)
+#     y van ANTES del push. Aquí solo se avisa si el push trae migraciones nuevas.
+#   - Secretos del Worker (Wompi, Resend, InContacto…): viven en Cloudflare, no aquí.
+#
+# Variables y secretos que necesita (Settings → Secrets and variables → Actions):
+#   secrets:   CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, NEXT_PUBLIC_SUPABASE_ANON_KEY
+#   variables: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET, NEXT_PUBLIC_SITE_URL
+
+name: Publicar en Cloudflare
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Nunca dos publicaciones a la vez. Si llegan dos pushes seguidos, el segundo
+# espera a que termine el primero (no lo cancela: un deploy a medias es peor).
+concurrency:
+  group: publicar-produccion
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  SITE_URL: https://www.linkusummit.com
+
+jobs:
+  publicar:
+    name: Compilar y publicar
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+        with:
+          # Historial completo: hace falta para comparar con el commit anterior
+          # y detectar migraciones nuevas.
+          fetch-depth: 0
+
+      - name: Avisar si el push trae migraciones de Supabase
+        shell: bash
+        run: |
+          set -euo pipefail
+          BEFORE="${{ github.event.before }}"
+          if [ "${{ github.event_name }}" != "push" ] || [ -z "$BEFORE" ] || ! git cat-file -e "$BEFORE" 2>/dev/null; then
+            # Ejecución manual o push forzado: comparamos solo con el commit anterior.
+            BEFORE="$(git rev-parse HEAD~1 2>/dev/null || echo "")"
+          fi
+          NUEVAS=""
+          if [ -n "$BEFORE" ]; then
+            NUEVAS="$(git diff --diff-filter=A --name-only "$BEFORE" "${{ github.sha }}" -- supabase/migrations/ || true)"
+          fi
+          if [ -n "$NUEVAS" ]; then
+            {
+              echo "## ⚠️ Este push trae migraciones de Supabase nuevas"
+              echo ""
+              echo "El workflow NO las aplica. Deben haberse corrido antes con \`node scripts/run-migrations.mjs\`."
+              echo "Si no se corrieron, el sitio puede fallar hasta que se apliquen."
+              echo ""
+              echo '```'
+              echo "$NUEVAS"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            while IFS= read -r f; do
+              echo "::warning file=$f::Migración nueva en este push. ¿Ya se aplicó con node scripts/run-migrations.mjs?"
+            done <<< "$NUEVAS"
+          else
+            echo "Sin migraciones nuevas en este push."
+          fi
+
+      - name: Preparar Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Compilar (Next + OpenNext para Cloudflare)
+        # Next.js incrusta las NEXT_PUBLIC_* en el build. Por eso van aquí y por
+        # eso NEXT_PUBLIC_SITE_URL es la de producción, nunca localhost.
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET: ${{ vars.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+        run: |
+          set -euo pipefail
+          for v in NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_ANON_KEY NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET NEXT_PUBLIC_SITE_URL; do
+            if [ -z "${!v:-}" ]; then
+              echo "::error::Falta la variable/secreto $v en GitHub (Settings → Secrets and variables → Actions)."
+              exit 1
+            fi
+          done
+          case "$NEXT_PUBLIC_SITE_URL" in
+            *localhost*) echo "::error::NEXT_PUBLIC_SITE_URL apunta a localhost; debe ser $SITE_URL"; exit 1 ;;
+          esac
+          npx opennextjs-cloudflare build
+
+      - name: Publicar en Cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::error::Faltan CLOUDFLARE_API_TOKEN o CLOUDFLARE_ACCOUNT_ID en los secrets del repo."
+            exit 1
+          fi
+          npx wrangler deploy .open-next/worker.js --name linku-summit
+
+      - name: Verificar que el sitio responde con la versión nueva
+        shell: bash
+        run: |
+          set -euo pipefail
+          ESPERADO="$(cat .open-next/assets/BUILD_ID)"
+          echo "BUILD_ID esperado: $ESPERADO"
+          for intento in 1 2 3 4 5 6; do
+            CODIGO="$(curl -s -m 30 -o /dev/null -w '%{http_code}' "$SITE_URL/" || echo 000)"
+            PUBLICADO="$(curl -s -m 30 "$SITE_URL/BUILD_ID" || echo '')"
+            echo "intento $intento: portada $CODIGO, BUILD_ID publicado ${PUBLICADO:-?}"
+            if [ "$CODIGO" = "200" ] && [ "$PUBLICADO" = "$ESPERADO" ]; then
+              {
+                echo "## ✅ Publicado"
+                echo ""
+                echo "- Sitio: $SITE_URL"
+                echo "- BUILD_ID: \`$ESPERADO\`"
+                echo "- Commit: \`${{ github.sha }}\`"
+              } >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::El sitio no respondió 200 con la versión nueva tras 6 intentos. Revisa el Worker en Cloudflare y considera 'npx wrangler rollback'."
+          exit 1
