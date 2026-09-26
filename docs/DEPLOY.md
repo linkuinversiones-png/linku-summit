@@ -6,37 +6,82 @@
 
 ## Cómo se publica hoy: automático con GitHub Actions
 
-> Desde 2026-09-26, **producción = rama `main`**. Cada push a `main` compila y publica
-> solo, en 3 a 5 minutos, con el workflow `.github/workflows/deploy.yml`.
+> Desde 2026-09-26, **producción = rama `main`**. Cada push a `main` aplica las
+> migraciones de Supabase pendientes, compila y publica solo, en unos minutos,
+> con el workflow `.github/workflows/deploy.yml`.
 > **No se debe publicar a mano con wrangler salvo emergencia** (ver Plan B al final).
 
 ### Flujo normal
 
 ```bash
-# 1. Si hay .sql nuevos en supabase/migrations/, aplicarlos ANTES del push (manual, como siempre)
-node scripts/run-migrations.mjs
-
-# 2. Commit + push a main → GitHub Actions publica solo
+# Commit + push a main → GitHub Actions aplica migraciones, compila y publica
 git add -A && git commit -m "..." && git push origin main
 ```
 
-Las migraciones **no** las corre el workflow. Si el push trae archivos nuevos en
-`supabase/migrations/`, el job muestra una advertencia amarilla en su resumen para
-recordarlo, pero no las aplica. Hay que correrlas antes, desde una máquina con el
-`SUPABASE_ACCESS_TOKEN` en `.env.local`.
+Ya no hace falta correr las migraciones a mano antes del push: el workflow las
+aplica automáticamente, en un paso propio, antes de compilar. Si una migración
+falla, el job se detiene ahí mismo — no se compila ni se publica nada, y
+producción sigue con la versión anterior sin cambios.
 
 ### Qué hace el workflow, paso a paso
 
 1. Descarga el código de `main`.
-2. Avisa si el push trae migraciones nuevas (advertencia, no bloquea).
-3. Node 22 + `npm ci`.
+2. Node 22 + `npm ci`.
+3. **Aplica migraciones de Supabase**: `node scripts/run-migrations.mjs`, usando
+   `SUPABASE_ACCESS_TOKEN` (secret) y `SUPABASE_PROJECT_REF` (variable). Es
+   idempotente — solo corre los `.sql` de `supabase/migrations/` que todavía no
+   estén marcados en `public._applied_migrations`. Si falla, o si faltan esas
+   credenciales en GitHub, el job para aquí (rojo) y no sigue al build.
 4. `npx opennextjs-cloudflare build` con las `NEXT_PUBLIC_*` de producción.
 5. `npx wrangler deploy .open-next/worker.js --name linku-summit`.
 6. Comprueba que `https://www.linkusummit.com/` responda 200 **y** que el `BUILD_ID`
    publicado sea el recién compilado. Si no, el job queda en rojo.
 
 Nunca corren dos publicaciones a la vez: si llegan dos pushes seguidos, el segundo
-espera a que termine el primero.
+espera a que termine el primero (importante también para las migraciones: nunca
+se aplican dos tandas en paralelo).
+
+### Si el paso de migraciones falla
+
+El job queda en rojo y el sitio en producción **no cambia** (los pasos
+siguientes — build y deploy — no llegan a correr). Para diagnosticar:
+
+1. GitHub → pestaña **Actions** → la ejecución en rojo → abre el paso
+   "Aplicar migraciones de Supabase" y lee el error. El script imprime el
+   archivo `.sql` que falló y el cuerpo de la respuesta de Supabase (nunca el
+   token).
+2. Corrige la migración (o el problema de conectividad/credenciales) y haz un
+   nuevo commit a `main`, o relanza el workflow desde "Run workflow" una vez
+   arreglado.
+3. Si el error es "Faltan SUPABASE_ACCESS_TOKEN y/o SUPABASE_PROJECT_REF",
+   configúralos en GitHub (ver tabla de abajo) y vuelve a correr el workflow.
+4. Plan B si hay urgencia y el workflow no se puede arreglar rápido: aplicar la
+   migración a mano con `node scripts/run-migrations.mjs` desde una máquina de
+   desarrollo con `.env.local`, y luego relanzar el workflow (ya no encontrará
+   pendientes y seguirá directo al build).
+
+El script también puede fallar por dos casos particulares:
+
+- **Respuesta de Supabase con HTTP 2xx pero cuerpo de error**: la Management
+  API a veces reporta un error SQL con status 2xx y un cuerpo tipo objeto
+  (`{ error: ... }` o `{ message: ... }`) en vez de un `.sql` en éxito (que
+  siempre es un arreglo de filas, incluso vacío `[]`). El script detecta esto
+  y lo trata como fallo igual que un HTTP de error: no marca la migración como
+  aplicada y termina con `exit 1`.
+- **La migración corrió bien pero no se pudo registrar en el tracking**: si el
+  `insert` en `public._applied_migrations` falla después de que la migración
+  ya se ejecutó con éxito, el script NO sigue como si nada — imprime un error
+  crítico con el SQL exacto para registrarla a mano, lo anota en el resumen
+  del job, y termina con `exit 1`. Hay que correr ese `insert` manualmente
+  (desde el SQL Editor de Supabase, no con `--force`, que re-ejecutaría la
+  migración completa) antes de volver a publicar, porque si no la próxima
+  corrida intentará re-aplicar esa migración.
+
+**Toda migración nueva debe ser idempotente y no destructiva**: el workflow la
+corre solo, sin revisión humana en el momento, directo contra producción. Usa
+`create table if not exists`, `add column if not exists`, `on conflict do
+nothing`, etc., y evita `drop`/`delete` irreversibles salvo que el PR lo deje
+explícito y revisado.
 
 ### Publicar a mano desde GitHub (sin hacer push)
 
@@ -74,9 +119,18 @@ Settings → Secrets and variables → Actions.
 | secret | `CLOUDFLARE_API_TOKEN` | Token **exclusivo de GitHub**, plantilla "Edit Cloudflare Workers", limitado a la cuenta LinkU. Distinto del token personal de la máquina de desarrollo; si se filtra, se revoca solo ese. |
 | secret | `CLOUDFLARE_ACCOUNT_ID` | Cuenta de Cloudflare donde vive el Worker |
 | secret | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Llave pública de Supabase (va incrustada en el build) |
+| secret | `SUPABASE_ACCESS_TOKEN` | Token de la Management API de Supabase, para que el workflow aplique migraciones. Genéralo en https://supabase.com/dashboard/account/tokens. |
 | variable | `NEXT_PUBLIC_SUPABASE_URL` | URL del proyecto Supabase |
 | variable | `NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET` | Bucket de imágenes (`summit-media`) |
 | variable | `NEXT_PUBLIC_SITE_URL` | `https://www.linkusummit.com` (nunca localhost) |
+| variable | `SUPABASE_PROJECT_REF` | Referencia del proyecto Supabase (el mismo valor que en `.env.local`) |
+
+**Importante:** hasta que `SUPABASE_ACCESS_TOKEN` y `SUPABASE_PROJECT_REF` estén
+configurados en GitHub, el paso "Aplicar migraciones de Supabase" falla siempre
+(el script exige ambos y no continúa sin ellos) y por lo tanto **todas las
+publicaciones automáticas fallarán**, sin afectar el sitio en vivo (el build y
+el deploy nunca llegan a correr). Configúralos antes de fusionar el cambio que
+introdujo este paso a `main`.
 
 Los secretos del Worker en runtime (Wompi, Resend, InContacto, QR, service role) siguen
 en Cloudflare y **no** pasan por GitHub. Ver "Secrets del Worker" más abajo.
@@ -128,9 +182,12 @@ Si el checkout muestra "403 ERROR / Generated by cloudfront", Wompi rechazó la
 petición. Causas vistas: public key mal copiada (typo), `redirect-url` con
 localhost. Debug: copiar la URL completa del address bar y revisar cada parámetro.
 
-### Migraciones son manuales
-`node scripts/run-migrations.mjs` es idempotente (tabla `_applied_migrations`).
-Correrlo ANTES del push si el código nuevo depende de columnas nuevas.
+### Migraciones: automáticas desde el workflow, con plan B manual
+Desde este cambio, `.github/workflows/deploy.yml` corre
+`node scripts/run-migrations.mjs` automáticamente antes de compilar. El script
+sigue siendo idempotente (tabla `_applied_migrations`) y también se puede
+correr a mano en cualquier momento como plan B (por ejemplo si el workflow no
+está disponible, o para probar una migración antes del push).
 
 ### El Worker necesita el plan Workers Paid
 Una portada consume 50 a 500 ms de CPU. Con el plan Free (10 ms) Cloudflare mata
