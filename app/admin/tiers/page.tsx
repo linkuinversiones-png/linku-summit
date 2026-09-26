@@ -26,7 +26,14 @@ export default async function AdminTiersPage() {
           <p className="mt-3 max-w-2xl text-sm text-linku-text-muted">
             Define cuántos tipos de entrada hay, sus precios y beneficios. Los
             tiers activos aparecen en la landing. Cambios se reflejan en
-            segundos (revalidate).
+            segundos (revalidate). Los marcados{' '}
+            <span className="font-semibold text-linku-coral">Solo admin</span>{' '}
+            (Staff, Speaker) nunca aparecen en la landing ni se pueden
+            comprar: se registran desde{' '}
+            <Link href="/admin/registros" className="underline hover:text-linku-coral">
+              /admin/registros
+            </Link>
+            .
           </p>
         </div>
         <Link
@@ -73,6 +80,11 @@ export default async function AdminTiersPage() {
                       <span className="mt-1 inline-flex w-fit rounded-md border border-linku-border bg-linku-bg-3 px-1.5 py-0.5 text-[10px] font-mono text-linku-text-dim">
                         {t.slug}
                       </span>
+                      {t.admin_only && (
+                        <span className="mt-1 inline-flex w-fit rounded-md border border-linku-coral/40 bg-linku-coral/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-linku-coral">
+                          Solo admin
+                        </span>
+                      )}
                     </div>
                   </td>
                   <td className="px-4 py-4 font-semibold tabular-nums text-linku-text">

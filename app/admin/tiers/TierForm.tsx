@@ -355,6 +355,27 @@ export default function TierForm({ action, tier, title }: Props) {
             />
           </div>
         </section>
+
+        <section className="linku-card p-6">
+          <h2 className="text-sm font-bold uppercase tracking-[0.18em] text-linku-coral">
+            Uso interno
+          </h2>
+          <div className="mt-5">
+            <Checkbox
+              label="Solo admin (no se muestra en la página ni se puede comprar)"
+              name="admin_only"
+              defaultChecked={tier?.admin_only ?? false}
+            />
+            <p className="mt-2 text-[11px] text-linku-text-dim">
+              Marca esta casilla para categorías internas como Staff o
+              Speaker: aunque estén activas, nunca aparecen en la landing, en
+              el JSON-LD ni se pueden comprar por /checkout. Solo un admin
+              registra personas ahí, desde{' '}
+              <span className="font-mono">/admin/registros</span>. Con esta
+              casilla marcada, el precio puede ser 0.
+            </p>
+          </div>
+        </section>
       </div>
 
       <div className="mt-10 flex justify-end">

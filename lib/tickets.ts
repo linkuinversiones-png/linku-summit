@@ -44,6 +44,8 @@ export type TierRow = {
   max_quantity: number | null;
   sold_count: number;
   active: boolean;
+  /** Tier interno (Staff, Speaker…): nunca visible ni comprable en público. */
+  admin_only: boolean;
   sort_order: number;
   visible_from: string | null;
   visible_until: string | null;
@@ -116,9 +118,36 @@ export async function getActiveTiers(locale: Locale): Promise<PublicTier[]> {
   if (error || !data) return [];
 
   return (data as TierRow[])
+    // Tiers internos (Staff, Speaker) nunca son públicos: ni se muestran en
+    // la landing/JSON-LD ni se pueden comprar por /checkout?tier=<slug>.
+    // Se filtra en JS (no con .eq('admin_only', false) en la query) para que
+    // esta función no se rompa si el código llega a producción ANTES de
+    // aplicar la migración 0018: sin la columna, un filtro en la query haría
+    // que PostgREST devuelva error y getActiveTiers() caiga a [], tumbando
+    // la portada y el checkout público enteros. Antes de la migración,
+    // row.admin_only es simplemente undefined → !row.admin_only es true →
+    // se muestran todos los tiers, igual que hoy.
+    .filter((row) => !row.admin_only)
     .filter((row) => !row.visible_from || row.visible_from <= now)
     .filter((row) => !row.visible_until || row.visible_until >= now)
     .map((row) => toPublic(row, locale));
+}
+
+/**
+ * Tiers internos activos (Staff, Speaker…). Los usa /admin/registros para
+ * ofrecer solo categorías que un admin puede asignar a mano.
+ */
+export async function getAdminOnlyTiers(): Promise<TierRow[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('ticket_tiers')
+    .select('*')
+    .eq('admin_only', true)
+    .eq('active', true)
+    .order('sort_order', { ascending: true });
+
+  if (error || !data) return [];
+  return data as TierRow[];
 }
 
 /**
