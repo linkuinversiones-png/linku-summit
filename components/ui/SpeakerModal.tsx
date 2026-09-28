@@ -145,21 +145,25 @@ export default function SpeakerModal({ speaker, labels, onClose, returnFocusRef 
                     {speaker.company ? ` · ${speaker.company}` : ''}
                   </p>
                   {speaker.track && (
-                    <span className="mt-3 inline-flex items-center rounded-full border border-linku-border bg-white/[0.02] px-2.5 py-1 text-[11px] font-medium text-linku-text-dim">
-                      {speaker.track}
-                    </span>
+                    <div className="mt-3">
+                      <span className="inline-flex items-center rounded-full border border-linku-border bg-white/[0.02] px-2.5 py-1 text-[11px] font-medium text-linku-text-dim">
+                        {speaker.track}
+                      </span>
+                    </div>
                   )}
 
                   {speaker.linkedinUrl && (
-                    <a
-                      href={speaker.linkedinUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-4 inline-flex items-center gap-2 rounded-full bg-linku-coral px-4 py-2 text-sm font-semibold text-white transition hover:bg-linku-coral-soft"
-                    >
-                      <Linkedin size={16} />
-                      {labels.viewLinkedin}
-                    </a>
+                    <div className="mt-3">
+                      <a
+                        href={speaker.linkedinUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 rounded-full bg-linku-coral px-4 py-2 text-sm font-semibold text-white transition hover:bg-linku-coral-soft"
+                      >
+                        <Linkedin size={16} />
+                        {labels.viewLinkedin}
+                      </a>
+                    </div>
                   )}
                 </div>
               </div>

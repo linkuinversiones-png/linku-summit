@@ -35,7 +35,13 @@ todo el modal sigue con scroll interno (`max-h-[85vh]` en escritorio). El
 botón de cerrar (X) ahora tiene más padding a la derecha (`pr-14`/`pr-16`)
 para no tapar el nombre. En celular el patrón es el mismo (foto más chica
 junto al nombre) porque a 375 px con foto de 96 px y `min-w-0` en el bloque
-de texto el nombre y el cargo hacen wrap sin verse apretados.
+de texto el nombre y el cargo hacen wrap sin verse apretados. Ajuste
+posterior: la pill del track y el botón "Ver en LinkedIn" quedaban en la
+misma fila y casi pegados (ambos son elementos `inline-flex`, que fluyen
+en línea); se envolvió cada uno en su propio `<div className="mt-3">` para
+forzar que el botón caiga en su propia línea, debajo de la pill y alineado
+a la izquierda con el resto del texto (o debajo del cargo, con el mismo
+espaciado, cuando no hay track).
 **Archivos:**
 - `components/ui/SpeakerModal.tsx` — reestructurado de `sm:flex` de dos
   columnas a un solo contenedor con scroll (`overflow-y-auto`), un
