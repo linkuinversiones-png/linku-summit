@@ -14,6 +14,48 @@ Formato de cada entrada:
 
 ---
 
+## 2026-09-28 — Diseño: pop-up de speakers con encabezado (foto + nombre) y descripción a todo el ancho
+
+**Quién:** Miguel Salazar (con Claude) · **Tipo:** diseño
+**Qué cambió:** en `SpeakerModal.tsx`, el diseño de dos columnas (foto fija
+de 256 px a la izquierda, texto a la derecha) dejaba un hueco vacío grande
+debajo de la foto cuando la bio era corta o mediana, porque la columna de
+la foto ocupaba todo el alto de la fila mientras el texto era más corto que
+la foto. Se rediseñó a un único bloque de contenido: arriba un encabezado
+en fila con la foto (proporción 4:5, 96 px en celular / 160 px en
+escritorio, `object-cover object-top`, iniciales si no hay foto) a la
+izquierda y a la derecha el nombre, cargo · empresa, la pill del track y el
+botón "Ver en LinkedIn"; debajo, un separador sutil (`border-linku-border`)
+y la descripción a todo el ancho del modal (el separador y la descripción
+solo aparecen si el speaker tiene bio). Así el alto del encabezado lo
+define el contenido real (foto o texto, lo que sea más alto) y la bio ya
+no compite por espacio con la foto, sin importar si es corta o larga. Se
+quitó el `sticky` de la foto (ya no hace falta con una sola columna) y
+todo el modal sigue con scroll interno (`max-h-[85vh]` en escritorio). El
+botón de cerrar (X) ahora tiene más padding a la derecha (`pr-14`/`pr-16`)
+para no tapar el nombre. En celular el patrón es el mismo (foto más chica
+junto al nombre) porque a 375 px con foto de 96 px y `min-w-0` en el bloque
+de texto el nombre y el cargo hacen wrap sin verse apretados.
+**Archivos:**
+- `components/ui/SpeakerModal.tsx` — reestructurado de `sm:flex` de dos
+  columnas a un solo contenedor con scroll (`overflow-y-auto`), un
+  encabezado `flex` (foto + texto) y la bio condicional debajo con
+  separador; `sizes` del `<Image>` actualizado a
+  `(max-width: 640px) 96px, 160px`; ancho del modal (`max-w-2xl`) sin
+  cambios.
+**Cómo verificar:** en la portada, sección Speakers, abrir "Charles
+Zamorano" (bio mediana) y confirmar que no queda espacio vacío bajo el
+encabezado; abrir "Hector Shibata" (bio larga) y confirmar que la
+descripción fluye a todo el ancho sin recortes ni superposición con el
+botón de cerrar; abrir un speaker sin bio (por ejemplo, revisar el listado
+de speakers sin descripción cargada) y confirmar que no aparece separador
+ni bloque vacío. Repetir en ~375 px de ancho: la foto queda junto al
+nombre, el texto hace wrap sin apretarse y el botón X no tapa el nombre.
+`npx tsc --noEmit` sin errores.
+**Notas / pendientes:** ninguna.
+
+---
+
 ## 2026-09-28 — Arreglo: fotos deformadas en el pop-up de speakers
 
 **Quién:** Miguel Salazar (con Claude) · **Tipo:** arreglo

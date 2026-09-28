@@ -109,36 +109,34 @@ export default function SpeakerModal({ speaker, labels, onClose, returnFocusRef 
               <X size={16} />
             </button>
 
-            <div className="overflow-y-auto">
-              <div className="sm:flex">
-                <div className="flex shrink-0 justify-center bg-linku-bg-3 px-6 pb-6 pt-6 sm:block sm:w-64 sm:justify-start sm:self-stretch sm:px-0 sm:py-0">
-                  {/* Foto con proporción fija 4:5: nunca se estira con el alto de la bio.
-                      En escritorio queda fija (sticky) arriba de la columna mientras el
-                      contenido de la derecha hace scroll; el fondo de la columna llena el
-                      resto del alto debajo de la foto. */}
-                  <div className="relative aspect-[4/5] w-44 shrink-0 overflow-hidden rounded-2xl sm:sticky sm:top-0 sm:w-full sm:rounded-none">
-                    {speaker.avatarUrl ? (
-                      <Image
-                        src={speaker.avatarUrl}
-                        alt={speaker.name}
-                        fill
-                        sizes="(max-width: 640px) 176px, 256px"
-                        className="object-cover object-top"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-linku-bg-3 to-linku-bg-2">
-                        <span className="text-4xl font-bold tracking-tighter2 text-linku-coral">
-                          {initials(speaker.name)}
-                        </span>
-                      </div>
-                    )}
-                  </div>
+            <div className="overflow-y-auto px-6 py-6 pr-14 sm:px-7 sm:py-7 sm:pr-16">
+              {/* Encabezado: foto a la izquierda (proporción fija 4:5, nunca se
+                  estira con el largo de la bio) y a la derecha nombre, cargo,
+                  track y LinkedIn. La descripción va debajo, a todo el ancho,
+                  para no dejar espacio vacío bajo la foto cuando la bio es larga. */}
+              <div className="flex items-center gap-4 sm:items-start sm:gap-6">
+                <div className="relative aspect-[4/5] w-24 shrink-0 overflow-hidden rounded-xl sm:w-40 sm:rounded-2xl">
+                  {speaker.avatarUrl ? (
+                    <Image
+                      src={speaker.avatarUrl}
+                      alt={speaker.name}
+                      fill
+                      sizes="(max-width: 640px) 96px, 160px"
+                      className="object-cover object-top"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-linku-bg-3 to-linku-bg-2">
+                      <span className="text-2xl font-bold tracking-tighter2 text-linku-coral sm:text-4xl">
+                        {initials(speaker.name)}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
-                <div className="flex-1 px-6 py-6 sm:px-7 sm:py-7">
+                <div className="min-w-0 flex-1 sm:pt-1">
                   <h3
                     id={titleId}
-                    className="text-xl font-semibold tracking-tightish text-linku-text sm:text-2xl"
+                    className="text-lg font-semibold tracking-tightish text-linku-text sm:text-2xl"
                   >
                     {speaker.name}
                   </h3>
@@ -152,18 +150,12 @@ export default function SpeakerModal({ speaker, labels, onClose, returnFocusRef 
                     </span>
                   )}
 
-                  {speaker.bio && (
-                    <p className="mt-5 whitespace-pre-line text-sm leading-relaxed text-linku-text-muted">
-                      {speaker.bio}
-                    </p>
-                  )}
-
                   {speaker.linkedinUrl && (
                     <a
                       href={speaker.linkedinUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-6 inline-flex items-center gap-2 rounded-full bg-linku-coral px-4 py-2 text-sm font-semibold text-white transition hover:bg-linku-coral-soft"
+                      className="mt-4 inline-flex items-center gap-2 rounded-full bg-linku-coral px-4 py-2 text-sm font-semibold text-white transition hover:bg-linku-coral-soft"
                     >
                       <Linkedin size={16} />
                       {labels.viewLinkedin}
@@ -171,6 +163,15 @@ export default function SpeakerModal({ speaker, labels, onClose, returnFocusRef 
                   )}
                 </div>
               </div>
+
+              {speaker.bio && (
+                <>
+                  <div className="mt-6 border-t border-linku-border" aria-hidden />
+                  <p className="mt-5 whitespace-pre-line text-sm leading-relaxed text-linku-text-muted">
+                    {speaker.bio}
+                  </p>
+                </>
+              )}
             </div>
           </motion.div>
         </motion.div>
