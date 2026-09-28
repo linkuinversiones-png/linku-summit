@@ -25,5 +25,6 @@ documento.
   las públicas de Supabase o llaves `pub_test_` de Wompi.
 - Todo lo que llega a `main` se publica solo en producción (GitHub Actions,
   ver `docs/DEPLOY.md`). Nunca hacer push/merge a `main` sin confirmación
-  explícita del usuario. Las migraciones de Supabase son manuales y van antes
-  del merge.
+  explícita del usuario. Las migraciones de Supabase las aplica el workflow
+  automáticamente al publicar (antes de compilar); toda migración nueva debe
+  ser idempotente, no destructiva, y revisada por el revisor antes del merge.
