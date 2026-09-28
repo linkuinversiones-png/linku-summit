@@ -132,7 +132,11 @@
       "title": "Anunciamos speakers pronto.",
       "lead": "Estamos cerrando el line-up. Si quieres ser de los primeros en saber quién sube al escenario, solicita tu invitación."
     },
-    "placeholderTBD": "Por confirmar"
+    "placeholderTBD": "Por confirmar",
+    "modal": {
+      "close": "Cerrar",
+      "viewLinkedin": "Ver en LinkedIn"
+    }
   },
   "partners": {
     "eyebrow": "Aliados institucionales",
