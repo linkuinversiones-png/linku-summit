@@ -14,6 +14,78 @@ Formato de cada entrada:
 
 ---
 
+## 2026-09-26 — Categorías internas Staff, Speaker y Prensa (Registros internos)
+
+**Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad
+**Qué cambió:** se agregaron tres categorías de entrada de uso interno,
+**Staff**, **Speaker** y **Prensa**. Viven en `ticket_tiers` como cualquier
+otro tier y se editan en `/admin/tiers` (con una casilla nueva "Solo admin"),
+pero aunque estén activas nunca aparecen en la portada, en el JSON-LD de SEO
+ni se pueden comprar por `/checkout?tier=staff`. Solo un admin las asigna,
+desde una pantalla nueva `/admin/registros` llamada **"Registros internos"**
+en el menú (genérica: sirve para staff, speakers, prensa… y cualquier otra
+categoría interna que se cree después): un formulario con nombre, correo,
+celular, tipo y número de documento, empresa, cargo, LinkedIn y una nota
+interna. Al registrar, se procesa exactamente igual que cualquier otra venta
+pagada: nace como orden `paid` con método `cortesia`, queda en la bitácora de
+cambios de estado, se emite la boleta con QR y se envía a la API de
+InContacto con `tipoBoleta` = "Staff", "Speaker" o "Prensa". Si InContacto
+falla, el registro igual queda creado y se puede reintentar desde el detalle
+de la venta (`/admin/orders/<id>`, botón que ya existía). Debajo del
+formulario hay una lista de los últimos registros internos con su estado en
+InContacto.
+**Archivos:**
+- `supabase/migrations/0018_tiers_internos.sql` (nuevo) — columna
+  `admin_only` en `ticket_tiers`, ajuste del check de `price_cop` para
+  permitir 0 solo en tiers internos, y el seed de `staff` / `speaker` /
+  `prensa`.
+- `lib/tickets.ts` — `admin_only` en `TierRow`; `getActiveTiers` excluye
+  `admin_only = true` filtrando en JS (no en la query) para no depender de
+  que la columna ya exista; `getAdminOnlyTiers()` nuevo.
+- `app/admin/tiers/TierForm.tsx`, `app/admin/tiers/actions.ts`,
+  `app/admin/tiers/page.tsx` — casilla "Solo admin", validación de precio 0
+  solo para tiers internos, etiqueta visible en el listado, textos genéricos
+  ("categorías internas: staff, speakers, prensa…").
+- `app/admin/registros/page.tsx`, `app/admin/registros/RegistroForm.tsx`,
+  `app/admin/registros/actions.ts` (nuevos) — la pantalla "Registros
+  internos" y su server action `registerInternal`.
+- `components/admin/AdminShell.tsx` — enlace "Registros internos" en el
+  menú (antes "Staff y speakers").
+**Cómo verificar:** aplicar la migración 0018, activar Staff/Speaker/Prensa
+en `/admin/tiers` (deben mostrar la etiqueta "Solo admin" y no aparecer en la
+portada ni en `/checkout?tier=staff`), registrar a alguien desde
+`/admin/registros` ("Registros internos" en el menú) y confirmar en
+`/admin/orders` que la venta quedó pagada, con boleta y estado de InContacto.
+**Notas / pendientes:**
+- Desde el cambio de infraestructura de este mismo día ("Migraciones de
+  Supabase automáticas en el deploy"), la migración 0018 ya no hay que
+  correrla a mano: el workflow de GitHub Actions la aplica sola al publicar
+  a `main`. El código de todas formas sigue siendo seguro si por algún
+  motivo la migración no se ha aplicado todavía: `getActiveTiers()` filtra
+  `admin_only` en JavaScript (no con `.eq('admin_only', false)` en la
+  consulta a Supabase), así que si la columna todavía no existe,
+  `row.admin_only` es simplemente `undefined` y el filtro deja pasar todos
+  los tiers — la portada y el checkout público siguen funcionando
+  exactamente igual que hoy. Lo que SÍ requiere la migración aplicada: los
+  tiers Staff/Speaker/Prensa (no existen sin el seed) y la pantalla
+  `/admin/registros` (su formulario sale vacío y no hay nada que registrar
+  hasta que la columna y las filas existan).
+- Al publicar, avisar al equipo de InContacto que los valores exactos que
+  llegan en el campo "Tipo de boleta" para estos registros son `Staff`,
+  `Speaker` y `Prensa` (el `name_es` del tier tal cual, igual que con los
+  demás tiers), y que si un admin renombra la categoría desde
+  `/admin/tiers`, el valor que se envía cambia con ella.
+- Los registros internos aparecen en `/admin/orders` como una venta más,
+  método "Cortesía" y total $0; no se distinguen ahí de una cortesía
+  cualquiera salvo por el nombre del tier y la nota de la bitácora
+  ("Registro interno desde admin: …").
+- No se tocó `/admin/settings` (selector de tiers con acceso a la agenda de
+  citas 1:1): un admin podría, en teoría, marcar Staff/Speaker ahí. Se dejó
+  así a propósito por ser un caso de uso legítimo (dar acceso a citas a
+  ciertos speakers) y porque no afecta nada público.
+
+---
+
 ## 2026-09-26 — Migraciones de Supabase automáticas en el deploy
 
 **Quién:** Miguel Salazar (con Claude) · **Tipo:** infraestructura
