@@ -111,22 +111,28 @@ export default function SpeakerModal({ speaker, labels, onClose, returnFocusRef 
 
             <div className="overflow-y-auto">
               <div className="sm:flex">
-                <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-linku-bg-3 sm:aspect-auto sm:h-auto sm:w-64">
-                  {speaker.avatarUrl ? (
-                    <Image
-                      src={speaker.avatarUrl}
-                      alt={speaker.name}
-                      fill
-                      sizes="(max-width: 640px) 100vw, 256px"
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-linku-bg-3 to-linku-bg-2">
-                      <span className="text-4xl font-bold tracking-tighter2 text-linku-coral">
-                        {initials(speaker.name)}
-                      </span>
-                    </div>
-                  )}
+                <div className="flex shrink-0 justify-center bg-linku-bg-3 px-6 pb-6 pt-6 sm:block sm:w-64 sm:justify-start sm:self-stretch sm:px-0 sm:py-0">
+                  {/* Foto con proporción fija 4:5: nunca se estira con el alto de la bio.
+                      En escritorio queda fija (sticky) arriba de la columna mientras el
+                      contenido de la derecha hace scroll; el fondo de la columna llena el
+                      resto del alto debajo de la foto. */}
+                  <div className="relative aspect-[4/5] w-44 shrink-0 overflow-hidden rounded-2xl sm:sticky sm:top-0 sm:w-full sm:rounded-none">
+                    {speaker.avatarUrl ? (
+                      <Image
+                        src={speaker.avatarUrl}
+                        alt={speaker.name}
+                        fill
+                        sizes="(max-width: 640px) 176px, 256px"
+                        className="object-cover object-top"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-linku-bg-3 to-linku-bg-2">
+                        <span className="text-4xl font-bold tracking-tighter2 text-linku-coral">
+                          {initials(speaker.name)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex-1 px-6 py-6 sm:px-7 sm:py-7">

@@ -14,6 +14,51 @@ Formato de cada entrada:
 
 ---
 
+## 2026-09-28 — Arreglo: fotos deformadas en el pop-up de speakers
+
+**Quién:** Miguel Salazar (con Claude) · **Tipo:** arreglo
+**Qué cambió:** en escritorio, la columna de la foto del pop-up de speakers
+(`SpeakerModal.tsx`) se estiraba a todo el alto del modal (`sm:h-auto`
+dentro de un contenedor que crecía con el largo de la bio). Como casi todas
+las fotos originales son cuadradas (1000×1000), con bios largas la columna
+llegaba a medir ~256×700 px y `object-cover` las ampliaba cerca de 3
+veces para cubrir ese alto, recortando los lados: caras gigantes y
+borrosas (caso detectado: Hector Shibata). En celular no pasaba porque la
+foto usaba `aspect-square` fijo. Ahora la foto tiene proporción fija 4:5
+(mismo ancho de 256 px en escritorio) y ya no se estira con el largo de la
+bio; en escritorio queda fija (`sticky`) arriba de la columna mientras el
+texto de la derecha hace scroll, y el fondo de la columna (`bg-linku-bg-3`)
+llena el resto del alto debajo de la foto. Se agregó `object-top` a
+`object-cover` para priorizar la cabeza en fotos verticales u horizontales
+que no sean cuadradas. En celular la foto ya no ocupa el ancho completo de
+pantalla: se redujo a un recuadro 4:5 de 176 px centrado arriba de la
+tarjeta, para que no empuje tanto el nombre hacia abajo. También se ajustó
+el `sizes` del `<Image>` al tamaño real mostrado (176 px en celular, 256 px
+en escritorio) para que no se vea pixelada en pantallas retina.
+**Archivos:**
+- `components/ui/SpeakerModal.tsx` — columna de la foto reestructurada:
+  contenedor exterior con `sm:self-stretch` y fondo `bg-linku-bg-3` que
+  ocupa todo el alto de la fila, y adentro un recuadro `aspect-[4/5]`
+  (`sticky top-0` en escritorio) con el `<Image fill>`; `className` del
+  `<Image>` cambiado de `object-cover` a `object-cover object-top`; `sizes`
+  actualizado a `(max-width: 640px) 176px, 256px`.
+**Cómo verificar:** en la portada, sección Speakers, abrir el pop-up de
+"Hector Shibata" (bio larga, foto cuadrada) y confirmar que la cara se ve
+completa y sin zoom exagerado, con el fondo de la columna llenando el
+espacio debajo de la foto; abrir "Salvador Said" (foto vertical 1508×2048)
+y "David Lopez" (foto horizontal 1656×1104) y confirmar que también se ven
+bien encuadradas; repetir en ancho de celular (~375 px) y confirmar que la
+foto ya no ocupa toda la pantalla antes del nombre. `npx tsc --noEmit` sin
+errores.
+**Notas / pendientes:** algunas fotos originales son de baja calidad para
+su tamaño — por ejemplo la de Hector Shibata es 1000×1000 px pero solo pesa
+~66 KB, lo que sugiere que fue ampliada desde un original más chico (se ve
+algo suave incluso ya sin el recorte exagerado). Conviene reemplazarla (y
+revisar otras fotos con el mismo síntoma) desde `/admin/speakers` con un
+original de buena resolución.
+
+---
+
 ## 2026-09-28 — Pop-up con la bio del speaker al hacer clic en su tarjeta
 
 **Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad
