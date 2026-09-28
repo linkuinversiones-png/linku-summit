@@ -367,8 +367,8 @@ export default function TierForm({ action, tier, title }: Props) {
               defaultChecked={tier?.admin_only ?? false}
             />
             <p className="mt-2 text-[11px] text-linku-text-dim">
-              Marca esta casilla para categorías internas como Staff o
-              Speaker: aunque estén activas, nunca aparecen en la landing, en
+              Marca esta casilla para categorías internas (staff, speakers,
+              prensa…): aunque estén activas, nunca aparecen en la landing, en
               el JSON-LD ni se pueden comprar por /checkout. Solo un admin
               registra personas ahí, desde{' '}
               <span className="font-mono">/admin/registros</span>. Con esta

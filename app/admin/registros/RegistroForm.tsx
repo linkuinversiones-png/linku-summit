@@ -95,8 +95,9 @@ export default function RegistroForm({ tiers }: { tiers: TierRow[] }) {
           </select>
           {tiers.length === 0 && (
             <span className="text-xs text-amber-300">
-              No hay categorías internas activas. Crea o activa Staff/Speaker en
-              /admin/tiers marcando &quot;Solo admin&quot;.
+              No hay categorías internas activas. Crea o activa una (staff,
+              speaker, prensa…) en /admin/tiers marcando &quot;Solo
+              admin&quot;.
             </span>
           )}
           {errs.tier_slug && <span className="text-xs text-red-300">{errs.tier_slug}</span>}

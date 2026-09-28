@@ -63,8 +63,9 @@ function validate(data: ReturnType<typeof readForm>): FieldErrors {
   if (!data.name_es) errs.name_es = 'Nombre ES requerido';
   if (!data.name_en) errs.name_en = 'Nombre EN requerido';
   if (data.price_cop === null) errs.price_cop = 'Precio requerido';
-  // Los tiers internos (Staff, Speaker) pueden valer 0: los registra un
-  // admin a mano y no pasan por Wompi. El resto sigue exigiendo precio > 0
+  // Los tiers internos (staff, speakers, prensa…) pueden valer 0: los
+  // registra un admin a mano y no pasan por Wompi. El resto sigue exigiendo
+  // precio > 0
   // (mismo check que la base de datos, migración 0018).
   else if (data.price_cop < 0 || (data.price_cop === 0 && !data.admin_only))
     errs.price_cop = data.admin_only ? 'Precio no puede ser negativo' : 'Precio debe ser > 0';

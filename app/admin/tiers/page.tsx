@@ -28,8 +28,8 @@ export default async function AdminTiersPage() {
             tiers activos aparecen en la landing. Cambios se reflejan en
             segundos (revalidate). Los marcados{' '}
             <span className="font-semibold text-linku-coral">Solo admin</span>{' '}
-            (Staff, Speaker) nunca aparecen en la landing ni se pueden
-            comprar: se registran desde{' '}
+            (categorías internas: staff, speakers, prensa…) nunca aparecen en
+            la landing ni se pueden comprar: se registran desde{' '}
             <Link href="/admin/registros" className="underline hover:text-linku-coral">
               /admin/registros
             </Link>

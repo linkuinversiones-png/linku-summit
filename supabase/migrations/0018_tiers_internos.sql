@@ -1,9 +1,9 @@
 -- =====================================================================
 -- LINKU SUMMIT — Migración 0018
--- Tiers internos (Staff, Speaker): categorías de entrada que existen en
--- ticket_tiers y se administran desde /admin/tiers, pero NUNCA se muestran
--- al público ni se pueden comprar. Solo un admin registra personas ahí,
--- desde /admin/registros.
+-- Tiers internos (Staff, Speaker, Prensa): categorías de entrada que existen
+-- en ticket_tiers y se administran desde /admin/tiers, pero NUNCA se
+-- muestran al público ni se pueden comprar. Solo un admin registra personas
+-- ahí, desde /admin/registros ("Registros internos").
 --
 -- Depende de: 0005 (ticket_tiers).
 -- =====================================================================
@@ -45,7 +45,7 @@ begin
 end$$;
 
 -- ---------------------------------------------------------------------
--- 3. Seed: Staff y Speaker
+-- 3. Seed: Staff, Speaker y Prensa
 --
 -- price_cop = 0, active = true, admin_only = true. sort_order alto para
 -- que, si algún día se relaja el filtro admin_only por error, queden al
@@ -72,12 +72,20 @@ insert into public.ticket_tiers (
     0, array[]::text[], array[]::text[],
     false, 'Comprar entrada', 'Buy ticket', '/checkout',
     true, true, 910
+  ),
+  (
+    'prensa',
+    'Prensa', 'Press',
+    null, null,
+    0, array[]::text[], array[]::text[],
+    false, 'Comprar entrada', 'Buy ticket', '/checkout',
+    true, true, 920
   )
 on conflict (slug) do nothing;
 
 -- No se toca la política RLS pública ("Public can read active tiers"): los
 -- nombres de estos tiers no son secretos y /me necesita poder leerlos con
 -- la sesión del propio usuario para mostrar el nombre de su boleta si algún
--- día un staff/speaker reclama su registro. El filtro que importa (que no
--- aparezcan en la landing ni se puedan comprar) va en código: admin_only se
--- excluye explícitamente en getActiveTiers() (lib/tickets.ts).
+-- día un staff/speaker/prensa reclama su registro. El filtro que importa
+-- (que no aparezcan en la landing ni se puedan comprar) va en código:
+-- admin_only se excluye explícitamente en getActiveTiers() (lib/tickets.ts).

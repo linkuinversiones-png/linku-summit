@@ -39,7 +39,7 @@ const NAV: NavItem[] = [
   { href: '/admin/coupons', label: 'Cupones', icon: TicketPercent },
   { href: '/admin/cortesias', label: 'Cortesías', icon: Gift },
   { href: '/admin/incontacto', label: 'InContacto', icon: Send },
-  { href: '/admin/registros', label: 'Staff y speakers', icon: IdCard },
+  { href: '/admin/registros', label: 'Registros internos', icon: IdCard },
   { href: '/admin/speakers', label: 'Speakers', icon: Users },
   { href: '/admin/agenda', label: 'Agenda', icon: CalendarDays },
   { href: '/admin/sponsors', label: 'Sponsors', icon: Building2 },

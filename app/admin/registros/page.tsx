@@ -7,7 +7,7 @@ import RegistroForm from './RegistroForm';
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'Staff y speakers · LINKU Admin',
+  title: 'Registros internos · LINKU Admin',
   robots: { index: false, follow: false }
 };
 
@@ -51,8 +51,9 @@ function IncontactoBadge({ status }: { status: string | null }) {
 }
 
 /**
- * Registro manual de personas en tiers internos (Staff, Speaker). Solo un
- * admin puede llegar aquí: no hay checkout público para estas categorías.
+ * Registro manual de personas en categorías internas (staff, speakers,
+ * prensa…). Solo un admin puede llegar aquí: no hay checkout público para
+ * estas categorías.
  */
 export default async function AdminRegistrosPage() {
   const tiers = await getAdminOnlyTiers();
@@ -89,15 +90,15 @@ export default async function AdminRegistrosPage() {
           Uso interno
         </p>
         <h1 className="mt-2 flex items-center gap-2.5 text-3xl font-bold tracking-tightish text-linku-text sm:text-4xl">
-          <IdCard size={28} className="text-linku-coral" /> Registrar staff y speakers
+          <IdCard size={28} className="text-linku-coral" /> Registros internos
         </h1>
         <p className="mt-3 max-w-2xl text-sm text-linku-text-muted">
-          Estas categorías (Staff, Speaker) nunca aparecen en la página pública ni
-          se pueden comprar. Al registrar aquí se crea una venta con costo $0,
-          método &quot;cortesía&quot;, y se procesa igual que cualquier otra
-          venta pagada: queda en la bitácora, se emite la boleta con QR y se
-          envía a InContacto con el nombre de la categoría como tipo de
-          boleta.
+          Estas categorías internas (staff, speakers, prensa…) nunca aparecen
+          en la página pública ni se pueden comprar. Al registrar aquí se crea
+          una venta con costo $0, método &quot;cortesía&quot;, y se procesa
+          igual que cualquier otra venta pagada: queda en la bitácora, se
+          emite la boleta con QR y se envía a InContacto con el nombre de la
+          categoría como tipo de boleta.
         </p>
       </header>
 

@@ -9,8 +9,9 @@ import { fulfillPaidOrder, type FulfillableOrder } from '@/lib/orders/fulfill';
 import { generateOrderReference } from '@/lib/wompi/signatures';
 
 /**
- * Registro de personas en tiers internos (Staff, Speaker) desde
- * /admin/registros. Un admin llena el formulario y por dentro se procesa
+ * Registro de personas en categorías internas (staff, speakers, prensa…)
+ * desde /admin/registros ("Registros internos"). Un admin llena el
+ * formulario y por dentro se procesa
  * EXACTAMENTE igual que cualquier otra venta pagada: nace como orden en
  * estado 'paid' con payment_method 'cortesia', queda en la bitácora de
  * cambios de estado y corre fulfillPaidOrder (boleta + QR + InContacto),
