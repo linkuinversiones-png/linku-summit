@@ -51,21 +51,24 @@ portada ni en `/checkout?tier=staff`), registrar a alguien desde
 `/admin/registros` y confirmar en `/admin/orders` que la venta quedó pagada,
 con boleta y estado de InContacto.
 **Notas / pendientes:**
-- El código ya es seguro si se publica **antes** de aplicar la migración
-  0018: `getActiveTiers()` filtra `admin_only` en JavaScript (no con
-  `.eq('admin_only', false)` en la consulta a Supabase), así que si la
-  columna todavía no existe, `row.admin_only` es simplemente `undefined` y
-  el filtro deja pasar todos los tiers — la portada y el checkout público
-  siguen funcionando exactamente igual que hoy. Lo que SÍ requiere la
-  migración aplicada: los tiers Staff/Speaker (no existen sin el seed) y la
-  pantalla `/admin/registros` (su formulario sale vacío y no hay nada que
-  registrar hasta que la columna y las filas existan). Aun así, se
-  recomienda aplicar `0018_tiers_internos.sql` en Supabase **antes** de
-  mezclar esta rama a `main`, para que Staff/Speaker queden disponibles
-  desde el primer despliegue (es manual, como el resto).
-- Falta confirmar con el equipo de InContacto que su formulario acepta
-  "Staff" y "Speaker" como valor del campo Tipo de boleta (el envío usa el
-  `name_es` del tier tal cual, igual que con los demás tiers).
+- Desde el cambio de infraestructura de este mismo día ("Migraciones de
+  Supabase automáticas en el deploy"), la migración 0018 ya no hay que
+  correrla a mano: el workflow de GitHub Actions la aplica sola al publicar
+  a `main`. El código de todas formas sigue siendo seguro si por algún
+  motivo la migración no se ha aplicado todavía: `getActiveTiers()` filtra
+  `admin_only` en JavaScript (no con `.eq('admin_only', false)` en la
+  consulta a Supabase), así que si la columna todavía no existe,
+  `row.admin_only` es simplemente `undefined` y el filtro deja pasar todos
+  los tiers — la portada y el checkout público siguen funcionando
+  exactamente igual que hoy. Lo que SÍ requiere la migración aplicada: los
+  tiers Staff/Speaker (no existen sin el seed) y la pantalla
+  `/admin/registros` (su formulario sale vacío y no hay nada que registrar
+  hasta que la columna y las filas existan).
+- Al publicar, avisar al equipo de InContacto que los valores exactos que
+  llegan en el campo "Tipo de boleta" para estos registros son `Staff` y
+  `Speaker` (el `name_es` del tier tal cual, igual que con los demás
+  tiers), y que si un admin renombra la categoría desde `/admin/tiers`, el
+  valor que se envía cambia con ella.
 - Los registros internos aparecen en `/admin/orders` como una venta más,
   método "Cortesía" y total $0; no se distinguen ahí de una cortesía
   cualquiera salvo por el nombre del tier y la nota de la bitácora
@@ -76,6 +79,48 @@ con boleta y estado de InContacto.
   ciertos speakers) y porque no afecta nada público.
 
 ---
+
+## 2026-09-26 — Migraciones de Supabase automáticas en el deploy
+
+**Quién:** Miguel Salazar (con Claude) · **Tipo:** infraestructura
+**Qué cambió:** el workflow `.github/workflows/deploy.yml` ahora aplica las
+migraciones pendientes de `supabase/migrations/` automáticamente, en un paso
+propio antes de compilar, en vez de solo avisar que había migraciones nuevas.
+Si una migración falla, el job se detiene ahí y no llega a compilar ni
+publicar (producción no cambia). `scripts/run-migrations.mjs` ahora lee
+`SUPABASE_PROJECT_REF`/`SUPABASE_ACCESS_TOKEN` primero del entorno (para CI) y
+de `.env.local` como respaldo local; se hizo más robusto para correr sin
+supervisión: una lectura de tracking que falla o no se puede parsear ahora
+termina en error (antes se trataba como "tabla vacía", lo que podía disparar
+el modo bootstrap y marcar migraciones como aplicadas sin correrlas); y el
+modo bootstrap (tracking vacío → registrar todo sin re-ejecutar) queda
+desactivado en CI a propósito, porque en el workflow automático un tracking
+vacío es señal de error, no de un proyecto nuevo. Tras revisión se agregaron
+dos resguardos más: (1) `runSql` ahora también trata como fallo una respuesta
+con HTTP 2xx pero cuerpo de error (`{ error: ... }` / `{ message: ... }` en
+vez del arreglo de filas que la Management API devuelve en éxito), así que
+esas migraciones tampoco se marcan aplicadas; (2) si una migración corre bien
+pero el `insert` de tracking falla, ya no es solo un `console.warn` — el
+script termina con `exit 1`, imprime el SQL exacto para registrarla a mano, y
+lo anota en `GITHUB_STEP_SUMMARY`, porque dejarla sin registrar haría que la
+próxima corrida intente re-aplicarla. El script sigue existiendo para uso
+manual (plan B).
+**Archivos:**
+- `scripts/run-migrations.mjs`
+- `.github/workflows/deploy.yml`
+- `docs/DEPLOY.md`
+- `CLAUDE.md`
+
+**Cómo verificar:** `node --check scripts/run-migrations.mjs`; validar el YAML
+del workflow; tras el próximo push a `main`, revisar en Actions que el paso
+"Aplicar migraciones de Supabase" corra antes de "Compilar" y que su resumen
+liste qué migraciones aplicó (o "Sin migraciones nuevas").
+**Notas / pendientes:** **este cambio solo puede fusionarse a `main` después**
+de crear en GitHub (Settings → Secrets and variables → Actions) el secret
+`SUPABASE_ACCESS_TOKEN` y la variable `SUPABASE_PROJECT_REF`. Si se fusiona
+antes de configurarlos, **todas las publicaciones automáticas fallarán** en el
+paso de migraciones (sin afectar el sitio en vivo, porque el build y el
+deploy no llegan a correr) hasta que se configuren.
 
 ## 2026-09-26 — Publicación automática con GitHub Actions
 

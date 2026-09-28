@@ -1,16 +1,26 @@
 # Publicación automática a Cloudflare Workers.
 #
-# Cada push a `main` (o "Run workflow" a mano) compila el sitio y lo publica.
-# Es el equivalente de los pasos 3 a 5 del pipeline manual de docs/DEPLOY.md.
+# Cada push a `main` (o "Run workflow" a mano) aplica las migraciones de
+# Supabase pendientes, compila el sitio y lo publica. Es el equivalente de
+# los pasos 1 a 5 del pipeline manual de docs/DEPLOY.md.
+#
+# Qué hace con las migraciones:
+#   - Antes de compilar, corre `node scripts/run-migrations.mjs`, que aplica
+#     solo los .sql de supabase/migrations/ que todavía no estén marcados en
+#     la tabla public._applied_migrations (es idempotente). Si falla una
+#     migración, el job se detiene ahí: no se compila ni se publica, y
+#     producción sigue con la versión anterior.
+#   - Ya no hace falta correrlas a mano antes del push (ver docs/DEPLOY.md);
+#     `node scripts/run-migrations.mjs` local sigue existiendo como plan B.
 #
 # Lo que NO hace, a propósito:
-#   - Migraciones de Supabase: siguen siendo manuales (node scripts/run-migrations.mjs)
-#     y van ANTES del push. Aquí solo se avisa si el push trae migraciones nuevas.
 #   - Secretos del Worker (Wompi, Resend, InContacto…): viven en Cloudflare, no aquí.
 #
 # Variables y secretos que necesita (Settings → Secrets and variables → Actions):
-#   secrets:   CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, NEXT_PUBLIC_SUPABASE_ANON_KEY
-#   variables: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET, NEXT_PUBLIC_SITE_URL
+#   secrets:   CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, NEXT_PUBLIC_SUPABASE_ANON_KEY,
+#              SUPABASE_ACCESS_TOKEN
+#   variables: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET, NEXT_PUBLIC_SITE_URL,
+#              SUPABASE_PROJECT_REF
 
 name: Publicar en Cloudflare
 
@@ -41,40 +51,7 @@ jobs:
       - name: Descargar el código
         uses: actions/checkout@v4
         with:
-          # Historial completo: hace falta para comparar con el commit anterior
-          # y detectar migraciones nuevas.
-          fetch-depth: 0
-
-      - name: Avisar si el push trae migraciones de Supabase
-        shell: bash
-        run: |
-          set -euo pipefail
-          BEFORE="${{ github.event.before }}"
-          if [ "${{ github.event_name }}" != "push" ] || [ -z "$BEFORE" ] || ! git cat-file -e "$BEFORE" 2>/dev/null; then
-            # Ejecución manual o push forzado: comparamos solo con el commit anterior.
-            BEFORE="$(git rev-parse HEAD~1 2>/dev/null || echo "")"
-          fi
-          NUEVAS=""
-          if [ -n "$BEFORE" ]; then
-            NUEVAS="$(git diff --diff-filter=A --name-only "$BEFORE" "${{ github.sha }}" -- supabase/migrations/ || true)"
-          fi
-          if [ -n "$NUEVAS" ]; then
-            {
-              echo "## ⚠️ Este push trae migraciones de Supabase nuevas"
-              echo ""
-              echo "El workflow NO las aplica. Deben haberse corrido antes con \`node scripts/run-migrations.mjs\`."
-              echo "Si no se corrieron, el sitio puede fallar hasta que se apliquen."
-              echo ""
-              echo '```'
-              echo "$NUEVAS"
-              echo '```'
-            } >> "$GITHUB_STEP_SUMMARY"
-            while IFS= read -r f; do
-              echo "::warning file=$f::Migración nueva en este push. ¿Ya se aplicó con node scripts/run-migrations.mjs?"
-            done <<< "$NUEVAS"
-          else
-            echo "Sin migraciones nuevas en este push."
-          fi
+          fetch-depth: 1
 
       - name: Preparar Node 22
         uses: actions/setup-node@v4
@@ -84,6 +61,18 @@ jobs:
 
       - name: Instalar dependencias
         run: npm ci
+
+      - name: Aplicar migraciones de Supabase
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SUPABASE_ACCESS_TOKEN:-}" ] || [ -z "${SUPABASE_PROJECT_REF:-}" ]; then
+            echo "::error::Faltan SUPABASE_ACCESS_TOKEN (secret) y/o SUPABASE_PROJECT_REF (variable) en GitHub. Configúralos en Settings → Secrets and variables → Actions (SUPABASE_ACCESS_TOKEN como secret, SUPABASE_PROJECT_REF como variable) y vuelve a correr el workflow."
+            exit 1
+          fi
+          node scripts/run-migrations.mjs
 
       - name: Compilar (Next + OpenNext para Cloudflare)
         # Next.js incrusta las NEXT_PUBLIC_* en el build. Por eso van aquí y por
