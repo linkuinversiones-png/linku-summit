@@ -1,6 +1,6 @@
 import SectionHeading from '@/components/ui/SectionHeading';
 import Reveal from '@/components/ui/Reveal';
-import SpeakerCard from '@/components/ui/SpeakerCard';
+import SpeakersGrid from '@/components/sections/SpeakersGrid';
 import type { UiContent } from '@/lib/i18n/content';
 import type { PublicSpeaker } from '@/lib/speakers';
 
@@ -43,13 +43,11 @@ export default function Speakers({ speakers, ui }: Props) {
           />
         </Reveal>
 
-        <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {speakers.map((s, i) => (
-            <Reveal key={s.id} delay={(i % 4) * 0.05}>
-              <SpeakerCard speaker={s} tbdLabel={ui.placeholderTBD} />
-            </Reveal>
-          ))}
-        </div>
+        <SpeakersGrid
+          speakers={speakers}
+          tbdLabel={ui.placeholderTBD}
+          modalLabels={ui.modal}
+        />
 
         <p className="mt-10 text-center text-sm text-linku-text-muted">
           {ui.more}

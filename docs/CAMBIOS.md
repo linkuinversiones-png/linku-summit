@@ -14,6 +14,55 @@ Formato de cada entrada:
 
 ---
 
+## 2026-09-28 — Pop-up con la bio del speaker al hacer clic en su tarjeta
+
+**Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad
+**Qué cambió:** en la sección Speakers de la portada, hacer clic en cualquier
+parte de la tarjeta de un speaker confirmado abre un pop-up con su foto (sin
+el filtro duotono), nombre, cargo · empresa, track y la descripción (bio),
+que antes no se mostraba en ningún lado del sitio. Si hay LinkedIn, el
+pop-up trae un botón "Ver en LinkedIn" que abre en pestaña nueva. El ícono
+de LinkedIn de la tarjeta sigue abriendo LinkedIn directamente y ya no
+dispara el pop-up (se detiene la propagación del clic y de la tecla Enter).
+Los speakers confirmados sin bio abren el mismo pop-up sin el bloque de
+descripción (no se muestra ningún mensaje de "sin descripción"). Los
+speakers "Por confirmar" no son clicables. La tarjeta es accesible por
+teclado (foco visible, Enter/Espacio abren el pop-up) y el pop-up se cierra
+con el botón X, la tecla Escape o clic en el fondo oscuro, bloquea el
+scroll de la página mientras está abierto y devuelve el foco a la tarjeta
+al cerrarse. Solo hay un pop-up para toda la sección (no uno por tarjeta).
+**Archivos:**
+- `components/ui/SpeakerCard.tsx` — tarjeta ahora es un `role="button"`
+  enfocable con teclado (sin anidar un `<a>` dentro de un `<button>` real);
+  acepta `onOpen` y expone su nodo por `ref` para devolver el foco al cerrar
+  el pop-up.
+- `components/ui/SpeakerModal.tsx` (nuevo) — el pop-up en sí: foto, nombre,
+  cargo · empresa, track, bio (`whitespace-pre-line`) y botón de LinkedIn;
+  animado con framer-motion respetando `prefers-reduced-motion`, responsive
+  (pantalla casi completa en celular, ancho máximo en escritorio, scroll
+  interno si la bio es larga).
+- `components/sections/SpeakersGrid.tsx` (nuevo) — componente cliente que
+  arma la grilla de tarjetas y guarda el estado de qué speaker está abierto
+  en el pop-up (un solo pop-up para toda la sección), para no convertir en
+  cliente toda la sección `Speakers.tsx`.
+- `components/sections/Speakers.tsx` — ahora usa `SpeakersGrid` en vez de
+  mapear las tarjetas directamente.
+- `content/es/ui.json`, `content/en/ui.json` — nuevos textos
+  `speakers.modal.close` y `speakers.modal.viewLinkedin` ("Cerrar" / "Ver en
+  LinkedIn" y sus equivalentes en inglés).
+**Cómo verificar:** en la portada, ir a la sección Speakers y hacer clic en
+cualquier parte de una tarjeta de speaker confirmado (no en el ícono de
+LinkedIn) → se abre el pop-up con su información; clic en el ícono de
+LinkedIn → abre LinkedIn en pestaña nueva sin abrir el pop-up; con el
+pop-up abierto, probar el botón X, Escape y clic fuera de la tarjeta para
+cerrarlo, y confirmar que el foco vuelve a la tarjeta. `npx tsc --noEmit`
+sin errores.
+**Notas / pendientes:** de los 33 speakers activos, solo 11 tienen
+descripción cargada; se completan desde `/admin/speakers` (campo bio en
+español e inglés).
+
+---
+
 ## 2026-09-26 — Categorías internas Staff, Speaker y Prensa (Registros internos)
 
 **Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad

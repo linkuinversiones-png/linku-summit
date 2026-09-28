@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { forwardRef, useState, type KeyboardEvent } from 'react';
 import { Linkedin } from 'lucide-react';
 import type { PublicSpeaker } from '@/lib/speakers';
 
@@ -12,18 +12,38 @@ function initials(name: string) {
   return (first + last).toUpperCase() || '?';
 }
 
-export default function SpeakerCard({
-  speaker,
-  tbdLabel = 'Por confirmar'
-}: {
-  speaker: PublicSpeaker;
-  tbdLabel?: string;
-}) {
+const SpeakerCard = forwardRef<
+  HTMLElement,
+  {
+    speaker: PublicSpeaker;
+    tbdLabel?: string;
+    onOpen?: (speaker: PublicSpeaker) => void;
+  }
+>(function SpeakerCard({ speaker, tbdLabel = 'Por confirmar', onOpen }, ref) {
   const [imgFailed, setImgFailed] = useState(false);
   const showPlaceholder = !speaker.avatarUrl || !speaker.confirmed || imgFailed;
+  const clickable = speaker.confirmed && Boolean(onOpen);
+
+  function handleKeyDown(e: KeyboardEvent<HTMLElement>) {
+    if (!clickable) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onOpen?.(speaker);
+    }
+  }
 
   return (
-    <article className="linku-card group relative overflow-hidden">
+    <article
+      ref={ref}
+      className={`linku-card group relative overflow-hidden ${
+        clickable ? 'cursor-pointer' : ''
+      }`}
+      role={clickable ? 'button' : undefined}
+      tabIndex={clickable ? 0 : undefined}
+      aria-haspopup={clickable ? 'dialog' : undefined}
+      onClick={clickable ? () => onOpen?.(speaker) : undefined}
+      onKeyDown={handleKeyDown}
+    >
       <div className="relative aspect-square w-full overflow-hidden rounded-t-[20px] bg-linku-bg-3">
         {showPlaceholder ? (
           <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-linku-bg-3 to-linku-bg-2">
@@ -73,6 +93,7 @@ export default function SpeakerCard({
             aria-label={`LinkedIn de ${speaker.name}`}
             className="absolute right-3 top-3 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full bg-linku-bg/85 text-linku-text backdrop-blur-sm ring-1 ring-white/10 transition hover:bg-linku-coral hover:text-white"
             onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
           >
             <Linkedin size={14} />
           </a>
@@ -94,4 +115,6 @@ export default function SpeakerCard({
       </div>
     </article>
   );
-}
+});
+
+export default SpeakerCard;

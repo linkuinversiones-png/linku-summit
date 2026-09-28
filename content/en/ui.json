@@ -132,7 +132,11 @@
       "title": "Announcing speakers soon.",
       "lead": "We're closing the line-up. To be among the first to know who takes the stage, request your invitation."
     },
-    "placeholderTBD": "To be confirmed"
+    "placeholderTBD": "To be confirmed",
+    "modal": {
+      "close": "Close",
+      "viewLinkedin": "View on LinkedIn"
+    }
   },
   "partners": {
     "eyebrow": "Institutional partners",
