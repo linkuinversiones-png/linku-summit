@@ -14,6 +14,31 @@ Formato de cada entrada:
 
 ---
 
+## 2026-09-29 — Arreglo: Registros internos fallaban con precio 0
+
+**Quién:** Miguel Salazar (con Claude) · **Tipo:** arreglo
+**Qué cambió:** al registrar a alguien en `/admin/registros` (Staff, Speaker,
+Prensa, categorías internas con precio 0) Supabase respondía "new row for
+relation orders violates check constraint orders_subtotal_cop_check". La
+tabla `orders` exigía `subtotal_cop > 0` desde la migración 0003, y la 0018
+solo había relajado esa regla en `ticket_tiers.price_cop`, no en `orders`.
+La nueva migración 0019 reemplaza ese check por: `subtotal_cop > 0` o
+(`subtotal_cop = 0` y `payment_method = 'cortesia'`). Cualquier otra orden
+sigue necesitando subtotal mayor que 0. `total_cop` y `discount_cop` ya
+permitían 0. Se revisó el resto del flujo (bitácora, boleta, cupo del tier,
+cupones) y no hay otra restricción que falle con precio 0. Los intentos
+fallidos no dejaron datos a medias: el INSERT de la orden falló completo,
+así que no se creó orden, boleta ni registro en la bitácora.
+**Archivos:** `supabase/migrations/0019_orders_subtotal_cortesia.sql`.
+**Cómo verificar:** tras publicar, en `/admin/registros` registrar a una
+persona como Staff: debe quedar la boleta emitida y la orden en
+`/admin/orders` con total $0 y método cortesía.
+**Notas / pendientes:** la migración 0019 la aplica GitHub Actions
+automáticamente al publicar (antes de compilar); es idempotente y no
+destructiva.
+
+---
+
 ## 2026-09-28 — Diseño: pop-up de speakers con encabezado (foto + nombre) y descripción a todo el ancho
 
 **Quién:** Miguel Salazar (con Claude) · **Tipo:** diseño
