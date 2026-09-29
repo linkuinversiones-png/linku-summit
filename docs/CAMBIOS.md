@@ -14,6 +14,47 @@ Formato de cada entrada:
 
 ---
 
+## 2026-09-29 — Funcionalidad: panel "Por resolver" (pagos rechazados/pendientes) en Ventas
+
+**Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad
+**Qué cambió:** arriba de `/admin/orders` hay un panel "Por resolver" con los
+compradores cuyos pagos fueron rechazados o quedaron pendientes, para que el
+equipo los contacte. Un caso agrupa por comprador (documento sin puntos ni
+espacios; si no hay, el correo) todas sus órdenes `failed` y las `pending`
+con más de 30 minutos. Se ocultan solos si el comprador tiene una orden
+`paid` (por documento o correo) creada después de su último intento, si es
+tier interno (`admin_only`) o método `cortesia`. Cada tarjeta muestra
+nombre, empresa, correo (mailto), teléfono con botón WhatsApp (celular
+colombiano de 10 dígitos que empieza por 3 se antepone 57; con indicativo se
+respeta; si no es claro solo se ve el teléfono), tier y monto del último
+intento (con cupón), número de intentos, fechas del primero y el último,
+estado (Rechazado/Pendiente), último motivo reportado por Wompi (de
+`order_status_log`) y links a las órdenes. Botón "Marcar como resuelto" con
+motivo obligatorio (pagó por otro medio, cortesía, desistió, contactado en
+espera, otro; la nota es obligatoria con "otro"). Un caso resuelto reaparece
+si hay un intento fallido/pendiente posterior al cierre. Se muestran 6 casos
+y el resto bajo "Ver todos"; hay sección plegable "Resueltos recientemente"
+(últimos 10). Sin casos, solo una línea corta en verde. Si la tabla nueva aún
+no existe, la página sigue funcionando (sin resoluciones) y el botón avisa
+del error.
+**Archivos:** `supabase/migrations/0020_seguimiento_pagos.sql` (tabla
+`payment_followups`, RLS solo admins select/insert),
+`lib/admin/followups.ts` (lógica pura), `lib/admin/followups-data.ts`
+(lectura con sesión del admin), `app/admin/orders/FollowupsPanel.tsx`,
+`app/admin/orders/ResolveFollowupForm.tsx`, `app/admin/orders/actions.ts`
+(`resolveFollowup`), `app/admin/orders/page.tsx` (monta el panel).
+**Cómo verificar:** abrir `/admin/orders`: aparece el panel; un comprador con
+pago posterior no debe aparecer; al marcar un caso como resuelto desaparece
+y queda en "Resueltos recientemente".
+**Notas / pendientes:** requiere la migración 0020 (idempotente, no
+destructiva; la aplica el workflow al publicar). Solo se miran los últimos 60
+días y hasta 1000 órdenes por consulta. No se filtran compradores de prueba:
+no hay una convención en el código. El `mailto:` solo se enlaza si el correo
+tiene forma válida (sin `?`, `&`, espacios) y la consulta del log de Wompi se
+hace en lotes de 50 órdenes.
+
+---
+
 ## 2026-09-29 — Arreglo: Registros internos fallaban con precio 0
 
 **Quién:** Miguel Salazar (con Claude) · **Tipo:** arreglo
