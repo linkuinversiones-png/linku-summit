@@ -15,6 +15,7 @@ import {
   getTierName,
   type FulfillableOrder
 } from '@/lib/orders/fulfill';
+import { FOLLOWUP_RESOLUTION_LABEL } from '@/lib/admin/followups';
 
 /**
  * Acciones del admin de ventas.
@@ -170,4 +171,47 @@ export async function retryIncontacto(orderId: string): Promise<OrderActionResul
     return fail(`No se intentó: ${result.error ?? 'falta configuración'}`);
   }
   return fail(`InContacto rechazó el registro: ${result.error ?? 'error desconocido'}`);
+}
+
+/**
+ * Cierra un caso del panel "Por resolver". Inserta una fila en
+ * payment_followups con la sesión del admin (RLS admin), sin service key.
+ * Es un historial: no se edita ni se borra.
+ */
+export async function resolveFollowup(input: {
+  buyerKey: string;
+  buyerEmail?: string | null;
+  buyerName?: string | null;
+  resolution: string;
+  note?: string;
+}): Promise<OrderActionResult> {
+  const admin = await assertAdmin();
+
+  const buyerKey = String(input.buyerKey ?? '').trim().slice(0, 200);
+  if (!buyerKey) return fail('Falta identificar al comprador');
+  const resolution = String(input.resolution ?? '').trim();
+  if (!FOLLOWUP_RESOLUTION_LABEL[resolution]) return fail('Elige un motivo para cerrar el caso');
+  const note = String(input.note ?? '').trim().slice(0, 1000);
+  if (resolution === 'otro' && !note) {
+    return fail('Con el motivo "Otro" hay que escribir una nota');
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.from('payment_followups').insert({
+    buyer_key: buyerKey,
+    buyer_email: input.buyerEmail ? String(input.buyerEmail).slice(0, 320) : null,
+    buyer_name: input.buyerName ? String(input.buyerName).slice(0, 200) : null,
+    resolution,
+    note: note || null,
+    resolved_by: admin.id,
+    resolved_by_email: admin.email || null
+  });
+  if (error) {
+    return fail(
+      `No se pudo guardar el cierre (${error.message}). Si acabas de publicar, puede que falte aplicar la migración 0020.`
+    );
+  }
+
+  revalidatePath('/admin/orders');
+  return { ok: true, message: 'Caso marcado como resuelto.' };
 }

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { formatCop } from '@/lib/tickets';
+import FollowupsPanel from './FollowupsPanel';
 import {
   listOrdersEnriched,
   getOrdersStats,
@@ -81,6 +82,8 @@ export default async function AdminOrdersPage(
         </div>
         <ExportForm today={todayBogota()} />
       </header>
+
+      <FollowupsPanel />
 
       <section className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard
