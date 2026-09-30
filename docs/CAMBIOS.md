@@ -14,6 +14,33 @@ Formato de cada entrada:
 
 ---
 
+## 2026-09-30 — Funcionalidad: actividad paralela de todo el día en la agenda
+
+**Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad
+**Qué cambió:** cada día de la agenda puede tener una actividad opcional que
+corre en paralelo todo el día (ej. la rueda de negocios). En la portada se
+muestra como un recuadro destacado (borde y fondo coral suave, ícono de
+apretón de manos) arriba de los bloques de ese día, con la etiqueta "En
+paralelo todo el día" / "Running all day in parallel", el título, el horario
+y la descripción si existen. Si el día no la tiene, nada cambia. En inglés,
+los campos vacíos caen al texto en español.
+**Cómo usarlo:** Admin → Agenda → elegir el día → "Editar día" → sección
+"Actividad en paralelo todo el día (opcional)" (título, horario y
+descripción en ES y EN). Vacío = no se muestra.
+**Archivos:** `supabase/migrations/0021_agenda_actividad_paralela.sql`
+(6 columnas `parallel_*` en `agenda_days`), `lib/agenda.ts`,
+`components/sections/Agenda.tsx`, `app/admin/agenda/actions.ts`,
+`app/admin/agenda/AgendaEditor.tsx`, `content/es/ui.json`,
+`content/en/ui.json`.
+**Cómo verificar:** aplicada la migración, llenar la actividad en un día
+desde el admin y abrir `/` y `/en` en la sección Agenda; cambiar de día.
+**Notas / pendientes:** la migración es idempotente y no destructiva (la
+aplica el workflow al publicar). Compatibilidad: sin la migración la portada
+funciona igual (sin recuadro) y el admin oculta la sección y no envía esos
+campos, así que editar días sigue funcionando.
+
+---
+
 ## 2026-09-29 — Funcionalidad: panel "Por resolver" (pagos rechazados/pendientes) en Ventas
 
 **Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad

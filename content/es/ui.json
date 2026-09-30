@@ -106,6 +106,7 @@
     "titleB": "construidos por bloque.",
     "day1": "Día 1",
     "day2": "Día 2",
+    "parallelLabel": "En paralelo todo el día",
     "types": {
       "registro": "Registro",
       "apertura": "Apertura",
