@@ -14,6 +14,36 @@ Formato de cada entrada:
 
 ---
 
+## 2026-09-30 — Funcionalidad: credenciales de la plataforma de citas en el perfil
+
+**Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad
+**Qué cambió:** en la tarjeta de citas 1:1 de `/me` (solo para asistentes con
+cita habilitada y con la agenda abierta) aparece el recuadro "Tus datos de
+acceso": usuario (el correo con el que inició sesión) y clave compartida
+(oculta, con botones Mostrar y Copiar), más una línea de ayuda. La clave se
+configura en Admin → Ajustes → Citas ("Clave de acceso a la plataforma de
+citas"); vacía = no se muestra el recuadro. **La clave no está en el código,
+ni en GitHub, ni en migraciones**: el admin la escribe después de publicar.
+**Seguridad:** `site_settings` tenía lectura pública, así que la clave vive en
+una fila `private_meetings_access`. La migración 0022 cambia la política de
+lectura: las filas con clave `private_*` solo las leen admins. En `/me` se lee
+en el servidor con la service key y solo si el usuario puede agendar y la
+agenda está abierta; si falla o no hay clave, no se muestra nada y la página
+no se rompe. Sin esas condiciones la clave nunca llega al navegador.
+**Archivos:** `supabase/migrations/0022_ajustes_privados.sql`, `lib/settings.ts`,
+`app/[locale]/me/page.tsx`, `app/[locale]/me/MeetingsCredentials.tsx`,
+`app/admin/settings/{page.tsx,actions.ts,SettingsForm.tsx}`,
+`content/es/ui.json`, `content/en/ui.json`.
+**Cómo verificar:** tras publicar, escribir la clave en Admin → Ajustes y
+abrir `/me` con un usuario Smart Access y la agenda activa; probar Mostrar y
+Copiar. Con una cuenta sin cita habilitada no aparece nada.
+**Notas / pendientes:** el admin debe escribir la clave tras publicar. La
+migración es idempotente y no destructiva (la aplica el workflow). Sin la
+migración, el admin guarda igual, pero la fila seguiría legible públicamente
+hasta que se aplique.
+
+---
+
 ## 2026-09-30 — Funcionalidad: actividad paralela de todo el día en la agenda
 
 **Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad

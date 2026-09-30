@@ -16,9 +16,14 @@ import {
 import { createClient } from '@/lib/supabase/server';
 import { localizePath, type Locale } from '@/lib/i18n/config';
 import { getContent } from '@/lib/i18n/content';
-import { getMeetingsSettings, meetingsCopy } from '@/lib/settings';
+import {
+  getMeetingsAccessPasswordForAttendee,
+  getMeetingsSettings,
+  meetingsCopy
+} from '@/lib/settings';
 import { claimMyOrders } from '../checkout/actions';
 import SignOutButton from './SignOutButton';
+import MeetingsCredentials from './MeetingsCredentials';
 
 export const metadata = {
   title: 'LINKU CAPITAL SUMMIT 2026'
@@ -79,6 +84,11 @@ export default async function MePage(props: { params: Promise<{ locale: Locale }
   const canBookMeetings = (tickets ?? []).some((tk) =>
     meetings.value.tiers.includes(tk.ticket_tier)
   );
+
+  // Clave compartida de la plataforma de citas: solo se lee (service role) y se
+  // envía al navegador si el usuario puede agendar y la agenda está abierta.
+  const accessPassword =
+    canBookMeetings && meetingsOpen ? await getMeetingsAccessPasswordForAttendee() : '';
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-linku-bg pb-20">
@@ -158,6 +168,22 @@ export default async function MePage(props: { params: Promise<{ locale: Locale }
           </div>
           {meetingsOpen && (
             <p className="mt-4 text-[11px] text-linku-text-dim">{t.meetingsExternal}</p>
+          )}
+          {accessPassword && user.email && (
+            <MeetingsCredentials
+              email={user.email}
+              password={accessPassword}
+              labels={{
+                title: t.credTitle,
+                user: t.credUser,
+                password: t.credPassword,
+                show: t.credShow,
+                hide: t.credHide,
+                copy: t.credCopy,
+                copied: t.credCopied,
+                hint: t.credHint
+              }}
+            />
           )}
         </section>
         )}

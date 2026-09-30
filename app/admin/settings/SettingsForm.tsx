@@ -1,7 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
-import { CalendarClock, ExternalLink, Loader2, Save, Ticket } from 'lucide-react';
+import { CalendarClock, ExternalLink, Loader2, Save, Ticket, Eye, EyeOff } from 'lucide-react';
 import type { MeetingsSettingsRow } from '@/lib/settings';
 import { saveMeetingsSettings, type SettingsActionResult } from './actions';
 
@@ -38,9 +39,11 @@ function fmt(iso: string | null): string {
 
 export default function SettingsForm({
   meetings,
+  accessPassword,
   tiers
 }: {
   meetings: MeetingsSettingsRow;
+  accessPassword: string;
   tiers: Array<{ slug: string; name: string }>;
 }) {
   const [state, formAction] = useFormState<SettingsActionResult | null, FormData>(
@@ -49,6 +52,7 @@ export default function SettingsForm({
   );
   const errs = state && !state.ok ? state.fieldErrors ?? {} : {};
   const v = meetings.value;
+  const [showPw, setShowPw] = useState(false);
 
   return (
     <form action={formAction} className="mx-auto max-w-3xl">
@@ -151,6 +155,35 @@ export default function SettingsForm({
             </div>
             <span className={HINT}>Dirección completa, empezando por https://</span>
             {errs.url && <span className="text-xs text-red-300">{errs.url}</span>}
+          </label>
+
+          <label className="flex flex-col gap-1.5">
+            <span className={LABEL}>Clave de acceso a la plataforma de citas</span>
+            <div className="flex items-center gap-2">
+              <input
+                type={showPw ? 'text' : 'password'}
+                name="access_password"
+                defaultValue={accessPassword}
+                maxLength={200}
+                autoComplete="off"
+                className={INPUT}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPw((x) => !x)}
+                className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-linku-border-2 px-3 py-2.5 text-xs text-linku-text-muted transition hover:border-white/25 hover:text-linku-text"
+              >
+                {showPw ? <EyeOff size={13} /> : <Eye size={13} />}
+                {showPw ? 'Ocultar' : 'Mostrar'}
+              </button>
+            </div>
+            <span className={HINT}>
+              Se muestra a cada asistente con cita habilitada en su perfil, junto a su correo como
+              usuario. Déjala vacía para no mostrar credenciales.
+            </span>
+            {errs.access_password && (
+              <span className="text-xs text-red-300">{errs.access_password}</span>
+            )}
           </label>
 
           <div className="grid gap-5 md:grid-cols-2">
