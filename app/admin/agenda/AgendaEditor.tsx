@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { CalendarDays, Loader2, Plus } from 'lucide-react';
-import { createItem, reorderItems, updateDay } from './actions';
+import { createItem, reorderItems, updateDay, type DayInput } from './actions';
 import ItemEditor from './ItemEditor';
 import { SortableList } from './Sortable';
 import { Area, ErrorBanner, Field, GhostButton, SaveButton, type SpeakerOption } from './ui';
@@ -99,16 +99,28 @@ function DayPanel({
   const [editingDay, setEditingDay] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const hasParallel = 'parallel_title_es' in day;
 
   function saveDay(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    const input = {
+    const input: DayInput = {
       label_es: str(fd.get('label_es')),
       label_en: str(fd.get('label_en')),
       date: str(fd.get('date')),
       tagline_es: str(fd.get('tagline_es')),
-      tagline_en: str(fd.get('tagline_en'))
+      tagline_en: str(fd.get('tagline_en')),
+      // Solo si la migración 0021 ya está aplicada (la columna llega en el select)
+      parallel: hasParallel
+        ? {
+            title_es: str(fd.get('parallel_title_es')),
+            title_en: str(fd.get('parallel_title_en')),
+            time_es: str(fd.get('parallel_time_es')),
+            time_en: str(fd.get('parallel_time_en')),
+            desc_es: str(fd.get('parallel_desc_es')),
+            desc_en: str(fd.get('parallel_desc_en'))
+          }
+        : undefined
     };
     start(async () => {
       const res = await updateDay(day.id, input);
@@ -122,7 +134,15 @@ function DayPanel({
         label_en: orNull(input.label_en),
         date: orNull(input.date),
         tagline_es: orNull(input.tagline_es),
-        tagline_en: orNull(input.tagline_en)
+        tagline_en: orNull(input.tagline_en),
+        ...(input.parallel && {
+          parallel_title_es: orNull(input.parallel.title_es),
+          parallel_title_en: orNull(input.parallel.title_en),
+          parallel_time_es: orNull(input.parallel.time_es),
+          parallel_time_en: orNull(input.parallel.time_en),
+          parallel_desc_es: orNull(input.parallel.desc_es),
+          parallel_desc_en: orNull(input.parallel.desc_en)
+        })
       });
       setEditingDay(false);
     });
@@ -214,6 +234,23 @@ function DayPanel({
                 rows={2}
                 className="sm:col-span-3"
               />
+              {hasParallel && (
+                <fieldset className="grid gap-3 rounded-lg border border-linku-border p-4 sm:col-span-3 sm:grid-cols-2">
+                  <legend className="px-2 text-[10px] font-bold uppercase tracking-[0.15em] text-linku-coral">
+                    Actividad en paralelo todo el día (opcional)
+                  </legend>
+                  <p className="text-[11px] text-linku-text-dim sm:col-span-2">
+                    Por ejemplo: Rueda de negocios. Se muestra destacada arriba de este día en la
+                    agenda pública. Déjalo vacío si no aplica.
+                  </p>
+                  <Field label="Título (ES)" name="parallel_title_es" defaultValue={day.parallel_title_es} placeholder="Rueda de negocios" />
+                  <Field label="Título (EN)" name="parallel_title_en" defaultValue={day.parallel_title_en} placeholder="Business roundtable" />
+                  <Field label="Horario (ES)" name="parallel_time_es" defaultValue={day.parallel_time_es} placeholder="Todo el día" />
+                  <Field label="Horario (EN)" name="parallel_time_en" defaultValue={day.parallel_time_en} placeholder="All day" />
+                  <Area label="Descripción (ES)" name="parallel_desc_es" defaultValue={day.parallel_desc_es} rows={2} />
+                  <Area label="Descripción (EN)" name="parallel_desc_en" defaultValue={day.parallel_desc_en} rows={2} />
+                </fieldset>
+              )}
             </div>
             <div className="flex items-center justify-end gap-2">
               <GhostButton onClick={() => setEditingDay(false)} disabled={pending}>

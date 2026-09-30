@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Handshake } from 'lucide-react';
 import SectionHeading from '@/components/ui/SectionHeading';
 import Reveal from '@/components/ui/Reveal';
 import type { UiContent } from '@/lib/i18n/content';
@@ -29,6 +30,7 @@ type Day = {
   label: string;
   date: string;
   tagline?: string;
+  parallel?: { title: string; desc?: string; time?: string };
   items: AgendaItem[];
 };
 
@@ -100,6 +102,32 @@ export default function Agenda({ agenda, ui }: Props) {
           <p className="mt-7 text-base font-medium text-linku-text sm:text-lg">
             {day.label}
           </p>
+
+          {day.parallel && (
+            <div className="mt-6 flex items-start gap-4 rounded-2xl border border-linku-coral/40 bg-linku-coral/5 p-5 sm:gap-5 sm:p-6">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-linku-coral/40 bg-linku-coral/10 text-linku-coral">
+                <Handshake size={22} aria-hidden />
+              </span>
+              <div className="min-w-0">
+                <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-linku-coral">
+                  {ui.parallelLabel}
+                </span>
+                <h4 className="mt-1.5 text-lg font-bold tracking-tightish text-linku-text sm:text-xl">
+                  {day.parallel.title}
+                </h4>
+                {day.parallel.time && (
+                  <p className="mt-1 text-sm font-bold tabular-nums text-linku-coral">
+                    {day.parallel.time}
+                  </p>
+                )}
+                {day.parallel.desc && (
+                  <p className="mt-2 text-sm leading-relaxed text-linku-text-muted sm:text-base">
+                    {day.parallel.desc}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
 
           <ol className="mt-6 space-y-1">
             {day.items.map((item) => {

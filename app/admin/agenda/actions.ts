@@ -71,6 +71,15 @@ export type DayInput = {
   date?: string; // YYYY-MM-DD
   tagline_es?: string;
   tagline_en?: string;
+  /** Solo se envía si la migración 0021 está aplicada (el editor lo decide). */
+  parallel?: {
+    title_es?: string;
+    title_en?: string;
+    time_es?: string;
+    time_en?: string;
+    desc_es?: string;
+    desc_en?: string;
+  };
 };
 
 export async function updateDay(dayId: string, input: DayInput): Promise<AgendaActionResult> {
@@ -81,16 +90,27 @@ export async function updateDay(dayId: string, input: DayInput): Promise<AgendaA
   const date = cleanStr(input.date, 10);
   if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) return fail('Fecha inválida (YYYY-MM-DD)');
 
+  const row: Record<string, unknown> = {
+    label_es,
+    label_en: cleanStr(input.label_en, 200) || null,
+    date: date || null,
+    tagline_es: cleanStr(input.tagline_es, 300) || null,
+    tagline_en: cleanStr(input.tagline_en, 300) || null
+  };
+  if (input.parallel) {
+    const p = input.parallel;
+    row.parallel_title_es = cleanStr(p.title_es, 200) || null;
+    row.parallel_title_en = cleanStr(p.title_en, 200) || null;
+    row.parallel_time_es = cleanStr(p.time_es, 100) || null;
+    row.parallel_time_en = cleanStr(p.time_en, 100) || null;
+    row.parallel_desc_es = cleanStr(p.desc_es, 1000) || null;
+    row.parallel_desc_en = cleanStr(p.desc_en, 1000) || null;
+  }
+
   const sb = createServiceClient();
   const { error } = await sb
     .from('agenda_days')
-    .update({
-      label_es,
-      label_en: cleanStr(input.label_en, 200) || null,
-      date: date || null,
-      tagline_es: cleanStr(input.tagline_es, 300) || null,
-      tagline_en: cleanStr(input.tagline_en, 300) || null
-    })
+    .update(row)
     .eq('id', dayId);
   if (error) return fail(`No se pudo guardar el día: ${error.message}`);
   return done(dayId);

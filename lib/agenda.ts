@@ -19,6 +19,14 @@ export type AgendaDayRow = {
   tagline_es: string | null;
   tagline_en: string | null;
   active: boolean;
+  // Actividad paralela de todo el día (migración 0021). Opcionales: si la
+  // migración aún no está aplicada, las columnas no vienen en el select('*').
+  parallel_title_es?: string | null;
+  parallel_title_en?: string | null;
+  parallel_desc_es?: string | null;
+  parallel_desc_en?: string | null;
+  parallel_time_es?: string | null;
+  parallel_time_en?: string | null;
 };
 
 export type AgendaItemRow = {
@@ -98,6 +106,8 @@ export type PublicAgendaDay = {
   label: string;
   date: string;
   tagline?: string;
+  /** Actividad paralela de todo el día; solo si hay título en el idioma. */
+  parallel?: { title: string; desc?: string; time?: string };
   items: PublicAgendaItem[];
 };
 
@@ -210,10 +220,20 @@ function toPublicDay(day: DayWithChildren, locale: Locale): PublicAgendaDay {
       };
     });
 
+  const parallelTitle = pick(locale, day.parallel_title_es, day.parallel_title_en);
+  const parallel = parallelTitle
+    ? {
+        title: parallelTitle,
+        desc: pick(locale, day.parallel_desc_es, day.parallel_desc_en) || undefined,
+        time: pick(locale, day.parallel_time_es, day.parallel_time_en) || undefined
+      }
+    : undefined;
+
   return {
     label: pick(locale, day.label_es, day.label_en),
     date: day.date ?? '',
     tagline: pick(locale, day.tagline_es, day.tagline_en) || undefined,
+    parallel,
     items
   };
 }

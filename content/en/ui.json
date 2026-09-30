@@ -106,6 +106,7 @@
     "titleB": "built block by block.",
     "day1": "Day 1",
     "day2": "Day 2",
+    "parallelLabel": "Running all day in parallel",
     "types": {
       "registro": "Registration",
       "apertura": "Opening",
