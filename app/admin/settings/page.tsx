@@ -1,4 +1,4 @@
-import { getMeetingsSettings } from '@/lib/settings';
+import { getMeetingsAccessPasswordAsAdmin, getMeetingsSettings } from '@/lib/settings';
 import { createClient } from '@/lib/supabase/server';
 import SettingsForm from './SettingsForm';
 
@@ -11,13 +11,15 @@ export const dynamic = 'force-dynamic';
  */
 export default async function AdminSettingsPage() {
   const supabase = await createClient();
-  const [meetings, { data: tiers }] = await Promise.all([
+  const [meetings, accessPassword, { data: tiers }] = await Promise.all([
     getMeetingsSettings(),
+    getMeetingsAccessPasswordAsAdmin(),
     supabase.from('ticket_tiers').select('slug, name_es').order('price_cop', { ascending: true })
   ]);
   return (
     <SettingsForm
       meetings={meetings}
+      accessPassword={accessPassword}
       tiers={(tiers ?? []).map((t) => ({ slug: t.slug, name: t.name_es }))}
     />
   );

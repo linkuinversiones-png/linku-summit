@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { MEETINGS_DEFAULTS, type MeetingsSettings } from '@/lib/settings';
+import { MEETINGS_ACCESS_KEY, MEETINGS_DEFAULTS, type MeetingsSettings } from '@/lib/settings';
 
 export type SettingsActionResult =
   | { ok: true; message: string }
@@ -68,6 +68,8 @@ export async function saveMeetingsSettings(
   if (value.enabled && !value.url) {
     fieldErrors.url = 'Para activar la agenda hace falta el enlace del proveedor';
   }
+  const password = get('access_password');
+  if (password.length > 200) fieldErrors.access_password = 'Máximo 200 caracteres';
   if (Object.keys(fieldErrors).length) {
     return { ok: false, message: 'Revisa los campos', fieldErrors };
   }
@@ -77,6 +79,17 @@ export async function saveMeetingsSettings(
     .from('site_settings')
     .upsert({ key: 'meetings', value, updated_by_email: admin.email }, { onConflict: 'key' });
   if (error) return { ok: false, message: `No se pudo guardar: ${error.message}` };
+
+  // Clave compartida de la plataforma de citas (fila privada, solo admins).
+  const { error: pwError } = await supabase
+    .from('site_settings')
+    .upsert(
+      { key: MEETINGS_ACCESS_KEY, value: { password }, updated_by_email: admin.email },
+      { onConflict: 'key' }
+    );
+  if (pwError) {
+    return { ok: false, message: `Se guardó la agenda, pero no la clave: ${pwError.message}` };
+  }
 
   revalidatePath('/admin/settings');
   return {

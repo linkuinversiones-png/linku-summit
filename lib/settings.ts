@@ -2,7 +2,8 @@ import { createClient } from '@/lib/supabase/server';
 import type { Locale } from '@/lib/i18n/config';
 
 /**
- * Ajustes del sitio (tabla site_settings, clave → JSON). Lectura pública,
+ * Ajustes del sitio (tabla site_settings, clave → JSON). Lectura pública
+ * (excepto las keys `private_*`, que solo leen admins; migración 0022),
  * escritura solo admin desde /admin/settings.
  */
 
@@ -70,4 +71,46 @@ export function meetingsCopy(s: MeetingsSettings, locale: Locale) {
     cta: pick(s.cta_es, s.cta_en),
     note: pick(s.note_es, s.note_en)
   };
+}
+
+/** Clave de ajustes privados (solo admins por RLS; ver migración 0022). */
+export const MEETINGS_ACCESS_KEY = 'private_meetings_access';
+
+/**
+ * Clave compartida de la plataforma externa de citas, leída con la sesión del
+ * admin (RLS). Devuelve '' si no hay clave o si la migración aún no está.
+ */
+export async function getMeetingsAccessPasswordAsAdmin(): Promise<string> {
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from('site_settings')
+      .select('value')
+      .eq('key', MEETINGS_ACCESS_KEY)
+      .maybeSingle();
+    const pw = (data?.value as { password?: unknown } | null)?.password;
+    return typeof pw === 'string' ? pw : '';
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * Clave compartida para mostrar en /me. Usa service role (la fila es privada).
+ * LLAMAR SOLO en servidor y solo si el usuario tiene las citas habilitadas.
+ * Si falla (sin service key, sin clave guardada) devuelve '' y no se muestra.
+ */
+export async function getMeetingsAccessPasswordForAttendee(): Promise<string> {
+  try {
+    const { createServiceClient } = await import('@/lib/supabase/service');
+    const { data } = await createServiceClient()
+      .from('site_settings')
+      .select('value')
+      .eq('key', MEETINGS_ACCESS_KEY)
+      .maybeSingle();
+    const pw = (data?.value as { password?: unknown } | null)?.password;
+    return typeof pw === 'string' ? pw.trim() : '';
+  } catch {
+    return '';
+  }
 }
