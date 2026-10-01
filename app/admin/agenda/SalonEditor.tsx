@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useContext, useState, useTransition } from 'react';
 import { ChevronDown, ChevronRight, Loader2, Plus, Trash2, X } from 'lucide-react';
 import {
   createSalonTalk,
   deleteSalon,
   deleteSalonTalk,
   reorderSalonTalks,
+  setSalonTalkCompanies,
   setSalonTalkSpeakers,
   updateSalon,
   updateSalonTalk
@@ -20,6 +21,8 @@ import {
   GhostButton,
   SaveButton,
   SpeakerPicker,
+  CompaniesContext,
+  CompanyPicker,
   normalizeTime,
   type SpeakerOption
 } from './ui';
@@ -268,6 +271,7 @@ function TalkEditor({
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const companies = useContext(CompaniesContext);
 
   const names = linkedNames(talk.agenda_salon_item_speakers);
   const credit = names.length > 0 ? names.join(' · ') : talk.speaker_label_es;
@@ -276,6 +280,7 @@ function TalkEditor({
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     const speakerIds = fd.getAll('speaker_ids').map(String);
+    const companyIds = fd.getAll('company_ids').map(String);
     const input = {
       start_time: normalizeTime(fd.get('start_time')),
       end_time: normalizeTime(fd.get('end_time')),
@@ -298,6 +303,14 @@ function TalkEditor({
         setError(linkRes.message);
         return;
       }
+      // Solo se tocan las empresas si la migración 0023 está disponible.
+      if (companies.available) {
+        const compRes = await setSalonTalkCompanies(talk.id, companyIds);
+        if (!compRes.ok) {
+          setError(compRes.message);
+          return;
+        }
+      }
       setError(null);
       onPatch(talk.id, {
         start_time: input.start_time || null,
@@ -309,7 +322,8 @@ function TalkEditor({
         speaker_label_es: orNull(input.speaker_label_es),
         speaker_label_en: orNull(input.speaker_label_en),
         active: input.active,
-        agenda_salon_item_speakers: linksFor(speakerIds, speakers)
+        agenda_salon_item_speakers: linksFor(speakerIds, speakers),
+        ...(companies.available ? { company_ids: companyIds } : {})
       });
       setOpen(false);
     });
@@ -412,6 +426,7 @@ function TalkEditor({
             speakers={speakers}
             selectedIds={talk.agenda_salon_item_speakers.map((l) => l.speaker_id)}
           />
+          <CompanyPicker selectedIds={talk.company_ids ?? []} />
           <div className="flex flex-wrap items-center justify-between gap-3">
             <Check label="Visible en el landing" name="active" defaultChecked={talk.active} />
             <div className="flex items-center gap-2">

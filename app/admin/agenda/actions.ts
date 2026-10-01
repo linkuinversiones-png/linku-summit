@@ -516,3 +516,53 @@ export async function setSalonTalkSpeakers(
   await assertAdmin();
   return replaceSpeakerLinks('agenda_salon_item_speakers', 'salon_item_id', talkId, speakerIds);
 }
+
+// ---------------------------------------------------------------------
+// Vínculos con empresas (sponsors) — migración 0023
+// ---------------------------------------------------------------------
+async function replaceCompanyLinks(
+  table: 'agenda_item_companies' | 'agenda_salon_item_companies',
+  fkColumn: 'item_id' | 'salon_item_id',
+  parentId: string,
+  sponsorIds: string[]
+): Promise<AgendaActionResult> {
+  if (!isUuid(parentId)) return fail('Id inválido');
+  if (!Array.isArray(sponsorIds) || sponsorIds.some((id) => !isUuid(id))) {
+    return fail('Lista de empresas inválida');
+  }
+  const unique = Array.from(new Set(sponsorIds));
+
+  const sb = createServiceClient();
+  // Reemplazo total: refleja exactamente la selección de la UI.
+  const { error: delErr } = await sb.from(table).delete().eq(fkColumn, parentId);
+  if (delErr) return fail(`Error actualizando empresas: ${delErr.message}`);
+
+  if (unique.length > 0) {
+    const rows = unique.map((sponsor_id, idx) => ({
+      [fkColumn]: parentId,
+      sponsor_id,
+      sort_order: (idx + 1) * 10
+    }));
+    const { error: insErr } = await sb.from(table).insert(rows);
+    if (insErr) return fail(`Error vinculando empresas: ${insErr.message}`);
+  }
+  return done();
+}
+
+/** Reemplaza las empresas vinculadas a un bloque de agenda. */
+export async function setItemCompanies(
+  itemId: string,
+  sponsorIds: string[]
+): Promise<AgendaActionResult> {
+  await assertAdmin();
+  return replaceCompanyLinks('agenda_item_companies', 'item_id', itemId, sponsorIds);
+}
+
+/** Reemplaza las empresas vinculadas a una charla de subagenda. */
+export async function setSalonTalkCompanies(
+  talkId: string,
+  sponsorIds: string[]
+): Promise<AgendaActionResult> {
+  await assertAdmin();
+  return replaceCompanyLinks('agenda_salon_item_companies', 'salon_item_id', talkId, sponsorIds);
+}

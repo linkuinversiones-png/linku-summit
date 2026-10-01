@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useContext, useState, useTransition } from 'react';
 import { ChevronDown, ChevronRight, Eye, EyeOff, Loader2, Plus, Trash2 } from 'lucide-react';
 import {
   createSalon,
   deleteItem,
   reorderSalones,
+  setItemCompanies,
   setItemSpeakers,
   updateItem
 } from './actions';
@@ -15,6 +16,8 @@ import { SortableList } from './Sortable';
 import {
   Area,
   Check,
+  CompaniesContext,
+  CompanyPicker,
   ErrorBanner,
   Field,
   GhostButton,
@@ -51,6 +54,7 @@ export default function ItemEditor({ item, speakers, handle, onPatch, onDelete }
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const companies = useContext(CompaniesContext);
 
   const names = linkedNames(item.agenda_item_speakers);
   const credit = names.length > 0 ? names.join(' · ') : item.speaker_label_es;
@@ -59,6 +63,7 @@ export default function ItemEditor({ item, speakers, handle, onPatch, onDelete }
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     const speakerIds = fd.getAll('speaker_ids').map(String);
+    const companyIds = fd.getAll('company_ids').map(String);
     const input = {
       start_time: normalizeTime(fd.get('start_time')),
       end_time: normalizeTime(fd.get('end_time')),
@@ -82,6 +87,14 @@ export default function ItemEditor({ item, speakers, handle, onPatch, onDelete }
         setError(linkRes.message);
         return;
       }
+      // Solo se tocan las empresas si la migración 0023 está disponible.
+      if (companies.available) {
+        const compRes = await setItemCompanies(item.id, companyIds);
+        if (!compRes.ok) {
+          setError(compRes.message);
+          return;
+        }
+      }
       setError(null);
       onPatch(item.id, {
         start_time: input.start_time,
@@ -94,7 +107,8 @@ export default function ItemEditor({ item, speakers, handle, onPatch, onDelete }
         speaker_label_es: orNull(input.speaker_label_es),
         speaker_label_en: orNull(input.speaker_label_en),
         active: input.active,
-        agenda_item_speakers: linksFor(speakerIds, speakers)
+        agenda_item_speakers: linksFor(speakerIds, speakers),
+        ...(companies.available ? { company_ids: companyIds } : {})
       });
       setOpen(false);
     });
@@ -304,6 +318,8 @@ export default function ItemEditor({ item, speakers, handle, onPatch, onDelete }
               speakers={speakers}
               selectedIds={item.agenda_item_speakers.map((l) => l.speaker_id)}
             />
+
+            <CompanyPicker selectedIds={item.company_ids ?? []} />
 
             <div className="flex flex-wrap items-center justify-between gap-3">
               <Check label="Visible en el landing" name="active" defaultChecked={item.active} />

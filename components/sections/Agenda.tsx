@@ -6,12 +6,15 @@ import SectionHeading from '@/components/ui/SectionHeading';
 import Reveal from '@/components/ui/Reveal';
 import type { UiContent } from '@/lib/i18n/content';
 
+type Company = { name: string; logoUrl: string | null; websiteUrl: string | null };
+
 type SalonTalk = {
   time?: string;
   endTime?: string;
   title: string;
   speaker?: string;
   desc?: string;
+  companies?: Company[];
 };
 
 type SubItem = { code: string; name: string; tag?: string; talks?: SalonTalk[] };
@@ -23,6 +26,7 @@ type AgendaItem = {
   title: string;
   speaker?: string;
   desc: string;
+  companies?: Company[];
   subItems?: SubItem[];
 };
 
@@ -48,6 +52,49 @@ const SPECIAL_BLOCK_TYPES = new Set(['salones', 'relacionamiento']);
 
 function formatTime(item: AgendaItem) {
   return item.endTime ? `${item.time} – ${item.endTime}` : item.time;
+}
+
+/** Fila de empresas vinculadas: logo pequeño + nombre; link solo si hay web. */
+function CompanyChips({ companies }: { companies?: Company[] }) {
+  if (!companies || companies.length === 0) return null;
+  return (
+    <ul className="mt-3 flex flex-wrap gap-2">
+      {companies.map((c, i) => {
+        const inner = (
+          <>
+            {c.logoUrl && (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={c.logoUrl}
+                alt=""
+                loading="lazy"
+                className="h-7 w-auto max-w-[96px] object-contain brightness-0 invert opacity-70 sm:h-8"
+              />
+            )}
+            <span className="text-xs font-medium text-linku-text-muted">{c.name}</span>
+          </>
+        );
+        const cls =
+          'flex items-center gap-2 rounded-lg border border-linku-border bg-white/[0.03] px-2.5 py-1.5';
+        return (
+          <li key={`${c.name}-${i}`}>
+            {c.websiteUrl ? (
+              <a
+                href={c.websiteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`${cls} transition hover:border-linku-coral/40 hover:bg-white/[0.06]`}
+              >
+                {inner}
+              </a>
+            ) : (
+              <div className={cls}>{inner}</div>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  );
 }
 
 export default function Agenda({ agenda, ui }: Props) {
@@ -157,6 +204,7 @@ export default function Agenda({ agenda, ui }: Props) {
                         <p className="mt-2 text-sm leading-relaxed text-linku-text-muted sm:text-base">
                           {item.desc}
                         </p>
+                        <CompanyChips companies={item.companies} />
                         {item.subItems && (
                           <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                             {item.subItems.map((sub) => (
@@ -203,6 +251,7 @@ export default function Agenda({ agenda, ui }: Props) {
                                             {talk.desc}
                                           </span>
                                         )}
+                                        <CompanyChips companies={talk.companies} />
                                       </li>
                                     ))}
                                   </ul>
@@ -254,6 +303,7 @@ export default function Agenda({ agenda, ui }: Props) {
                         {item.desc}
                       </p>
                     )}
+                    <CompanyChips companies={item.companies} />
                   </div>
                 </li>
               );
