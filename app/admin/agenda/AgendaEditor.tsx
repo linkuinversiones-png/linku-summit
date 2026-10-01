@@ -5,12 +5,23 @@ import { CalendarDays, Loader2, Plus } from 'lucide-react';
 import { createItem, reorderItems, updateDay, type DayInput } from './actions';
 import ItemEditor from './ItemEditor';
 import { SortableList } from './Sortable';
-import { Area, ErrorBanner, Field, GhostButton, SaveButton, type SpeakerOption } from './ui';
+import {
+  Area,
+  CompaniesContext,
+  ErrorBanner,
+  Field,
+  GhostButton,
+  SaveButton,
+  type CompanyOption,
+  type SpeakerOption
+} from './ui';
 import { orNull, str, type DayNode, type ItemNode } from './tree';
 
 type Props = {
   initialDays: DayNode[];
   speakers: SpeakerOption[];
+  /** Empresas (sponsors) vinculables; available=false si falta la migración 0023. */
+  companies: { available: boolean; options: CompanyOption[] };
 };
 
 /**
@@ -20,7 +31,7 @@ type Props = {
  * action; al confirmar, el estado local se actualiza con lo mismo que quedó
  * en la DB. Así el editor no recarga la página entera en cada cambio.
  */
-export default function AgendaEditor({ initialDays, speakers }: Props) {
+export default function AgendaEditor({ initialDays, speakers, companies }: Props) {
   const [days, setDays] = useState<DayNode[]>(initialDays);
   const [activeDayId, setActiveDayId] = useState<string>(initialDays[0]?.id ?? '');
 
@@ -66,7 +77,9 @@ export default function AgendaEditor({ initialDays, speakers }: Props) {
         ))}
       </div>
 
-      <DayPanel key={day.id} day={day} speakers={speakers} onPatchDay={patchDay} />
+      <CompaniesContext.Provider value={companies}>
+        <DayPanel key={day.id} day={day} speakers={speakers} onPatchDay={patchDay} />
+      </CompaniesContext.Provider>
     </div>
   );
 }

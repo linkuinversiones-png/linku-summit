@@ -14,6 +14,8 @@ import type { SpeakerOption } from './ui';
  */
 export type TalkNode = AgendaSalonItemRow & {
   agenda_salon_item_speakers: LinkedSpeaker[];
+  /** Ids de sponsors vinculados, en orden (migración 0023; opcional). */
+  company_ids?: string[];
 };
 
 export type SalonNode = AgendaSalonRow & {
@@ -22,6 +24,8 @@ export type SalonNode = AgendaSalonRow & {
 
 export type ItemNode = AgendaItemRow & {
   agenda_item_speakers: LinkedSpeaker[];
+  /** Ids de sponsors vinculados, en orden (migración 0023; opcional). */
+  company_ids?: string[];
   agenda_salones: SalonNode[];
 };
 

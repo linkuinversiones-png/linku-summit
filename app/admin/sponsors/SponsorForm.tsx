@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import Link from 'next/link';
 import { Loader2, Save, ArrowLeft, Linkedin, Globe } from 'lucide-react';
@@ -17,6 +18,8 @@ type Props = {
   sponsor?: SponsorRow | null;
   currentLogoUrl?: string | null;
   title: string;
+  /** Categoría preseleccionada al crear (ej. desde ?category=empresa-agenda). */
+  defaultCategory?: string;
 };
 
 function SubmitButton() {
@@ -33,11 +36,13 @@ function SubmitButton() {
   );
 }
 
-export default function SponsorForm({ action, sponsor, currentLogoUrl, title }: Props) {
+export default function SponsorForm({ action, sponsor, currentLogoUrl, title, defaultCategory }: Props) {
   const [state, formAction] = useFormState<SponsorActionResult | null, FormData>(
     action,
     null
   );
+  const [category, setCategory] = useState(sponsor?.category ?? defaultCategory ?? '');
+  const soloAgenda = SPONSOR_CATEGORIES.find((c) => c.slug === category)?.soloAgenda ?? false;
   const errs = state && !state.ok ? state.fieldErrors ?? {} : {};
 
   return (
@@ -93,7 +98,8 @@ export default function SponsorForm({ action, sponsor, currentLogoUrl, title }: 
               <select
                 name="category"
                 required
-                defaultValue={sponsor?.category ?? ''}
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
                 className={`rounded-xl border bg-linku-bg-3 px-3.5 py-2.5 text-sm text-linku-text focus:outline-none focus:ring-2 ${
                   errs.category
                     ? 'border-red-500/50 focus:ring-red-500/30'
@@ -107,6 +113,11 @@ export default function SponsorForm({ action, sponsor, currentLogoUrl, title }: 
                   </option>
                 ))}
               </select>
+              {soloAgenda && (
+                <span className="text-[11px] text-linku-text-dim">
+                  No aparece en el muro de sponsors; solo en los espacios de la agenda donde la vincules.
+                </span>
+              )}
               {errs.category && (
                 <span className="text-xs text-red-300">{errs.category}</span>
               )}
@@ -187,7 +198,9 @@ export default function SponsorForm({ action, sponsor, currentLogoUrl, title }: 
                 defaultChecked={sponsor?.active ?? true}
                 className="h-4 w-4 rounded border-linku-border-2 bg-linku-bg accent-linku-coral"
               />
-              Activo (visible en el landing)
+              {soloAgenda
+                ? 'Activo (visible en la agenda donde esté vinculada)'
+                : 'Activo (visible en el landing)'}
             </label>
           </div>
         </section>

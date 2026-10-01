@@ -60,7 +60,8 @@ export async function getSponsorGroups(locale: Locale): Promise<SponsorGroup[]> 
     byCategory.set(r.category, existing);
   }
 
-  return SPONSOR_CATEGORIES.filter((c) => (byCategory.get(c.slug)?.length ?? 0) > 0).map(
+  // Las categorías "solo agenda" nunca van al muro público.
+  return SPONSOR_CATEGORIES.filter((c) => !c.soloAgenda).filter((c) => (byCategory.get(c.slug)?.length ?? 0) > 0).map(
     (c) => ({
       category: c,
       title: locale === 'es' ? c.titleEs : c.titleEn,

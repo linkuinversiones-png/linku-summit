@@ -14,6 +14,43 @@ Formato de cada entrada:
 
 ---
 
+## 2026-10-01 — Funcionalidad: empresas vinculadas a la agenda
+
+**Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad
+**Qué cambió:** cualquier espacio de la agenda (y cualquier charla de un salón)
+puede tener **empresas vinculadas**, por ejemplo "Elevator Pitches — proyectos
+por clase de activo". En la portada aparecen como una fila de logos pequeños
+con el nombre, debajo del título/speakers; si la empresa tiene web, el logo
+abre su sitio en otra pestaña; sin logo se ve solo el nombre. Las empresas
+salen del catálogo de Sponsors. Para empresas que no son sponsors hay una
+categoría nueva, **"Empresa invitada (solo agenda)"** (`empresa-agenda`), que
+**nunca** aparece en el muro público de sponsors.
+**Cómo usarlo:** (1) Admin → Sponsors → "Nuevo sponsor" con categoría "Empresa
+invitada (solo agenda)" (o usa el link "Crear empresa nueva" desde la agenda,
+que ya la preselecciona). (2) Admin → Agenda → abre el bloque o la charla →
+sección "Empresas vinculadas": añade, quita y reordena con las flechas →
+Guardar.
+**Migración 0023** (`agenda_empresas`): crea `agenda_item_companies` y
+`agenda_salon_item_companies` (idempotente, no destructiva; RLS igual que las
+de speakers: lectura pública, gestión admin). `sponsors.category` no tiene
+CHECK, así que no se toca.
+**Compatibilidad:** las empresas se leen en consultas aparte del select
+principal. Si el código sale antes que la migración, la portada sigue normal
+(sin empresas, sin caer al JSON) y el editor muestra la sección deshabilitada
+con un aviso.
+**Archivos:** `supabase/migrations/0023_agenda_empresas.sql`,
+`lib/sponsors-constants.ts`, `lib/sponsors.ts`, `lib/agenda.ts`,
+`components/sections/Agenda.tsx`, `app/admin/agenda/{page,AgendaEditor,ItemEditor,SalonEditor,actions,tree,ui}`,
+`app/admin/sponsors/new/page.tsx`, `app/admin/sponsors/SponsorForm.tsx`.
+**Cómo verificar:** tras aplicar la migración, vincula una empresa a un bloque
+y revisa `/` y `/en`; confirma que una empresa de categoría "solo agenda" no
+sale en el muro de sponsors.
+**Ajustes:** los logos de empresas en la agenda usan el mismo filtro blanco que el muro de sponsors; el formulario de sponsors avisa (ayuda bajo la categoría y texto de "Activo") cuando la categoría es "solo agenda".
+**Notas / pendientes:** requiere que se aplique la migración 0023 al publicar.
+Los textos de la portada no cambian (los nombres de empresa no se traducen).
+
+---
+
 ## 2026-09-30 — Funcionalidad: credenciales de la plataforma de citas en el perfil
 
 **Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad

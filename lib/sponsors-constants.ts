@@ -10,6 +10,8 @@ export type SponsorCategory = {
   titleEs: string;
   titleEn: string;
   aliado?: boolean;
+  /** Empresa invitada solo para la agenda: nunca se muestra en el muro público. */
+  soloAgenda?: boolean;
 };
 
 export const SPONSOR_CATEGORIES: SponsorCategory[] = [
@@ -28,5 +30,13 @@ export const SPONSOR_CATEGORIES: SponsorCategory[] = [
     aliado: true
   },
   { slug: 'aliados', titleEs: 'Aliados', titleEn: 'Partners', aliado: true },
-  { slug: 'media-partner', titleEs: 'Media Partner', titleEn: 'Media Partner', aliado: true }
+  { slug: 'media-partner', titleEs: 'Media Partner', titleEn: 'Media Partner', aliado: true },
+  // Empresas que solo se vinculan a espacios de la agenda (ej. Elevator
+  // Pitches). NO aparecen en el muro de sponsors.
+  {
+    slug: 'empresa-agenda',
+    titleEs: 'Empresa invitada (solo agenda)',
+    titleEn: 'Invited company (agenda only)',
+    soloAgenda: true
+  }
 ];

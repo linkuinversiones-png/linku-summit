@@ -1,7 +1,7 @@
 'use client';
 
-import type { ReactNode } from 'react';
-import { Loader2, Save } from 'lucide-react';
+import { createContext, useContext, useState, type ReactNode } from 'react';
+import { ArrowDown, ArrowUp, ExternalLink, Loader2, Save, X } from 'lucide-react';
 
 /**
  * Primitivos de formulario del editor de agenda.
@@ -171,6 +171,107 @@ export function SpeakerPicker({
       </div>
       <span className="text-[11px] text-linku-text-dim">
         Si marcas speakers aquí, se muestran en vez del crédito escrito a mano.
+      </span>
+    </div>
+  );
+}
+
+export type CompanyOption = { id: string; name: string; category: string };
+
+/**
+ * Empresas (sponsors) disponibles para vincular. Se entrega por contexto para
+ * no pasar la lista por los 4 niveles del árbol. `available` es false si la
+ * migración 0023 aún no está aplicada.
+ */
+export const CompaniesContext = createContext<{
+  available: boolean;
+  options: CompanyOption[];
+}>({ available: false, options: [] });
+
+/**
+ * Selector ordenado de empresas vinculadas. Emite un <input hidden
+ * name="company_ids"> por empresa, EN ORDEN, para leerlo con FormData.
+ */
+export function CompanyPicker({ selectedIds }: { selectedIds: string[] }) {
+  const { available, options } = useContext(CompaniesContext);
+  const [ids, setIds] = useState<string[]>(selectedIds);
+  const byId = new Map(options.map((o) => [o.id, o]));
+
+  if (!available) {
+    return (
+      <p className="rounded-lg border border-linku-border-2 bg-linku-bg-3 px-3 py-2 text-[11px] text-linku-text-dim">
+        Empresas vinculadas: disponible cuando se publique la migración 0023.
+      </p>
+    );
+  }
+
+  const remaining = options.filter((o) => !ids.includes(o.id));
+  const move = (i: number, d: -1 | 1) =>
+    setIds((prev) => {
+      const j = i + d;
+      if (j < 0 || j >= prev.length) return prev;
+      const next = prev.slice();
+      [next[i], next[j]] = [next[j], next[i]];
+      return next;
+    });
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className={LABEL_CLASS}>Empresas vinculadas</span>
+      {ids.map((id) => (
+        <input key={id} type="hidden" name="company_ids" value={id} />
+      ))}
+      {ids.length > 0 && (
+        <ul className="space-y-1">
+          {ids.map((id, i) => {
+            const o = byId.get(id);
+            return (
+              <li
+                key={id}
+                className="flex items-center gap-2 rounded-lg border border-linku-border-2 bg-linku-bg-3 px-2.5 py-1.5 text-xs"
+              >
+                <span className="text-linku-text">{o?.name ?? 'Empresa no disponible'}</span>
+                {o && <span className="text-linku-text-dim">· {o.category}</span>}
+                <span className="ml-auto flex items-center gap-1">
+                  <button type="button" onClick={() => move(i, -1)} disabled={i === 0} title="Subir" className="rounded p-1 text-linku-text-muted hover:text-linku-text disabled:opacity-30">
+                    <ArrowUp size={12} />
+                  </button>
+                  <button type="button" onClick={() => move(i, 1)} disabled={i === ids.length - 1} title="Bajar" className="rounded p-1 text-linku-text-muted hover:text-linku-text disabled:opacity-30">
+                    <ArrowDown size={12} />
+                  </button>
+                  <button type="button" onClick={() => setIds((p) => p.filter((x) => x !== id))} title="Quitar" className="rounded p-1 text-red-300 hover:text-red-200">
+                    <X size={12} />
+                  </button>
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      <div className="flex flex-wrap items-center gap-3">
+        <select
+          value=""
+          onChange={(e) => e.target.value && setIds((p) => [...p, e.target.value])}
+          className={`${INPUT_CLASS} max-w-xs`}
+        >
+          <option value="">Añadir empresa…</option>
+          {remaining.map((o) => (
+            <option key={o.id} value={o.id}>
+              {o.name} ({o.category})
+            </option>
+          ))}
+        </select>
+        <a
+          href="/admin/sponsors/new?category=empresa-agenda"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 text-[11px] font-medium text-linku-coral hover:text-linku-coral-soft"
+        >
+          Crear empresa nueva <ExternalLink size={11} />
+        </a>
+      </div>
+      <span className="text-[11px] text-linku-text-dim">
+        Se muestran como logos debajo del título. Tras crear una empresa nueva, recarga esta página para verla en la lista.
       </span>
     </div>
   );

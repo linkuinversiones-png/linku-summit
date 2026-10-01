@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import type { Locale } from '@/lib/i18n/config';
 import { getContent } from '@/lib/i18n/content';
+import { getImageUrl } from '@/lib/storage';
 
 /**
  * Agenda administrable (migración 0014). La home lee de DB; si la DB está
@@ -77,12 +78,19 @@ export type LinkedSpeaker = { speaker_id: string; sort_order: number; speakers: 
 // ---------------------------------------------------------------------
 // Forma pública que consume el componente Agenda del home
 // ---------------------------------------------------------------------
+export type PublicCompany = {
+  name: string;
+  logoUrl: string | null;
+  websiteUrl: string | null;
+};
+
 export type PublicSalonTalk = {
   time?: string;
   endTime?: string;
   title: string;
   speaker?: string;
   desc?: string;
+  companies?: PublicCompany[];
 };
 
 export type PublicSubItem = {
@@ -99,6 +107,7 @@ export type PublicAgendaItem = {
   title: string;
   speaker?: string;
   desc: string;
+  companies?: PublicCompany[];
   subItems?: PublicSubItem[];
 };
 
@@ -140,6 +149,68 @@ function speakerText(
   return label || undefined;
 }
 
+// ---------------------------------------------------------------------
+// Empresas vinculadas (migración 0023). Se leen en consultas APARTE del
+// select principal: si la migración aún no está aplicada (o la consulta
+// falla) la agenda sigue funcionando, solo que sin empresas.
+// ---------------------------------------------------------------------
+type CompanyLinkRow = {
+  item_id?: string;
+  salon_item_id?: string;
+  sort_order: number;
+  sponsors: {
+    name: string;
+    logo_path: string | null;
+    website_url: string | null;
+    active: boolean;
+  } | null;
+};
+
+type CompaniesByParent = Map<string, PublicCompany[]>;
+
+async function fetchCompanies(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  itemIds: string[],
+  talkIds: string[]
+): Promise<{ items: CompaniesByParent; talks: CompaniesByParent }> {
+  const items: CompaniesByParent = new Map();
+  const talks: CompaniesByParent = new Map();
+  try {
+    const group = (rows: CompanyLinkRow[], key: 'item_id' | 'salon_item_id', out: CompaniesByParent) => {
+      const sorted = rows.slice().sort((a, b) => a.sort_order - b.sort_order);
+      for (const r of sorted) {
+        const parent = r[key];
+        // La RLS ya oculta sponsors inactivos a anónimos; se revalida igual.
+        if (!parent || !r.sponsors || !r.sponsors.active) continue;
+        const list = out.get(parent) ?? [];
+        list.push({
+          name: r.sponsors.name,
+          logoUrl: getImageUrl(r.sponsors.logo_path),
+          websiteUrl: r.sponsors.website_url
+        });
+        out.set(parent, list);
+      }
+    };
+    if (itemIds.length > 0) {
+      const { data, error } = await supabase
+        .from('agenda_item_companies')
+        .select('item_id, sort_order, sponsors ( name, logo_path, website_url, active )')
+        .in('item_id', itemIds);
+      if (!error && data) group(data as unknown as CompanyLinkRow[], 'item_id', items);
+    }
+    if (talkIds.length > 0) {
+      const { data, error } = await supabase
+        .from('agenda_salon_item_companies')
+        .select('salon_item_id, sort_order, sponsors ( name, logo_path, website_url, active )')
+        .in('salon_item_id', talkIds);
+      if (!error && data) group(data as unknown as CompanyLinkRow[], 'salon_item_id', talks);
+    }
+  } catch {
+    // Sin empresas: no rompe la agenda.
+  }
+  return { items, talks };
+}
+
 export type DayWithChildren = AgendaDayRow & {
   agenda_items: Array<
     AgendaItemRow & {
@@ -170,7 +241,13 @@ const AGENDA_SELECT = `
   )
 `;
 
-function toPublicDay(day: DayWithChildren, locale: Locale): PublicAgendaDay {
+type CompanyMaps = { items: CompaniesByParent; talks: CompaniesByParent };
+
+function toPublicDay(
+  day: DayWithChildren,
+  locale: Locale,
+  companies: CompanyMaps
+): PublicAgendaDay {
   const items = (day.agenda_items ?? [])
     .filter((i) => i.active)
     .sort((a, b) => a.sort_order - b.sort_order)
@@ -193,7 +270,8 @@ function toPublicDay(day: DayWithChildren, locale: Locale): PublicAgendaDay {
                   t.speaker_label_es,
                   t.speaker_label_en
                 ),
-                desc: pick(locale, t.desc_es, t.desc_en) || undefined
+                desc: pick(locale, t.desc_es, t.desc_en) || undefined,
+                companies: companies.talks.get(t.id)
               })
             );
           return {
@@ -216,6 +294,7 @@ function toPublicDay(day: DayWithChildren, locale: Locale): PublicAgendaDay {
           item.speaker_label_en
         ),
         desc: pick(locale, item.desc_es, item.desc_en),
+        companies: companies.items.get(item.id),
         subItems: salones.length > 0 ? salones : undefined
       };
     });
@@ -261,10 +340,20 @@ export async function getAgenda(locale: Locale): Promise<PublicAgenda> {
     const d2 = days.find((d) => d.day_number === 2);
     if (!d1 || !d2) return fallback;
 
+    // Empresas vinculadas: consulta aparte, tolerante a fallos (ver arriba).
+    const allItems = days.flatMap((d) => d.agenda_items ?? []);
+    const companies = await fetchCompanies(
+      supabase,
+      allItems.map((i) => i.id),
+      allItems.flatMap((i) =>
+        (i.agenda_salones ?? []).flatMap((s) => (s.agenda_salon_items ?? []).map((t) => t.id))
+      )
+    );
+
     return {
       intro: fallback.intro, // el lead de la sección sigue viniendo del JSON
-      day1: toPublicDay(d1, locale),
-      day2: toPublicDay(d2, locale)
+      day1: toPublicDay(d1, locale, companies),
+      day2: toPublicDay(d2, locale, companies)
     };
   } catch {
     return fallback;
@@ -295,4 +384,43 @@ export async function getAgendaAdmin(): Promise<AdminAgendaTree> {
     }
   }
   return days;
+}
+
+/**
+ * Vínculos de empresas para el admin: { sponsor_id, sort_order } por bloque y
+ * por charla. `available` es false si las tablas (migración 0023) aún no
+ * existen; en ese caso el editor deshabilita la sección.
+ */
+export type AdminCompanyLinks = {
+  available: boolean;
+  items: Record<string, string[]>; // item_id → sponsor_ids en orden
+  talks: Record<string, string[]>; // salon_item_id → sponsor_ids en orden
+};
+
+export async function getAgendaCompaniesAdmin(): Promise<AdminCompanyLinks> {
+  const empty: AdminCompanyLinks = { available: false, items: {}, talks: {} };
+  try {
+    const supabase = await createClient();
+    const [a, b] = await Promise.all([
+      supabase.from('agenda_item_companies').select('item_id, sponsor_id, sort_order'),
+      supabase.from('agenda_salon_item_companies').select('salon_item_id, sponsor_id, sort_order')
+    ]);
+    if (a.error || b.error) return empty;
+    const build = (rows: Array<Record<string, unknown>>, key: string) => {
+      const out: Record<string, string[]> = {};
+      const sorted = rows.slice().sort((x, y) => Number(x.sort_order) - Number(y.sort_order));
+      for (const r of sorted) {
+        const k = String(r[key]);
+        (out[k] ??= []).push(String(r.sponsor_id));
+      }
+      return out;
+    };
+    return {
+      available: true,
+      items: build((a.data ?? []) as Array<Record<string, unknown>>, 'item_id'),
+      talks: build((b.data ?? []) as Array<Record<string, unknown>>, 'salon_item_id')
+    };
+  } catch {
+    return empty;
+  }
 }
