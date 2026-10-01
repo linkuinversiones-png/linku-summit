@@ -54,41 +54,40 @@ function formatTime(item: AgendaItem) {
   return item.endTime ? `${item.time} – ${item.endTime}` : item.time;
 }
 
-/** Fila de empresas vinculadas: logo pequeño + nombre; link solo si hay web. */
+/** Fila de empresas vinculadas: solo el logo (sin recuadro ni nombre visible).
+ *  El nombre va en alt/title; si no hay logo se muestra el nombre como texto. */
 function CompanyChips({ companies }: { companies?: Company[] }) {
   if (!companies || companies.length === 0) return null;
   return (
-    <ul className="mt-3 flex flex-wrap gap-2">
+    <ul className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-3">
       {companies.map((c, i) => {
-        const inner = (
-          <>
-            {c.logoUrl && (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                src={c.logoUrl}
-                alt=""
-                loading="lazy"
-                className="h-7 w-auto max-w-[96px] object-contain brightness-0 invert opacity-70 sm:h-8"
-              />
-            )}
-            <span className="text-xs font-medium text-linku-text-muted">{c.name}</span>
-          </>
+        const inner = c.logoUrl ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={c.logoUrl}
+            alt={c.name}
+            title={c.name}
+            loading="lazy"
+            className="h-7 w-auto max-w-[96px] object-contain brightness-0 invert opacity-70 sm:h-8"
+          />
+        ) : (
+          <span className="text-xs font-medium text-linku-text-muted">{c.name}</span>
         );
-        const cls =
-          'flex items-center gap-2 rounded-lg border border-linku-border bg-white/[0.03] px-2.5 py-1.5';
         return (
-          <li key={`${c.name}-${i}`}>
+          <li key={`${c.name}-${i}`} className="flex items-center">
             {c.websiteUrl ? (
               <a
                 href={c.websiteUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`${cls} transition hover:border-linku-coral/40 hover:bg-white/[0.06]`}
+                aria-label={c.name}
+                title={c.name}
+                className="flex items-center transition hover:opacity-100 [&>img]:hover:opacity-100"
               >
                 {inner}
               </a>
             ) : (
-              <div className={cls}>{inner}</div>
+              inner
             )}
           </li>
         );
