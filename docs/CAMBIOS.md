@@ -14,6 +14,17 @@ Formato de cada entrada:
 
 ---
 
+## 2026-10-01 — Diseño: empresas de la agenda solo con logo
+
+**Quién:** Miguel Salazar (con Claude) · **Tipo:** diseño
+**Qué cambió:** las empresas vinculadas a un espacio de la agenda ahora se ven
+solo como logo (blanco, sin recuadro ni nombre visible). El nombre queda como
+texto alternativo y tooltip; el logo sigue abriendo la web en otra pestaña. Si
+una empresa no tiene logo se muestra su nombre como texto discreto.
+**Archivos:** `components/sections/Agenda.tsx`, `docs/CAMBIOS.md`.
+**Cómo verificar:** abrir la agenda en una charla con empresas vinculadas; ver
+solo logos, pasar el mouse para ver el nombre.
+
 ## 2026-10-01 — Funcionalidad: empresas vinculadas a la agenda
 
 **Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad
