@@ -14,6 +14,47 @@ Formato de cada entrada:
 
 ---
 
+## 2026-10-02 — Arreglo: un rechazo tardío de Wompi ya no revierte una orden pagada
+
+**Quién:** Miguel Salazar (con Claude) · **Tipo:** arreglo
+**Qué cambió:** caso real: la orden `LSUMMIT26-MUQZXWSM-Y9WGAJ` recibió de Wompi
+casi a la vez dos eventos para la misma referencia (el checkout permite varios
+intentos): primero APPROVED (transacción `1439192-1790947741-15521`), que la
+pasó a pagada, emitió la boleta y la envió a InContacto; segundos después un
+DECLINED de otro intento, que la devolvió a "fallida". Causa: el webhook solo
+protegía el caso pagada + APPROVED, pero no impedía que otro evento degradara
+una orden ya pagada. Dos arreglos:
+1. **Webhook:** si la orden ya está pagada y llega cualquier evento que no sea
+   APPROVED, no se toca (ni estado ni id de transacción); se responde 200 con
+   `ignored: order already paid`, se deja un `console.warn` y una entrada
+   informativa en la bitácora ("Pagada → Pagada", motivo "Evento de Wompi
+   ignorado"). Una orden reembolsada tampoco la modifica ningún evento. Una
+   orden fallida sí sigue pudiendo pasar a pagada con un APPROVED.
+   Los UPDATE del webhook son atómicos: se condicionan en la base a que la orden
+   siga en pendiente/fallida/expirada, así que dos eventos simultáneos no se
+   pisan ni entregan dos veces; si el UPDATE falla responde 500 para que Wompi
+   reintente.
+2. **Admin:** al marcar como pagada con motivo "Corrección de un error", si la
+   orden ya tenía método de pago (p. ej. `wompi`) se conserva; solo se usa
+   `otro` si estaba vacío. Los demás motivos no cambian.
+3. **Entrega:** `fulfillPaidOrder` ya no vuelve a enviar a InContacto si la
+   boleta existía y la orden ya estaba en `incontacto_status = 'sent'` (el
+   reintento manual sigue enviando siempre).
+**Archivos:** `app/api/webhooks/wompi/route.ts`, `app/admin/orders/actions.ts`,
+`lib/orders/fulfill.ts`, `lib/orders/status-log.ts`, `docs/CAMBIOS.md`.
+**Cómo verificar:** reenviar un evento DECLINED de la misma referencia de una
+orden pagada (Wompi Dashboard → eventos) y comprobar que sigue pagada y que la
+bitácora muestra la entrada de evento ignorado.
+**Notas / pendientes:** paso manual tras publicar: en `/admin/orders` → venta
+`LSUMMIT26-MUQZXWSM-Y9WGAJ` → "Marcar como pagada" con motivo "Corrección de un
+error" y una nota explicando el evento DECLINED posterior. La orden quedó con el `payment_provider_id` de la transacción
+DECLINED; la nota de la corrección debe decir que la transacción aprobada es
+`1439192-1790947741-15521`. Patricia ya tiene
+boleta activa y está enviada a InContacto. Al re-marcar como pagada no se
+duplican boleta, cupo, cupón ni registro en InContacto.
+
+---
+
 ## 2026-10-01 — Diseño: empresas de la agenda solo con logo
 
 **Quién:** Miguel Salazar (con Claude) · **Tipo:** diseño

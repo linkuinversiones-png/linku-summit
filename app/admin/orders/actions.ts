@@ -105,7 +105,12 @@ export async function changeOrderStatus(input: {
   if (toStatus === 'paid') {
     patch.paid_at = order.paid_at ?? new Date().toISOString();
     const method = REASON_TO_PAYMENT_METHOD[reason];
-    if (method) patch.payment_method = method;
+    // Una corrección conserva el método de pago que ya tenía la orden (p. ej.
+    // 'wompi'); solo cae a 'otro' si estaba vacío.
+    if (method) {
+      patch.payment_method =
+        reason === 'correccion' && order.payment_method ? order.payment_method : method;
+    }
   }
 
   const { error: updErr } = await sb.from('orders').update(patch).eq('id', order.id);

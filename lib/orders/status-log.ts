@@ -59,7 +59,8 @@ export const REASON_LABEL: Record<string, string> = {
   duplicada: 'Orden duplicada',
   otro: 'Otro motivo',
   pago_wompi: 'Pago confirmado por Wompi',
-  pago_rechazado: 'Pago rechazado por Wompi'
+  pago_rechazado: 'Pago rechazado por Wompi',
+  evento_ignorado: 'Evento de Wompi ignorado (orden ya pagada)'
 };
 
 /** Motivos válidos que puede mandar la UI del admin. */
