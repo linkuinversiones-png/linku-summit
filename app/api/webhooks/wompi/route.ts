@@ -16,6 +16,9 @@ import { logStatusChange } from '@/lib/orders/status-log';
  *      (boleta + QR, cupón, InContacto, email) en lib/orders/fulfill.
  *   5. Si DECLINED/VOIDED/ERROR: marca la orden 'failed'.
  *   6. PENDING / otros: no toca la orden.
+ *   7. Si la orden ya está 'paid' (o 'refunded'), cualquier evento posterior se
+ *      ignora: una referencia puede tener varios intentos y un DECLINED tardío
+ *      no debe revertir un pago aprobado.
  *
  * Cada cambio de estado queda en order_status_log, igual que los que hace
  * un admin a mano, para que la bitácora cuente la historia completa.
@@ -96,9 +99,50 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true, note: 'already paid' });
   }
 
+  // Una referencia de Wompi puede tener varios intentos (transacciones). Un
+  // evento tardío de otro intento (p. ej. DECLINED) no puede degradar una
+  // orden ya pagada: se ignora, dejando rastro en consola y en la bitácora.
+  if (order.status === 'paid') {
+    console.warn(
+      'Evento Wompi ignorado: la orden ya está pagada. Referencia:',
+      reference,
+      'transacción:',
+      providerId,
+      'status reportado:',
+      tx?.status
+    );
+    await logStatusChange(sb, {
+      orderId: order.id,
+      fromStatus: 'paid',
+      toStatus: 'paid',
+      reason: 'evento_ignorado',
+      note: `Wompi reportó ${tx?.status ?? 'sin status'} (transacción ${providerId || 'sin id'}) después del pago; se ignoró`,
+      source: 'webhook'
+    });
+    return NextResponse.json({ ok: true, note: 'ignored: order already paid' });
+  }
+
+  // Un reembolso es definitivo: ningún evento del webhook lo toca.
+  if (order.status === 'refunded') {
+    console.warn(
+      'Evento Wompi ignorado: la orden está reembolsada. Referencia:',
+      reference,
+      'transacción:',
+      providerId,
+      'status reportado:',
+      tx?.status
+    );
+    return NextResponse.json({ ok: true, note: 'ignored: order refunded' });
+  }
+
+  // Los UPDATE son atómicos: solo aplican si en la base la orden sigue en un
+  // estado previo al pago. Así dos eventos simultáneos (APPROVED + DECLINED, o
+  // dos APPROVED) no se pisan aunque ambos hayan leído la orden como pendiente.
+  const PRE_PAYMENT = ['pending', 'failed', 'expired'];
+
   if (newStatus === 'paid') {
     const previous = order.status as string;
-    await sb
+    const { data: updated, error: updErr } = await sb
       .from('orders')
       .update({
         status: 'paid',
@@ -106,7 +150,18 @@ export async function POST(request: NextRequest) {
         payment_method: 'wompi',
         paid_at: new Date().toISOString()
       })
-      .eq('id', order.id);
+      .eq('id', order.id)
+      .in('status', PRE_PAYMENT)
+      .select('id');
+
+    if (updErr) {
+      console.error('Webhook Wompi: no se pudo marcar pagada', reference, updErr.message);
+      return NextResponse.json({ ok: false, error: 'update failed' }, { status: 500 });
+    }
+    if (!updated || updated.length === 0) {
+      // Otro evento ya cambió la orden (pagada, reembolsada...): no se entrega dos veces.
+      return NextResponse.json({ ok: true, note: 'ignored: status changed concurrently' });
+    }
 
     await logStatusChange(sb, {
       orderId: order.id,
@@ -127,13 +182,31 @@ export async function POST(request: NextRequest) {
     }
   } else if (newStatus === 'failed') {
     const previous = order.status as string;
-    await sb
+    const { data: updated, error: updErr } = await sb
       .from('orders')
       .update({
         status: 'failed',
         payment_provider_id: providerId
       })
-      .eq('id', order.id);
+      .eq('id', order.id)
+      .in('status', PRE_PAYMENT)
+      .select('id');
+
+    if (updErr) {
+      console.error('Webhook Wompi: no se pudo marcar fallida', reference, updErr.message);
+      return NextResponse.json({ ok: false, error: 'update failed' }, { status: 500 });
+    }
+    if (!updated || updated.length === 0) {
+      console.warn(
+        'Evento Wompi ignorado: el estado cambió en paralelo. Referencia:',
+        reference,
+        'transacción:',
+        providerId,
+        'status reportado:',
+        tx?.status
+      );
+      return NextResponse.json({ ok: true, note: 'ignored: status changed concurrently' });
+    }
 
     await logStatusChange(sb, {
       orderId: order.id,

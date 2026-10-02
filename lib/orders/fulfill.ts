@@ -37,6 +37,8 @@ export type FulfillableOrder = {
   buyer_company: string | null;
   buyer_position: string | null;
   buyer_linkedin: string | null;
+  /** Si viene 'sent', una re-entrega no vuelve a postear a InContacto. */
+  incontacto_status?: string | null;
 };
 
 export type FulfillResult = {
@@ -207,7 +209,13 @@ export async function fulfillPaidOrder(
   const tierName = await getTierName(sb, order.ticket_tier, locale);
 
   // --- InContacto ------------------------------------------------------
-  const sync = await syncOrderToIncontacto(sb, order, tierName);
+  // Si la boleta ya existía y InContacto ya recibió al asistente, no se
+  // vuelve a enviar (evita duplicados al re-marcar como pagada). El reintento
+  // manual (syncOrderToIncontacto directo) sí envía siempre.
+  const sync: { status: 'sent' | 'error' | 'skipped'; error?: string } =
+    ticketAlreadyExisted && order.incontacto_status === 'sent'
+      ? { status: 'sent' }
+      : await syncOrderToIncontacto(sb, order, tierName);
   if (sync.status === 'error') {
     warnings.push(`InContacto: ${sync.error ?? 'error desconocido'}`);
   }
