@@ -69,6 +69,7 @@ export async function sendTestEmail(input: CampaignInput): Promise<SimpleResult>
 
   const mail = campaignEmail({
     subject: v.value.subject,
+    title: v.value.title,
     body: v.value.body,
     ctaLabel: v.value.ctaLabel,
     ctaUrl: v.value.ctaUrl,
@@ -131,6 +132,7 @@ export async function createCampaign(input: CampaignInput): Promise<CreateResult
     .from('email_campaigns')
     .insert({
       subject: v.value.subject,
+      title: v.value.title || null,
       body: v.value.body,
       cta_label: v.value.ctaLabel || null,
       cta_url: v.value.ctaUrl || null,
@@ -283,7 +285,7 @@ export async function processCampaignBatch(campaignId: string): Promise<BatchAct
   const supabase = await createClient();
   const { data: campaign, error: cErr } = await supabase
     .from('email_campaigns')
-    .select('id, subject, body, cta_label, cta_url, reply_to, status')
+    .select('id, subject, title, body, cta_label, cta_url, reply_to, status')
     .eq('id', campaignId)
     .single();
   if (cErr || !campaign) return { ok: false, message: 'No se encontró la campaña.' };
@@ -333,6 +335,7 @@ export async function processCampaignBatch(campaignId: string): Promise<BatchAct
     const items = claimed.map((r) => {
       const mail = campaignEmail({
         subject: campaign.subject,
+        title: campaign.title,
         body: campaign.body,
         ctaLabel: campaign.cta_label,
         ctaUrl: campaign.cta_url,

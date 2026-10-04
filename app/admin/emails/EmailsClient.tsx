@@ -29,6 +29,7 @@ export default function EmailsClient({
 }) {
   const router = useRouter();
   const [subject, setSubject] = useState('');
+  const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [ctaLabel, setCtaLabel] = useState('');
   const [ctaUrl, setCtaUrl] = useState('');
@@ -46,19 +47,21 @@ export default function EmailsClient({
     () => filterAudience(audience, Array.from(selected)),
     [audience, selected]
   );
-  const input = { subject, body, ctaLabel, ctaUrl, replyTo, tiers: Array.from(selected) };
+  const input = { subject, title, body, ctaLabel, ctaUrl, replyTo, tiers: Array.from(selected) };
 
   // Vista previa con un nombre de ejemplo (se renderiza en iframe aislado).
   const preview = useMemo(
     () =>
       campaignEmail({
         subject: subject || '(Asunto del correo)',
+        title,
+        imageBase: '/email',
         body: body || '(Escribe el mensaje…)',
         ctaLabel,
         ctaUrl,
         firstName: 'Carolina'
       }),
-    [subject, body, ctaLabel, ctaUrl]
+    [subject, title, body, ctaLabel, ctaUrl]
   );
 
   function toggleTier(slug: string) {
@@ -144,6 +147,15 @@ export default function EmailsClient({
           <label className={LABEL} htmlFor="em-subject">Asunto</label>
           <input id="em-subject" className={INPUT} value={subject} maxLength={150}
             disabled={sending} onChange={(e) => setSubject(e.target.value)} />
+        </div>
+
+        <div className="space-y-1.5">
+          <label className={LABEL} htmlFor="em-title">Título (opcional)</label>
+          <input id="em-title" className={INPUT} value={title} maxLength={150}
+            disabled={sending} onChange={(e) => setTitle(e.target.value)} />
+          <p className="text-xs text-linku-text-dim">
+            Es el titular grande del correo. Si lo dejas vacío se usa el asunto.
+          </p>
         </div>
 
         <div className="space-y-1.5">

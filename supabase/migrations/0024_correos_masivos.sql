@@ -11,6 +11,7 @@
 create table if not exists public.email_campaigns (
   id               uuid primary key default gen_random_uuid(),
   subject          text not null,
+  title            text,                          -- título (H1) del correo; null = se usa el asunto
   body             text not null,                 -- texto plano escrito por el admin
   cta_label        text,
   cta_url          text,
@@ -75,3 +76,6 @@ drop policy if exists "Admins update email_campaign_recipients" on public.email_
 create policy "Admins update email_campaign_recipients"
   on public.email_campaign_recipients for update
   using (public.is_admin()) with check (public.is_admin());
+
+-- Por si la tabla ya existía sin la columna del título.
+alter table public.email_campaigns add column if not exists title text;

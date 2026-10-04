@@ -27,6 +27,8 @@ export function isValidRecipientEmail(e: string): boolean {
 
 export type CampaignInput = {
   subject: string;
+  /** Título (H1) del correo; vacío = se usa el asunto. */
+  title: string;
   body: string;
   ctaLabel: string;
   ctaUrl: string;
@@ -57,6 +59,7 @@ export function validateCampaignInput(
   i: CampaignInput
 ): { ok: true; value: CampaignInput } | { ok: false; message: string } {
   const subject = (i.subject ?? '').replace(/[\r\n]+/g, ' ').trim();
+  const title = (i.title ?? '').replace(/[\r\n]+/g, ' ').trim();
   const body = (i.body ?? '').trim();
   const ctaLabel = (i.ctaLabel ?? '').trim();
   const ctaUrl = (i.ctaUrl ?? '').trim();
@@ -64,6 +67,7 @@ export function validateCampaignInput(
 
   if (!subject) return { ok: false, message: 'Escribe el asunto.' };
   if (subject.length > 150) return { ok: false, message: 'El asunto es muy largo (máx. 150).' };
+  if (title.length > 150) return { ok: false, message: 'El título es muy largo (máx. 150).' };
   if (!body) return { ok: false, message: 'Escribe el mensaje.' };
   if (body.length > 20000) return { ok: false, message: 'El mensaje es muy largo.' };
   if (!EMAIL_RE.test(replyTo)) return { ok: false, message: 'El correo "Responder a" no es válido.' };
@@ -81,7 +85,7 @@ export function validateCampaignInput(
     if (!ok) return { ok: false, message: 'El enlace del botón debe empezar por https://' };
   }
   const tiers = Array.from(new Set((i.tiers ?? []).filter((t) => typeof t === 'string' && t)));
-  return { ok: true, value: { subject, body, ctaLabel, ctaUrl, replyTo, tiers } };
+  return { ok: true, value: { subject, title, body, ctaLabel, ctaUrl, replyTo, tiers } };
 }
 
 /**

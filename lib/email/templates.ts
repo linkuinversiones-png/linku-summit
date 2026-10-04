@@ -186,15 +186,35 @@ export function personalize(text: string, firstName: string): string {
     .replace(/(^|\n)[ \t]*[,.:;]+[ \t]*/g, '$1');
 }
 
+/** Contacto fijo del correo de campañas (cambiar solo aquí). */
+export const CAMPAIGN_CONTACT = {
+  name: 'Miguel Salazar',
+  email: 'miguel.salazar@linku-ventures.co',
+  whatsappLabel: '+57 300 406 4006',
+  whatsappUrl: 'https://wa.me/573004064006'
+};
+
+/** Las imágenes del correo deben ser URL absolutas (Gmail/Outlook no aceptan relativas ni base64). */
+export const EMAIL_IMAGE_BASE = 'https://www.linkusummit.com/email';
+
+const FONT = "'Poppins','Gilroy','Helvetica Neue',Helvetica,Arial,sans-serif";
+
 export function campaignEmail(input: {
   subject: string;
+  /** Título (H1) del correo; si está vacío se usa el asunto. */
+  title?: string | null;
   body: string;
   ctaLabel?: string | null;
   ctaUrl?: string | null;
   firstName: string;
+  /** Solo para la vista previa del admin: base de las imágenes (p. ej. "/email"). */
+  imageBase?: string;
 }): { subject: string; html: string; text: string } {
+  const img = input.imageBase ?? EMAIL_IMAGE_BASE;
   // El asunto es un encabezado: sin saltos de línea.
   const subject = personalize(input.subject, input.firstName).replace(/\s+/g, ' ').trim();
+  const titleRaw = personalize((input.title ?? '').trim(), input.firstName).replace(/\s+/g, ' ').trim();
+  const title = titleRaw || subject;
   const body = personalize(input.body.replace(/\r\n/g, '\n'), input.firstName).trim();
 
   // Un enlace solo es válido si es https (si no, se omite el botón).
@@ -215,71 +235,162 @@ export function campaignEmail(input: {
     .filter(Boolean)
     .map(
       (p) =>
-        `<p style="margin:0 0 16px 0;color:#E8EEF5;font-size:15px;line-height:1.65;">${escapeHtml(p).replace(/\n/g, '<br/>')}</p>`
+        `<p class="txt" style="margin:0 0 16px 0;font-size:16px;line-height:1.65;color:#3a3d4d;">${escapeHtml(p).replace(/\n/g, '<br />')}</p>`
     )
-    .join('');
+    .join('\n      ');
 
-  const FOOTER =
-    'Recibes este correo porque estás registrado en LINKU CAPITAL SUMMIT 2026 · 5 y 6 de octubre · Medellín';
+  const preheader = escapeHtml(body.replace(/\s+/g, ' ').slice(0, 110));
 
+  // Botón "bulletproof": tabla con celda coloreada (funciona en Outlook).
   const ctaHtml = hasCta
-    ? `<table cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 8px 0;"><tr><td style="background:#FF5A5F;border-radius:10px;">
-        <a href="${escapeHtml(ctaUrl)}" style="display:inline-block;padding:13px 24px;color:#ffffff;font-weight:600;font-size:14px;text-decoration:none;border-radius:10px;">${escapeHtml(ctaLabel)}</a>
-      </td></tr></table>
-      <p style="margin:8px 0 0 0;color:#5A6B82;font-size:11px;word-break:break-all;">${escapeHtml(ctaUrl)}</p>`
+    ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:18px auto 8px auto;">
+       <tr><td align="center" bgcolor="#ff5a5f" style="background-color:#ff5a5f;border-radius:10px;">
+        <a href="${escapeHtml(ctaUrl)}" style="display:inline-block;padding:14px 30px;font-family:${FONT};font-size:16px;font-weight:700;line-height:1.2;color:#ffffff;text-decoration:none;border-radius:10px;">${escapeHtml(ctaLabel)}</a>
+       </td></tr>
+      </table>`
     : '';
 
-  const html = `<!doctype html>
-<html lang="es">
+  const c = CAMPAIGN_CONTACT;
+  const LEGAL_TEXT =
+    'Recibes este correo porque te registraste a LinkU Capital Summit 2026.\nLinkU Ventures S.A.S. · NIT 901387738-6 · Medellín, Colombia';
+
+  const html = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>${escapeHtml(subject)}</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="color-scheme" content="light" />
+<meta name="supported-color-schemes" content="light" />
+<title>${escapeHtml(subject)}</title>
+<style type="text/css">
+  body,table,td,a { -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; }
+  table,td { mso-table-lspace:0pt; mso-table-rspace:0pt; }
+  img { -ms-interpolation-mode:bicubic; border:0; outline:none; text-decoration:none; }
+  body { margin:0 !important; padding:0 !important; width:100% !important; }
+  a { color:#ff5a5f; }
+  @media only screen and (max-width:620px) {
+    .contenedor { width:100% !important; max-width:100% !important; border-radius:0 !important; }
+    .px { padding-left:22px !important; padding-right:22px !important; }
+    .h1 { font-size:21px !important; line-height:1.28 !important; }
+    .txt { font-size:15px !important; }
+    .pie { font-size:13px !important; }
+    .sp { height:26px !important; }
+  }
+</style>
 </head>
-<body style="margin:0;padding:0;background:#050814;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#E8EEF5;">
-  <table cellpadding="0" cellspacing="0" border="0" style="width:100%;background:#050814;padding:24px 0;">
-    <tr><td align="center">
-      <table cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:560px;background:#050814;">
-        <tr><td style="padding:0 24px 24px 24px;">
-          <p style="margin:0;color:#E8EEF5;font-size:18px;font-weight:700;letter-spacing:-0.02em;">
-            LINKU CAPITAL <span style="color:#FF5A5F;">SUMMIT</span> 2026
-          </p>
-          <p style="margin:4px 0 0 0;color:#FF5A5F;font-size:10px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;">
-            By LinkU Ventures
-          </p>
-        </td></tr>
+<body style="margin:0;padding:0;background-color:#eeeef1;">
 
-        <tr><td style="padding:0 24px 24px 24px;">
-          <table cellpadding="0" cellspacing="0" border="0" style="width:100%;background:#0A1428;border:1px solid rgba(255,255,255,0.08);border-radius:12px;">
-            <tr><td style="padding:24px;">
-              <h1 style="margin:0 0 18px 0;color:#E8EEF5;font-size:22px;line-height:1.25;font-weight:700;letter-spacing:-0.02em;">
-                ${escapeHtml(subject)}
-              </h1>
-              ${paragraphsHtml}
-              ${ctaHtml}
-            </td></tr>
-          </table>
-        </td></tr>
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;">
+  ${preheader}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
+</div>
 
-        <tr><td style="padding:16px 24px 24px 24px;border-top:1px solid rgba(255,255,255,0.08);">
-          <p style="margin:0;color:#5A6B82;font-size:11px;line-height:1.6;">
-            ${escapeHtml(FOOTER)}
-          </p>
-        </td></tr>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#eeeef1;">
+ <tr>
+  <td align="center" style="padding:24px 10px;">
+
+   <table role="presentation" class="contenedor" width="600" cellpadding="0" cellspacing="0" border="0"
+          style="width:600px;max-width:600px;background-color:#ffffff;border-radius:14px;overflow:hidden;">
+
+    <tr>
+     <td style="line-height:0;font-size:0;background-color:#050814;">
+      <img src="${img}/banner-superior.jpg" width="600" alt="LinkU Capital Summit 2026"
+           style="display:block;width:100%;max-width:600px;height:auto;" />
+     </td>
+    </tr>
+
+    <tr>
+     <td class="px" style="padding:36px 46px 0 46px;font-family:${FONT};">
+
+      <p class="txt" style="margin:0 0 28px 0;font-size:15px;line-height:1.6;color:#5b5e70;text-align:center;">
+        <em style="color:#ff5a5f;font-style:italic;font-weight:600;">Un espacio</em> para entender cómo se mueve el capital en Latinoamérica.
+      </p>
+
+      <h1 class="h1" style="margin:0 0 18px 0;font-size:25px;line-height:1.25;font-weight:700;color:#0d1020;text-align:center;">
+        ${escapeHtml(title)}
+      </h1>
+
+      ${paragraphsHtml}
+
+      ${ctaHtml}
+
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:34px 0 0 0;">
+       <tr><td style="line-height:0;font-size:0;">
+        <img src="${img}/separador.png" width="508" alt="" style="display:block;width:100%;height:6px;" />
+       </td></tr>
       </table>
-    </td></tr>
-  </table>
+
+      <p class="txt" style="margin:26px 0 8px 0;font-size:17px;line-height:1.5;color:#0d1020;text-align:center;font-weight:700;">
+        Nos vemos en Medellín.
+      </p>
+
+      <p class="pie" style="margin:0 0 34px 0;font-size:14px;line-height:1.75;color:#6b6e7d;text-align:center;">
+        ¿Tienes alguna duda? Escríbele a ${escapeHtml(c.name)}:<br />
+        <a href="mailto:${escapeHtml(c.email)}" style="color:#ff5a5f;text-decoration:none;font-weight:600;">${escapeHtml(c.email)}</a><br />
+        <a href="${escapeHtml(c.whatsappUrl)}" style="color:#ff5a5f;text-decoration:none;font-weight:600;">${escapeHtml(c.whatsappLabel)}</a>
+      </p>
+
+     </td>
+    </tr>
+
+    <tr>
+     <td style="line-height:0;font-size:0;background-color:#050814;">
+      <img src="${img}/banner-inferior.jpg" width="600" alt="LinkU Capital Summit 2026"
+           style="display:block;width:100%;max-width:600px;height:auto;" />
+     </td>
+    </tr>
+
+    <tr>
+     <td bgcolor="#050814" class="px" align="center"
+         style="background-color:#050814;padding:0 40px 34px 40px;font-family:${FONT};">
+       <p class="pie" style="margin:0 0 10px 0;font-size:14px;line-height:1.7;color:#d9d9e2;">
+         5 y 6 de octubre de 2026&nbsp; ·&nbsp; Country Club Ejecutivos, Medellín
+       </p>
+       <p style="margin:0 0 18px 0;font-size:14px;line-height:1.6;">
+         <a href="https://linkusummit.com" style="color:#ff5a5f;text-decoration:none;font-weight:600;letter-spacing:1px;">LINKUSUMMIT.COM</a>
+       </p>
+       <p style="margin:0;font-size:11px;line-height:1.6;color:#7c7f90;letter-spacing:2px;">
+         BY LINKU VENTURES
+       </p>
+     </td>
+    </tr>
+
+   </table>
+
+   <table role="presentation" class="contenedor" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;">
+    <tr>
+     <td class="px" style="padding:18px 26px 8px 26px;font-family:${FONT};font-size:11px;line-height:1.7;color:#9a9aa5;text-align:center;">
+       Recibes este correo porque te registraste a LinkU Capital Summit 2026.<br />
+       LinkU Ventures S.A.S. · NIT 901387738-6 · Medellín, Colombia
+     </td>
+    </tr>
+   </table>
+
+  </td>
+ </tr>
+</table>
 </body>
 </html>`;
 
   const text = [
     'LINKU CAPITAL SUMMIT 2026',
+    'Un espacio para entender cómo se mueve el capital en Latinoamérica.',
+    '',
+    title,
     '',
     body,
     hasCta ? `\n${ctaLabel}: ${ctaUrl}` : '',
     '',
-    '--',
-    FOOTER
+    'Nos vemos en Medellín.',
+    '',
+    `¿Tienes alguna duda? Escríbele a ${c.name}:`,
+    c.email,
+    `${c.whatsappLabel} (${c.whatsappUrl})`,
+    '',
+    '5 y 6 de octubre de 2026 · Country Club Ejecutivos, Medellín',
+    'LINKUSUMMIT.COM (https://linkusummit.com) · BY LINKU VENTURES',
+    '',
+    LEGAL_TEXT
   ]
     .join('\n')
     .replace(/\n{3,}/g, '\n\n');
