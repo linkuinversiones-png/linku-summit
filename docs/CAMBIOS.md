@@ -14,6 +14,17 @@ Formato de cada entrada:
 
 ---
 
+## 2026-10-05 — Speaker "solo agenda" (no se muestra en la portada)
+
+**Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad
+**Qué cambió:** un speaker puede publicarse solo en la agenda sin aparecer en la sección Speakers de la portada. Nueva casilla "Mostrar en la sección Speakers de la portada" (marcada por defecto) en el formulario de speakers; en el listado aparece la etiqueta "Solo agenda". En el selector de speakers de Admin → Agenda se avisa "(no publicado: no se verá en la agenda)" para los inactivos y "(solo agenda)" para los no listados. Antes, vincular un speaker inactivo hacía que su nombre desapareciera en silencio de la agenda pública (la RLS solo deja leer speakers activos).
+**Migración:** `supabase/migrations/0026_speakers_listado.sql` (agrega `speakers.listed boolean not null default true`; idempotente, no toca RLS).
+**Archivos:** `supabase/migrations/0026_speakers_listado.sql`, `lib/speakers.ts` (el único uso público, la portada vía `getActiveSpeakers`, excluye `listed === false` filtrando en JS, así funciona aunque la migración aún no esté aplicada), `app/admin/speakers/{SpeakerForm,SpeakersTable}.tsx`, `app/admin/speakers/actions.ts` (si falta la columna: guarda sin ella cuando se muestra en portada; si se pidió "solo agenda" devuelve un mensaje claro), `app/admin/agenda/page.tsx`, `app/admin/agenda/ui.tsx`, `docs/CAMBIOS.md`.
+**Cómo verificar (paso a paso):** Admin → Speakers → crear/editar la speaker → Activo marcado + desmarcar "Mostrar en la sección Speakers de la portada" → Guardar → Admin → Agenda → vincularla al espacio → Guardar. Comprobar que no sale en la portada y sí en la agenda pública.
+**Notas / pendientes:** "solo agenda" solo se puede guardar después de que la migración 0026 se aplique (se aplica sola al publicar).
+
+---
+
 ## 2026-10-04 — Correos: enviar la prueba a personas específicas
 
 **Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad

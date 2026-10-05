@@ -33,9 +33,25 @@ function readForm(form: FormData) {
     linkedin_url: get('linkedin_url') || null,
     confirmed: getBool('confirmed'),
     active: getBool('active'),
+    listed: getBool('listed'),
     sort_order: getNumber('sort_order') ?? 0
   };
 }
+
+/**
+ * Guarda el speaker tolerando que la migración 0026 (columna `listed`) no esté
+ * aplicada: si la columna no existe y el speaker se muestra en portada (el
+ * valor por defecto) se reintenta sin ella; si se pidió "solo agenda" se
+ * devuelve un mensaje claro.
+ */
+function listedColumnMissing(error: { code?: string; message?: string }) {
+  return (
+    (error.code === '42703' || error.code === 'PGRST204') &&
+    /listed/i.test(error.message ?? '')
+  );
+}
+const LISTED_MIGRATION_MSG =
+  'No se puede guardar "solo agenda" todavía: falta aplicar la migración 0026 (columna listed). Publica el cambio y vuelve a intentar.';
 
 function validate(data: ReturnType<typeof readForm>): FieldErrors {
   const errs: FieldErrors = {};
@@ -115,9 +131,17 @@ export async function createSpeaker(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase
+  let { error } = await supabase
     .from('speakers')
     .insert({ ...data, avatar_path: avatarPath });
+
+  if (error && listedColumnMissing(error)) {
+    if (!data.listed) return { ok: false, message: LISTED_MIGRATION_MSG };
+    const { listed: _l, ...sinListed } = data;
+    ({ error } = await supabase
+      .from('speakers')
+      .insert({ ...sinListed, avatar_path: avatarPath }));
+  }
 
   if (error) {
     return {
@@ -154,10 +178,19 @@ export async function updateSpeaker(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase
+  let { error } = await supabase
     .from('speakers')
     .update({ ...data, avatar_path: avatarPath })
     .eq('id', id);
+
+  if (error && listedColumnMissing(error)) {
+    if (!data.listed) return { ok: false, message: LISTED_MIGRATION_MSG };
+    const { listed: _l, ...sinListed } = data;
+    ({ error } = await supabase
+      .from('speakers')
+      .update({ ...sinListed, avatar_path: avatarPath })
+      .eq('id', id));
+  }
 
   if (error) {
     return {

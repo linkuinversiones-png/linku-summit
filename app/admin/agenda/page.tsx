@@ -45,7 +45,13 @@ export default async function AdminAgendaPage() {
   return (
     <AgendaEditor
       initialDays={tree}
-      speakers={speakers.map((s) => ({ id: s.id, name: s.name, company: s.company }))}
+      speakers={speakers.map((s) => ({
+        id: s.id,
+        name: s.name,
+        company: s.company,
+        active: s.active,
+        listed: s.listed !== false
+      }))}
       companies={{ available: links.available, options }}
     />
   );

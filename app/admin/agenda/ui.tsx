@@ -127,7 +127,13 @@ export function Check({
   );
 }
 
-export type SpeakerOption = { id: string; name: string; company: string };
+export type SpeakerOption = {
+  id: string;
+  name: string;
+  company: string;
+  active?: boolean;
+  listed?: boolean;
+};
 
 /**
  * Selector múltiple de speakers. Si hay alguno marcado, el landing muestra
@@ -166,6 +172,13 @@ export function SpeakerPicker({
             />
             <span className="text-linku-text">{s.name}</span>
             {s.company && <span className="text-linku-text-dim">· {s.company}</span>}
+            {s.active === false ? (
+              <span className="text-amber-300">
+                (no publicado: no se verá en la agenda)
+              </span>
+            ) : s.listed === false ? (
+              <span className="text-linku-text-dim">(solo agenda)</span>
+            ) : null}
           </label>
         ))}
       </div>

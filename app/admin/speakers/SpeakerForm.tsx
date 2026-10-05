@@ -195,6 +195,15 @@ export default function SpeakerForm({ action, speaker, currentAvatarUrl, title }
                 name="active"
                 defaultChecked={speaker?.active ?? true}
               />
+              <Checkbox
+                label="Mostrar en la sección Speakers de la portada"
+                name="listed"
+                defaultChecked={speaker?.listed !== false}
+              />
+              <span className="text-[11px] text-linku-text-dim">
+                Desmárcala para que el speaker aparezca solo en la agenda donde
+                lo vincules (debe estar Activo).
+              </span>
             </div>
           </div>
         </section>
