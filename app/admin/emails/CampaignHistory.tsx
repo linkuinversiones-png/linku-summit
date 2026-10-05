@@ -6,6 +6,7 @@ import { Loader2, Play, RotateCcw, ChevronDown } from 'lucide-react';
 import {
   getCampaignRecipients,
   requeueRecipients,
+  resendCampaignTo,
   type Progress,
   type RecipientRow
 } from './actions';
@@ -55,6 +56,8 @@ function Row({ c }: { c: CampaignRow }) {
   const [open, setOpen] = useState(false);
   const [rows, setRows] = useState<RecipientRow[] | null>(null);
   const [truncated, setTruncated] = useState(false);
+  const [resending, setResending] = useState<string | null>(null);
+  const [resendMsg, setResendMsg] = useState<string | null>(null);
   const stopRef = useRef(false);
   const st = STATUS[c.status] ?? STATUS.draft;
 
@@ -85,6 +88,22 @@ function Row({ c }: { c: CampaignRow }) {
       setBusy(false);
       if (open) await loadDetail();
       router.refresh();
+    }
+  }
+
+  async function onResend(r: RecipientRow) {
+    if (!window.confirm(`¿Reenviar este correo a ${r.name || '—'} <${r.email}>?`)) return;
+    setResending(r.id);
+    setResendMsg(null);
+    try {
+      const res = await resendCampaignTo(c.id, r.id);
+      setResendMsg(res.message);
+      await loadDetail();
+      router.refresh();
+    } catch {
+      setResendMsg('Se interrumpió la conexión; revisa el estado antes de reintentar.');
+    } finally {
+      setResending(null);
     }
   }
 
@@ -160,6 +179,7 @@ function Row({ c }: { c: CampaignRow }) {
 
       {open && (
         <div className="px-4 pb-4">
+          {resendMsg && <p className="mb-2 text-xs text-linku-text-muted">{resendMsg}</p>}
           {!rows ? (
             <p className="text-xs text-linku-text-dim">Cargando…</p>
           ) : (
@@ -171,15 +191,24 @@ function Row({ c }: { c: CampaignRow }) {
                     <th className="px-3 py-2">Correo</th>
                     <th className="px-3 py-2">Estado</th>
                     <th className="px-3 py-2">Error</th>
+                    <th className="px-3 py-2"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-linku-border text-linku-text-muted">
                   {rows.map((r) => (
-                    <tr key={r.email}>
+                    <tr key={r.id}>
                       <td className="px-3 py-1.5">{r.name || '—'}</td>
                       <td className="px-3 py-1.5">{r.email}</td>
                       <td className="px-3 py-1.5">{R_STATUS[r.status] ?? r.status}</td>
                       <td className="px-3 py-1.5 text-red-300">{r.error || ''}</td>
+                      <td className="px-3 py-1.5">
+                        <button type="button" onClick={() => onResend(r)}
+                          disabled={resending !== null || r.status === 'queued' || r.status === 'sending'}
+                          className="inline-flex items-center gap-1 rounded border border-linku-border-2 px-2 py-0.5 text-linku-text-muted disabled:opacity-50">
+                          {resending === r.id && <Loader2 size={10} className="animate-spin" />}
+                          Reenviar
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

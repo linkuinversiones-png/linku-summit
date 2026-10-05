@@ -14,6 +14,16 @@ Formato de cada entrada:
 
 ---
 
+## 2026-10-05 — Correos: botón "Reenviar" por destinatario
+
+**Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad
+**Qué cambió:** en Admin → Correos → Historial → Detalle de una campaña, cada destinatario tiene un botón "Reenviar" que le manda de nuevo el correo exacto de esa campaña (asunto, título, cuerpo, botón, mapa, recuadro y reply_to guardados), con su nombre y correo, sin "[PRUEBA]". Pide confirmación. Solo para filas "Enviado" o "Fallido" (deshabilitado en cola/enviando). Si sale bien, la fila queda "Enviado" con el nuevo id de Resend y la nota "Reenviado el <fecha> por <admin>" en la columna Error; si falla, una fila "Enviado" no cambia y una "Fallido" conserva el error nuevo. Se recalculan los contadores de la campaña.
+**Archivos:** `app/admin/emails/actions.ts` (acción `resendCampaignTo`; helper compartido `renderCampaignItem` usado también por `processCampaignBatch`; `RecipientRow` ahora incluye `id`), `app/admin/emails/CampaignHistory.tsx`, `docs/CAMBIOS.md`.
+**Cómo verificar:** Admin → Correos → Historial → Detalle → "Reenviar" en un destinatario propio → confirmar → mensaje con id de Resend y correo recibido sin "[PRUEBA]".
+**Notas / pendientes:** sin migración. Cada clic usa una Idempotency-Key nueva, así que dos clics = dos correos.
+
+---
+
 ## 2026-10-05 — Speaker "solo agenda" (no se muestra en la portada)
 
 **Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad
