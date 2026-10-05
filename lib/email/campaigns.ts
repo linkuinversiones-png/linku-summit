@@ -35,6 +35,12 @@ export type CampaignInput = {
   replyTo: string;
   /** Slugs de las categorías elegidas. */
   tiers: string[];
+  /** Incluye la sección "Cómo llegar" (mapa). */
+  includeMap: boolean;
+  /** Recuadro destacado opcional. */
+  boxTitle: string;
+  boxIntro: string;
+  boxLines: string;
 };
 
 export type AudienceEntry = {
@@ -64,10 +70,17 @@ export function validateCampaignInput(
   const ctaLabel = (i.ctaLabel ?? '').trim();
   const ctaUrl = (i.ctaUrl ?? '').trim();
   const replyTo = (i.replyTo ?? '').trim().toLowerCase();
+  const includeMap = Boolean(i.includeMap);
+  const boxTitle = (i.boxTitle ?? '').replace(/[\r\n]+/g, ' ').trim();
+  const boxIntro = (i.boxIntro ?? '').trim();
+  const boxLines = (i.boxLines ?? '').trim();
 
   if (!subject) return { ok: false, message: 'Escribe el asunto.' };
   if (subject.length > 150) return { ok: false, message: 'El asunto es muy largo (máx. 150).' };
   if (title.length > 150) return { ok: false, message: 'El título es muy largo (máx. 150).' };
+  if (boxTitle.length > 80) return { ok: false, message: 'El título del recuadro es muy largo (máx. 80).' };
+  if (boxIntro.length > 1000) return { ok: false, message: 'El texto del recuadro es muy largo (máx. 1000).' };
+  if (boxLines.length > 1500) return { ok: false, message: 'Las líneas del recuadro son muy largas (máx. 1500).' };
   if (!body) return { ok: false, message: 'Escribe el mensaje.' };
   if (body.length > 20000) return { ok: false, message: 'El mensaje es muy largo.' };
   if (!EMAIL_RE.test(replyTo)) return { ok: false, message: 'El correo "Responder a" no es válido.' };
@@ -85,7 +98,10 @@ export function validateCampaignInput(
     if (!ok) return { ok: false, message: 'El enlace del botón debe empezar por https://' };
   }
   const tiers = Array.from(new Set((i.tiers ?? []).filter((t) => typeof t === 'string' && t)));
-  return { ok: true, value: { subject, title, body, ctaLabel, ctaUrl, replyTo, tiers } };
+  return {
+    ok: true,
+    value: { subject, title, body, ctaLabel, ctaUrl, replyTo, tiers, includeMap, boxTitle, boxIntro, boxLines }
+  };
 }
 
 /**

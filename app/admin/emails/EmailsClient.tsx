@@ -33,6 +33,10 @@ export default function EmailsClient({
   const [body, setBody] = useState('');
   const [ctaLabel, setCtaLabel] = useState('');
   const [ctaUrl, setCtaUrl] = useState('');
+  const [includeMap, setIncludeMap] = useState(false);
+  const [boxTitle, setBoxTitle] = useState('');
+  const [boxIntro, setBoxIntro] = useState('');
+  const [boxLines, setBoxLines] = useState('');
   const [replyTo, setReplyTo] = useState(DEFAULT_REPLY_TO);
   const [selected, setSelected] = useState<Set<string>>(() => new Set(tiers.map((t) => t.slug)));
 
@@ -47,7 +51,19 @@ export default function EmailsClient({
     () => filterAudience(audience, Array.from(selected)),
     [audience, selected]
   );
-  const input = { subject, title, body, ctaLabel, ctaUrl, replyTo, tiers: Array.from(selected) };
+  const input = {
+    subject,
+    title,
+    body,
+    ctaLabel,
+    ctaUrl,
+    replyTo,
+    tiers: Array.from(selected),
+    includeMap,
+    boxTitle,
+    boxIntro,
+    boxLines
+  };
 
   // Vista previa con un nombre de ejemplo (se renderiza en iframe aislado).
   const preview = useMemo(
@@ -59,9 +75,14 @@ export default function EmailsClient({
         body: body || '(Escribe el mensaje…)',
         ctaLabel,
         ctaUrl,
-        firstName: 'Carolina'
+        firstName: 'Carolina',
+        email: 'carolina@ejemplo.com',
+        includeMap,
+        boxTitle,
+        boxIntro,
+        boxLines
       }),
-    [subject, title, body, ctaLabel, ctaUrl]
+    [subject, title, body, ctaLabel, ctaUrl, includeMap, boxTitle, boxIntro, boxLines]
   );
 
   function toggleTier(slug: string) {
@@ -166,8 +187,42 @@ export default function EmailsClient({
             Texto plano. Deja una línea en blanco para separar párrafos; los saltos de línea se
             respetan. Escribe <code>{'{{nombre}}'}</code> donde quieras el primer nombre de cada
             persona (ej. &quot;Hola {'{{nombre}}'},&quot;). Si no tenemos su nombre, se omite y
-            queda &quot;Hola,&quot;. No se interpreta HTML.
+            queda &quot;Hola,&quot;. Escribe <code>{'{{correo}}'}</code> para poner el correo de
+            cada persona. No se interpreta HTML.
           </p>
+        </div>
+
+        <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-linku-border-2 bg-linku-bg-3 px-3.5 py-2.5 text-sm text-linku-text">
+          <input type="checkbox" checked={includeMap} disabled={sending}
+            onChange={(e) => setIncludeMap(e.target.checked)} />
+          Incluir <strong>Cómo llegar</strong> (mapa del Country Club)
+        </label>
+
+        <div className="space-y-4 rounded-xl border border-linku-border bg-linku-bg-3/50 p-4">
+          <p className={LABEL}>Recuadro destacado (opcional)</p>
+          <div className="space-y-1.5">
+            <label className={LABEL} htmlFor="em-box-title">Título del recuadro</label>
+            <input id="em-box-title" className={INPUT} value={boxTitle} maxLength={80}
+              placeholder="Ej. Tus citas 1:1" disabled={sending}
+              onChange={(e) => setBoxTitle(e.target.value)} />
+            <p className="text-xs text-linku-text-dim">Se muestra en mayúsculas, en coral.</p>
+          </div>
+          <div className="space-y-1.5">
+            <label className={LABEL} htmlFor="em-box-intro">Texto del recuadro</label>
+            <textarea id="em-box-intro" className={`${INPUT} min-h-[90px]`} value={boxIntro}
+              maxLength={1000} disabled={sending} onChange={(e) => setBoxIntro(e.target.value)} />
+          </div>
+          <div className="space-y-1.5">
+            <label className={LABEL} htmlFor="em-box-lines">Líneas del recuadro</label>
+            <textarea id="em-box-lines" className={`${INPUT} min-h-[90px]`} value={boxLines}
+              maxLength={1500} disabled={sending} onChange={(e) => setBoxLines(e.target.value)} />
+            <p className="text-xs text-linku-text-dim">
+              Una por línea, con el formato <code>Etiqueta: valor</code> (la etiqueta sale en
+              coral y negrita; ej. <code>Usuario: {'{{correo}}'}</code>). Una línea sin dos puntos
+              se muestra tal cual. También sirven <code>{'{{nombre}}'}</code> y{' '}
+              <code>{'{{correo}}'}</code>.
+            </p>
+          </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
