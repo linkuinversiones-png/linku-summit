@@ -64,6 +64,13 @@ export default async function AdminEmailsPage() {
     );
   }
 
+  // Aviso si falta la migración 0025 (mapa y recuadro).
+  const { error: colErr } = await supabase
+    .from('email_campaigns')
+    .select('include_map, box_title, box_intro, box_lines')
+    .limit(1);
+  const missing0025 = Boolean(colErr);
+
   const aud = await loadAudience(supabase);
   const entries = aud.ok ? aud.entries : [];
 
@@ -86,6 +93,16 @@ export default async function AdminEmailsPage() {
   return (
     <div className="mx-auto max-w-5xl">
       {header}
+      {missing0025 && (
+        <p className="mt-6 flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+          <AlertTriangle size={16} className="mt-0.5 shrink-0" />
+          <span>
+            El mapa &quot;Cómo llegar&quot; y el recuadro destacado todavía no están activados en la
+            base de datos: falta aplicar la migración 0025_correos_mapa_recuadro.sql (se aplica
+            sola al publicar). Mientras tanto no los uses en un envío real.
+          </span>
+        </p>
+      )}
       {!aud.ok && (
         <p className="mt-6 flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
           <AlertTriangle size={16} className="mt-0.5 shrink-0" />

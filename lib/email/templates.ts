@@ -176,14 +176,18 @@ export function escapeHtml(s: string): string {
 /**
  * Reemplaza {{nombre}} (con o sin espacios, sin importar mayúsculas) por el
  * primer nombre. Si no hay nombre se omite y se limpia la puntuación que
- * queda suelta ("Hola {{nombre}}," -> "Hola,").
+ * queda suelta ("Hola {{nombre}}," -> "Hola,"). {{correo}} se reemplaza por
+ * el correo del destinatario.
  */
-export function personalize(text: string, firstName: string): string {
-  const out = text.replace(/\{\{\s*nombre\s*\}\}/gi, firstName);
-  if (firstName) return out;
-  return out
-    .replace(/[ \t]+([,.:;!?])/g, '$1')
-    .replace(/(^|\n)[ \t]*[,.:;]+[ \t]*/g, '$1');
+export function personalize(text: string, firstName: string, email = ''): string {
+  let out = text.replace(/\{\{\s*nombre\s*\}\}/gi, firstName);
+  if (!firstName) {
+    out = out
+      .replace(/[ \t]+([,.:;!?])/g, '$1')
+      .replace(/(^|\n)[ \t]*[,.:;]+[ \t]*/g, '$1');
+  }
+  // {{correo}} se reemplaza al final para que la limpieza de arriba no toque el correo.
+  return out.replace(/\{\{\s*correo\s*\}\}/gi, () => email);
 }
 
 /** Contacto fijo del correo de campañas (cambiar solo aquí). */
@@ -192,6 +196,16 @@ export const CAMPAIGN_CONTACT = {
   email: 'miguel.salazar@linku-ventures.co',
   whatsappLabel: '+57 300 406 4006',
   whatsappUrl: 'https://wa.me/573004064006'
+};
+
+/** Enlaces de la sección "Cómo llegar" (cambiar solo aquí). */
+export const CAMPAIGN_MAP = {
+  place: 'Country Club Ejecutivos · Avenida Las Palmas, Medellín',
+  googleMapsUrl: 'https://maps.app.goo.gl/z2xN5hLDkDJvk2q78',
+  wazeUrl:
+    'https://ul.waze.com/ul?venue_id=186384446.1864106606.378239&overview=yes&utm_campaign=default&utm_source=waze_website&utm_medium=lm_share_location',
+  /** Imagen en public/email/ (mapa de OpenStreetMap; la atribución va dentro de la imagen). */
+  imageFile: 'mapa-country.png'
 };
 
 /** Las imágenes del correo deben ser URL absolutas (Gmail/Outlook no aceptan relativas ni base64). */
@@ -207,15 +221,42 @@ export function campaignEmail(input: {
   ctaLabel?: string | null;
   ctaUrl?: string | null;
   firstName: string;
+  /** Correo del destinatario (para {{correo}}). */
+  email?: string;
+  /** Incluye la sección "Cómo llegar" con el mapa. */
+  includeMap?: boolean;
+  /** Recuadro destacado opcional (título en coral, texto y líneas "Etiqueta: valor"). */
+  boxTitle?: string | null;
+  boxIntro?: string | null;
+  boxLines?: string | null;
   /** Solo para la vista previa del admin: base de las imágenes (p. ej. "/email"). */
   imageBase?: string;
 }): { subject: string; html: string; text: string } {
   const img = input.imageBase ?? EMAIL_IMAGE_BASE;
+  const em = input.email ?? '';
+  const pz = (t: string) => personalize(t, input.firstName, em);
   // El asunto es un encabezado: sin saltos de línea.
-  const subject = personalize(input.subject, input.firstName).replace(/\s+/g, ' ').trim();
-  const titleRaw = personalize((input.title ?? '').trim(), input.firstName).replace(/\s+/g, ' ').trim();
+  const subject = pz(input.subject).replace(/\s+/g, ' ').trim();
+  const titleRaw = pz((input.title ?? '').trim()).replace(/\s+/g, ' ').trim();
   const title = titleRaw || subject;
-  const body = personalize(input.body.replace(/\r\n/g, '\n'), input.firstName).trim();
+  const body = pz(input.body.replace(/\r\n/g, '\n')).trim();
+
+  // Recuadro destacado (todo opcional).
+  const boxTitle = pz((input.boxTitle ?? '').trim()).replace(/\s+/g, ' ').trim();
+  const boxIntro = pz((input.boxIntro ?? '').replace(/\r\n/g, '\n')).trim();
+  const boxLines = pz((input.boxLines ?? '').replace(/\r\n/g, '\n'))
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .map((l) => {
+      const i = l.indexOf(':');
+      // "Etiqueta: valor"; sin ":" (o un enlace "https://...") se muestra tal cual.
+      if (i > 0 && !l.slice(i + 1).startsWith('//')) {
+        return { label: l.slice(0, i).trim(), value: l.slice(i + 1).trim() };
+      }
+      return { label: '', value: l };
+    });
+  const hasBox = Boolean(boxTitle || boxIntro || boxLines.length > 0);
 
   // Un enlace solo es válido si es https (si no, se omite el botón).
   let ctaUrl = '';
@@ -248,6 +289,56 @@ export function campaignEmail(input: {
         <a href="${escapeHtml(ctaUrl)}" style="display:inline-block;padding:14px 30px;font-family:${FONT};font-size:16px;font-weight:700;line-height:1.2;color:#ffffff;text-decoration:none;border-radius:10px;">${escapeHtml(ctaLabel)}</a>
        </td></tr>
       </table>`
+    : '';
+
+  // Cómo llegar: mapa enlazado a Google Maps + botones Google Maps / Waze.
+  const M = CAMPAIGN_MAP;
+  const mapHtml = input.includeMap
+    ? `<p style="margin:34px 0 6px 0;font-size:13px;letter-spacing:2px;font-weight:700;color:#ff5a5f;text-align:center;font-family:${FONT};">CÓMO LLEGAR</p>
+      <p class="txt" style="margin:0 0 14px 0;font-size:15px;line-height:1.6;color:#3a3d4d;text-align:center;font-family:${FONT};">${escapeHtml(M.place)}</p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="line-height:0;font-size:0;">
+       <a href="${escapeHtml(M.googleMapsUrl)}" target="_blank"><img src="${img}/${M.imageFile}" width="508" alt="Mapa: Country Club Ejecutivos, Avenida Las Palmas, Medellín" style="display:block;width:100%;height:auto;border-radius:10px;border:1px solid #e4e4ea;" /></a>
+      </td></tr></table>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:16px auto 0 auto;"><tr>
+       <td bgcolor="#ff5a5f" style="background-color:#ff5a5f;border-radius:8px;"><a href="${escapeHtml(M.googleMapsUrl)}" target="_blank" style="display:inline-block;padding:12px 22px;font-family:${FONT};font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;">Abrir en Google Maps</a></td>
+       <td width="10" style="font-size:0;line-height:0;">&nbsp;</td>
+       <td style="border-radius:8px;border:1px solid #ff5a5f;"><a href="${escapeHtml(M.wazeUrl)}" target="_blank" style="display:inline-block;padding:11px 22px;font-family:${FONT};font-size:15px;font-weight:600;color:#ff5a5f;text-decoration:none;">Ir con Waze</a></td>
+      </tr></table>`
+    : '';
+
+  // Recuadro destacado: título coral, texto y caja con líneas.
+  const boxHtml = hasBox
+    ? [
+        boxTitle
+          ? `<p style="margin:38px 0 6px 0;font-size:13px;letter-spacing:2px;font-weight:700;color:#ff5a5f;text-align:center;font-family:${FONT};">${escapeHtml(boxTitle.toUpperCase())}</p>`
+          : '',
+        boxIntro
+          ? boxIntro
+              .split(/\n[ \t]*\n/)
+              .map((p) => p.trim())
+              .filter(Boolean)
+              .map(
+                (p) =>
+                  `<p class="txt" style="margin:${boxTitle ? '0' : '34px'} 0 16px 0;font-size:16px;line-height:1.65;color:#3a3d4d;">${escapeHtml(p).replace(/\n/g, '<br />')}</p>`
+              )
+              .join('\n      ')
+          : '',
+        boxLines.length > 0
+          ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:${boxTitle || boxIntro ? '0' : '34px'} 0 6px 0;background-color:#fafafc;border-left:3px solid #ff5a5f;border-radius:6px;">
+       <tr><td style="padding:18px 22px;font-family:${FONT};font-size:16px;line-height:2;color:#0d1020;">
+         ${boxLines
+           .map((l) =>
+             l.label
+               ? `<strong style="color:#ff5a5f;">${escapeHtml(l.label)}:</strong> ${escapeHtml(l.value)}`
+               : escapeHtml(l.value)
+           )
+           .join('<br />\n         ')}
+       </td></tr>
+      </table>`
+          : ''
+      ]
+        .filter(Boolean)
+        .join('\n      ')
     : '';
 
   const c = CAMPAIGN_CONTACT;
@@ -311,6 +402,10 @@ export function campaignEmail(input: {
       </h1>
 
       ${paragraphsHtml}
+
+      ${mapHtml}
+
+      ${boxHtml}
 
       ${ctaHtml}
 
@@ -379,6 +474,19 @@ export function campaignEmail(input: {
     title,
     '',
     body,
+    input.includeMap
+      ? `\nCÓMO LLEGAR\n${M.place}\nGoogle Maps: ${M.googleMapsUrl}\nWaze: ${M.wazeUrl}`
+      : '',
+    hasBox
+      ? [
+          '',
+          boxTitle.toUpperCase(),
+          boxIntro,
+          ...boxLines.map((l) => (l.label ? `${l.label}: ${l.value}` : l.value))
+        ]
+          .filter((x, i) => i === 0 || x)
+          .join('\n')
+      : '',
     hasCta ? `\n${ctaLabel}: ${ctaUrl}` : '',
     '',
     'Nos vemos en Medellín.',

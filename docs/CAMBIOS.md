@@ -14,6 +14,18 @@ Formato de cada entrada:
 
 ---
 
+## 2026-10-04 — Correos: variable {{correo}}, mapa "Cómo llegar" y recuadro destacado
+
+**Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad
+**Qué cambió:** en Admin → Correos hay tres opciones nuevas. (1) `{{correo}}` se reemplaza por el correo de cada destinatario (en la prueba, el del admin); funciona en asunto, título, mensaje y recuadro. (2) Casilla **Incluir Cómo llegar (mapa del Country Club)**: agrega una sección con el mapa (enlazado a Google Maps) y los botones "Abrir en Google Maps" e "Ir con Waze". El mapa es de **OpenStreetMap** y la atribución "© OpenStreetMap contributors" ya viene dentro de la imagen. (3) **Recuadro destacado** opcional con título (en coral y mayúsculas), texto y líneas `Etiqueta: valor` (la etiqueta sale en coral y negrita; líneas sin ":" salen tal cual), con el estilo de la maqueta.
+**Orden del correo:** frase fija, título, mensaje, [Cómo llegar], [recuadro], [botón], separador, "Nos vemos en Medellín.", contacto, banner inferior y legal. Hay versión en texto plano equivalente (con ambos enlaces del mapa).
+**Persistencia:** migración `0025_correos_mapa_recuadro.sql` (idempotente, no destructiva): agrega a `email_campaigns` las columnas `include_map`, `box_title`, `box_intro` y `box_lines`. Cada lote del envío masivo renderiza con los datos guardados en la campaña. Validación: título del recuadro 80, texto 1000, líneas 1500 caracteres. Si el código se publica antes que la migración, crear campañas sin usar los campos nuevos sigue funcionando; si se usan, sale un mensaje claro y no se envía nada. La página muestra un aviso mientras falte la 0025.
+**Archivos:** `lib/email/templates.ts` (`personalize` con `{{correo}}`, `CAMPAIGN_MAP` con los enlaces, `campaignEmail`), `lib/email/campaigns.ts`, `app/admin/emails/actions.ts`, `app/admin/emails/EmailsClient.tsx`, `app/admin/emails/page.tsx`, `supabase/migrations/0025_correos_mapa_recuadro.sql`, `public/email/mapa-country.png` (1200x600, OpenStreetMap), `docs/CAMBIOS.md`.
+**Cómo verificar:** en /admin/emails marcar "Cómo llegar", llenar el recuadro con `Usuario: {{correo}}`, revisar la vista previa y "Enviarme una prueba". No cambia la lógica de lotes ni el correo de boleta.
+**Notas / pendientes:** el mapa en el correo real usa `https://www.linkusummit.com/email/mapa-country.png`: existe solo después de publicar. Los enlaces de Google Maps y Waze están en `CAMPAIGN_MAP` (`lib/email/templates.ts`).
+
+---
+
 ## 2026-10-04 — Correos masivos a asistentes (admin /admin/emails)
 
 **Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad

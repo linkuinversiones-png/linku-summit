@@ -73,7 +73,12 @@ export async function sendTestEmail(input: CampaignInput): Promise<SimpleResult>
     body: v.value.body,
     ctaLabel: v.value.ctaLabel,
     ctaUrl: v.value.ctaUrl,
-    firstName: firstNameOf('Nombre de prueba')
+    firstName: firstNameOf('Nombre de prueba'),
+    email: admin.email,
+    includeMap: v.value.includeMap,
+    boxTitle: v.value.boxTitle,
+    boxIntro: v.value.boxIntro,
+    boxLines: v.value.boxLines
   });
   // Mismo camino que el envío masivo: lote de 1 con clave única por clic.
   const res = await sendEmailBatch(
@@ -120,6 +125,12 @@ export async function createCampaign(input: CampaignInput): Promise<CreateResult
     return { ok: false, message: 'Elige al menos una categoría.' };
   }
 
+  // Campos nuevos (migración 0025): solo se guardan si se usan, así crear
+  // campañas sigue funcionando aunque la migración aún no esté aplicada.
+  const usesNewFields = Boolean(
+    v.value.includeMap || v.value.boxTitle || v.value.boxIntro || v.value.boxLines
+  );
+
   const supabase = await createClient();
   const aud = await loadAudience(supabase);
   if (!aud.ok) return { ok: false, message: `No se pudo calcular la audiencia: ${aud.error}` };
@@ -137,6 +148,14 @@ export async function createCampaign(input: CampaignInput): Promise<CreateResult
       cta_label: v.value.ctaLabel || null,
       cta_url: v.value.ctaUrl || null,
       reply_to: v.value.replyTo,
+      ...(usesNewFields
+        ? {
+            include_map: v.value.includeMap,
+            box_title: v.value.boxTitle || null,
+            box_intro: v.value.boxIntro || null,
+            box_lines: v.value.boxLines || null
+          }
+        : {}),
       audience: { tiers: v.value.tiers },
       status: 'draft',
       total_recipients: 0,
@@ -146,6 +165,13 @@ export async function createCampaign(input: CampaignInput): Promise<CreateResult
     .select('id')
     .single();
   if (cErr || !campaign) {
+    if (usesNewFields && /include_map|box_title|box_intro|box_lines|schema cache/i.test(cErr?.message ?? '')) {
+      return {
+        ok: false,
+        message:
+          'El mapa y el recuadro todavía no están activados en la base de datos: falta aplicar la migración 0025_correos_mapa_recuadro.sql (se aplica sola al publicar). No se envió nada.'
+      };
+    }
     return { ok: false, message: `No se pudo crear la campaña: ${cErr?.message ?? 'sin respuesta'}` };
   }
 
@@ -285,7 +311,7 @@ export async function processCampaignBatch(campaignId: string): Promise<BatchAct
   const supabase = await createClient();
   const { data: campaign, error: cErr } = await supabase
     .from('email_campaigns')
-    .select('id, subject, title, body, cta_label, cta_url, reply_to, status')
+    .select('*')
     .eq('id', campaignId)
     .single();
   if (cErr || !campaign) return { ok: false, message: 'No se encontró la campaña.' };
@@ -339,7 +365,13 @@ export async function processCampaignBatch(campaignId: string): Promise<BatchAct
         body: campaign.body,
         ctaLabel: campaign.cta_label,
         ctaUrl: campaign.cta_url,
-        firstName: firstNameOf(r.name)
+        firstName: firstNameOf(r.name),
+        email: r.email,
+        // Datos guardados en la campaña (no los del formulario).
+        includeMap: Boolean(campaign.include_map),
+        boxTitle: campaign.box_title,
+        boxIntro: campaign.box_intro,
+        boxLines: campaign.box_lines
       });
       return {
         to: r.email,
