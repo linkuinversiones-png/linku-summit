@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, Send, FlaskConical, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Loader2, Send, FlaskConical, AlertTriangle, CheckCircle2, X, Users } from 'lucide-react';
 import { campaignEmail } from '@/lib/email/templates';
 import {
   DEFAULT_REPLY_TO,
@@ -10,7 +10,7 @@ import {
   validateCampaignInput,
   type AudienceEntry
 } from '@/lib/email/campaigns';
-import { createCampaign, sendTestEmail, type Progress } from './actions';
+import { createCampaign, sendTestEmail, sendTestToRecipients, type Progress } from './actions';
 import { runCampaign } from './runner';
 
 export type TierOption = { slug: string; name: string; internal: boolean };
@@ -19,6 +19,7 @@ const INPUT =
   'w-full rounded-xl border border-linku-border-2 bg-linku-bg-3 px-3.5 py-2.5 text-sm text-linku-text placeholder:text-linku-text-dim focus:border-linku-coral/50 focus:outline-none focus:ring-2 focus:ring-linku-coral/30';
 const LABEL = 'text-xs font-semibold uppercase tracking-[0.15em] text-linku-text-muted';
 const LIST_CAP = 300;
+const MAX_TEST_PEOPLE = 5;
 
 export default function EmailsClient({
   audience,
@@ -41,6 +42,10 @@ export default function EmailsClient({
   const [selected, setSelected] = useState<Set<string>>(() => new Set(tiers.map((t) => t.slug)));
 
   const [busy, setBusy] = useState<'test' | 'send' | null>(null);
+  // Prueba a personas específicas (selección sobre TODA la audiencia).
+  const [query, setQuery] = useState('');
+  const [testPeople, setTestPeople] = useState<AudienceEntry[]>([]);
+  const [confirmingTest, setConfirmingTest] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [feedback, setFeedback] = useState<{ ok: boolean; text: string } | null>(null);
   const [progress, setProgress] = useState<Progress | null>(null);
@@ -103,6 +108,51 @@ export default function EmailsClient({
     try {
       const r = await sendTestEmail(input);
       setFeedback({ ok: r.ok, text: r.message });
+    } catch {
+      setFeedback({ ok: false, text: 'No se pudo enviar la prueba. Inténtalo de nuevo.' });
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  const matches = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (q.length < 2) return [];
+    return audience
+      .filter(
+        (a) =>
+          !testPeople.some((p) => p.email === a.email) &&
+          (a.email.includes(q) || a.name.toLowerCase().includes(q))
+      )
+      .slice(0, 8);
+  }, [audience, query, testPeople]);
+
+  function addTestPerson(a: AudienceEntry) {
+    setTestPeople((prev) => (prev.length >= MAX_TEST_PEOPLE ? prev : [...prev, a]));
+    setQuery('');
+    setConfirmingTest(false);
+  }
+
+  function onAskConfirmTest() {
+    setFeedback(null);
+    const v = validateCampaignInput(input);
+    if (!v.ok) return setFeedback({ ok: false, text: v.message });
+    setConfirmingTest(true);
+  }
+
+  async function onConfirmTest() {
+    setConfirmingTest(false);
+    setBusy('test');
+    try {
+      const r = await sendTestToRecipients(testPeople.map((p) => p.email), input);
+      if (!r.ok) return setFeedback({ ok: false, text: r.message });
+      const bad = r.results.filter((x) => !x.ok).length;
+      setFeedback({
+        ok: bad === 0,
+        text: r.results
+          .map((x) => `${x.ok ? 'Enviada' : 'FALLÓ'} a ${x.email}: ${x.detail}`)
+          .join(' · ')
+      });
     } catch {
       setFeedback({ ok: false, text: 'No se pudo enviar la prueba. Inténtalo de nuevo.' });
     } finally {
@@ -315,6 +365,66 @@ export default function EmailsClient({
             )}
           </div>
         )}
+
+        <div className="space-y-3 rounded-xl border border-linku-border bg-linku-bg-3/50 p-4">
+          <p className={LABEL}>Enviar prueba a personas específicas (máx. {MAX_TEST_PEOPLE})</p>
+          <input className={INPUT} value={query} placeholder="Buscar por nombre o correo…"
+            disabled={sending || testPeople.length >= MAX_TEST_PEOPLE}
+            onChange={(e) => setQuery(e.target.value)} />
+          {matches.length > 0 && (
+            <ul className="max-h-48 overflow-y-auto rounded-lg border border-linku-border-2 text-xs">
+              {matches.map((a) => (
+                <li key={a.email}>
+                  <button type="button" onClick={() => addTestPerson(a)}
+                    className="w-full px-3 py-2 text-left text-linku-text-muted hover:bg-white/5">
+                    <span className="text-linku-text">{a.name || '(sin nombre)'}</span> · {a.email} ·{' '}
+                    {a.tiers.map((s) => tierName.get(s) ?? s).join(', ')}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          {testPeople.length > 0 && (
+            <ul className="space-y-1">
+              {testPeople.map((p) => (
+                <li key={p.email}
+                  className="flex items-center justify-between gap-2 rounded-lg bg-linku-bg px-3 py-1.5 text-xs text-linku-text-muted">
+                  <span><span className="text-linku-text">{p.name || '(sin nombre)'}</span> · {p.email}</span>
+                  <button type="button" aria-label={`Quitar ${p.email}`} disabled={busy !== null}
+                    onClick={() => { setTestPeople((prev) => prev.filter((x) => x.email !== p.email)); setConfirmingTest(false); }}>
+                    <X size={14} />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          {confirmingTest ? (
+            <div className="space-y-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-3">
+              <p className="text-sm font-semibold text-amber-100">
+                Se enviará [PRUEBA] &quot;{subject}&quot; a:{' '}
+                {testPeople.map((p) => `${p.name || '(sin nombre)'} <${p.email}>`).join(', ')}.
+                ¿Confirmas?
+              </p>
+              <div className="flex gap-2">
+                <button type="button" onClick={onConfirmTest}
+                  className="inline-flex items-center gap-2 rounded-xl bg-linku-coral px-4 py-2 text-sm font-semibold text-white">
+                  <Send size={16} /> Sí, enviar prueba
+                </button>
+                <button type="button" onClick={() => setConfirmingTest(false)}
+                  className="rounded-xl border border-linku-border-2 px-4 py-2 text-sm text-linku-text-muted">
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button type="button" onClick={onAskConfirmTest}
+              disabled={busy !== null || testPeople.length === 0}
+              className="inline-flex items-center gap-2 rounded-xl border border-linku-border-2 px-5 py-2.5 text-sm font-semibold text-linku-text transition hover:bg-white/5 disabled:opacity-50">
+              <Users size={16} />
+              Enviar prueba a {testPeople.length} persona{testPeople.length === 1 ? '' : 's'}
+            </button>
+          )}
+        </div>
 
         {confirming ? (
           <div className="space-y-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4">

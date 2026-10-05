@@ -60,6 +60,34 @@ async function sha256Hex(s: string): Promise<string> {
 
 export type SimpleResult = { ok: true; message: string } | { ok: false; message: string };
 
+/** Arma el correo de prueba de UNA persona (misma plantilla que el envío masivo). */
+function renderTestItem(
+  value: Extract<ReturnType<typeof validateCampaignInput>, { ok: true }>['value'],
+  email: string,
+  name: string
+) {
+  const mail = campaignEmail({
+    subject: value.subject,
+    title: value.title,
+    body: value.body,
+    ctaLabel: value.ctaLabel,
+    ctaUrl: value.ctaUrl,
+    firstName: firstNameOf(name),
+    email,
+    includeMap: value.includeMap,
+    boxTitle: value.boxTitle,
+    boxIntro: value.boxIntro,
+    boxLines: value.boxLines
+  });
+  return {
+    to: email,
+    subject: `[PRUEBA] ${mail.subject}`,
+    html: mail.html,
+    text: mail.text,
+    replyTo: value.replyTo
+  };
+}
+
 /** Envía el correo SOLO al admin logueado, con [PRUEBA] en el asunto. */
 export async function sendTestEmail(input: CampaignInput): Promise<SimpleResult> {
   const admin = await assertAdmin();
@@ -67,30 +95,10 @@ export async function sendTestEmail(input: CampaignInput): Promise<SimpleResult>
   if (!v.ok) return v;
   if (!admin.email) return { ok: false, message: 'Tu usuario no tiene correo.' };
 
-  const mail = campaignEmail({
-    subject: v.value.subject,
-    title: v.value.title,
-    body: v.value.body,
-    ctaLabel: v.value.ctaLabel,
-    ctaUrl: v.value.ctaUrl,
-    firstName: firstNameOf('Nombre de prueba'),
-    email: admin.email,
-    includeMap: v.value.includeMap,
-    boxTitle: v.value.boxTitle,
-    boxIntro: v.value.boxIntro,
-    boxLines: v.value.boxLines
-  });
+  const item = renderTestItem(v.value, admin.email, 'Nombre de prueba');
   // Mismo camino que el envío masivo: lote de 1 con clave única por clic.
   const res = await sendEmailBatch(
-    [
-      {
-        to: admin.email,
-        subject: `[PRUEBA] ${mail.subject}`,
-        html: mail.html,
-        text: mail.text,
-        replyTo: v.value.replyTo
-      }
-    ],
+    [item],
     `test:${crypto.randomUUID()}`
   );
   if (!res.ok) return { ok: false, message: `No se pudo enviar la prueba: ${res.error}` };
@@ -99,6 +107,69 @@ export async function sendTestEmail(input: CampaignInput): Promise<SimpleResult>
   return {
     ok: true,
     message: `Prueba enviada a ${admin.email}. id de Resend: ${r0.id || '(sin id: ' + (r0.note ?? '') + ')'}`
+  };
+}
+
+export type MultiTestResult =
+  | { ok: true; results: { email: string; name: string; ok: boolean; detail: string }[] }
+  | { ok: false; message: string };
+
+const MAX_TEST_RECIPIENTS = 5;
+
+/**
+ * Prueba a personas específicas (máx. 5), cada una con SU nombre y correo.
+ * Seguridad: los correos del navegador solo sirven como selección; se
+ * recalcula la audiencia en el servidor y se descartan los que no estén en
+ * ella (nunca se envía a correos libres). No crea campañas ni destinatarios.
+ */
+export async function sendTestToRecipients(
+  emails: string[],
+  input: CampaignInput
+): Promise<MultiTestResult> {
+  await assertAdmin();
+  if (!Array.isArray(emails)) return { ok: false, message: 'Lista de personas inválida.' };
+  const v = validateCampaignInput(input);
+  if (!v.ok) return v;
+
+  const wanted = Array.from(
+    new Set(emails.map((e) => String(e ?? '').trim().toLowerCase()).filter(Boolean))
+  );
+  if (wanted.length === 0) return { ok: false, message: 'Elige al menos una persona.' };
+  if (wanted.length > MAX_TEST_RECIPIENTS) {
+    return { ok: false, message: `Máximo ${MAX_TEST_RECIPIENTS} personas por prueba.` };
+  }
+
+  const supabase = await createClient();
+  const aud = await loadAudience(supabase);
+  if (!aud.ok) return { ok: false, message: `No se pudo calcular la audiencia: ${aud.error}` };
+  const byEmail = new Map(aud.entries.map((e) => [e.email, e]));
+  const people = [];
+  for (const e of wanted) {
+    const entry = byEmail.get(e);
+    if (!entry) {
+      return { ok: false, message: `${e} no está en la lista de asistentes. No se envió nada.` };
+    }
+    people.push(entry);
+  }
+
+  const items = people.map((p) => renderTestItem(v.value, p.email, p.name));
+  const res = await sendEmailBatch(items, `test-multi:${crypto.randomUUID()}`);
+  if (!res.ok) return { ok: false, message: `No se pudo enviar la prueba: ${res.error}` };
+  return {
+    ok: true,
+    results: people.map((p, i) => {
+      const r = res.results[i];
+      return {
+        email: p.email,
+        name: p.name,
+        ok: Boolean(r && r.ok),
+        detail: r
+          ? r.ok
+            ? `id de Resend: ${r.id || '(sin id: ' + (r.note ?? '') + ')'}`
+            : r.error
+          : 'Sin resultado de Resend'
+      };
+    })
   };
 }
 
