@@ -350,6 +350,51 @@ async function syncCampaign(
   return { ...p, status };
 }
 
+/** Datos guardados de la campaña que se usan para armar el correo. */
+type CampaignRecord = {
+  subject: string;
+  title: string;
+  body: string;
+  cta_label: string | null;
+  cta_url: string | null;
+  include_map: boolean | null;
+  box_title: string | null;
+  box_intro: string | null;
+  box_lines: string | null;
+  reply_to: string;
+};
+
+/**
+ * Arma el correo REAL de la campaña para UN destinatario (sin [PRUEBA]).
+ * Lo usan el envío masivo (processCampaignBatch) y el reenvío individual.
+ */
+function renderCampaignItem(
+  campaign: CampaignRecord,
+  r: { email: string; name: string | null }
+) {
+  const mail = campaignEmail({
+    subject: campaign.subject,
+    title: campaign.title,
+    body: campaign.body,
+    ctaLabel: campaign.cta_label,
+    ctaUrl: campaign.cta_url,
+    firstName: firstNameOf(r.name),
+    email: r.email,
+    // Datos guardados en la campaña (no los del formulario).
+    includeMap: Boolean(campaign.include_map),
+    boxTitle: campaign.box_title,
+    boxIntro: campaign.box_intro,
+    boxLines: campaign.box_lines
+  });
+  return {
+    to: r.email,
+    subject: mail.subject,
+    html: mail.html,
+    text: mail.text,
+    replyTo: campaign.reply_to
+  };
+}
+
 /**
  * Paso 2: procesa destinatarios 'queued' en lotes de hasta 100, dentro de un
  * presupuesto de tiempo. La UI vuelve a llamar hasta que `done` sea true.
@@ -429,29 +474,7 @@ export async function processCampaignBatch(campaignId: string): Promise<BatchAct
     if (calls > 0) await sleep(MIN_GAP_MS);
     calls++;
 
-    const items = claimed.map((r) => {
-      const mail = campaignEmail({
-        subject: campaign.subject,
-        title: campaign.title,
-        body: campaign.body,
-        ctaLabel: campaign.cta_label,
-        ctaUrl: campaign.cta_url,
-        firstName: firstNameOf(r.name),
-        email: r.email,
-        // Datos guardados en la campaña (no los del formulario).
-        includeMap: Boolean(campaign.include_map),
-        boxTitle: campaign.box_title,
-        boxIntro: campaign.box_intro,
-        boxLines: campaign.box_lines
-      });
-      return {
-        to: r.email,
-        subject: mail.subject,
-        html: mail.html,
-        text: mail.text,
-        replyTo: campaign.reply_to
-      };
-    });
+    const items = claimed.map((r) => renderCampaignItem(campaign, r));
     const ids = claimed.map((r) => r.id).sort();
     const key = `campaign:${campaignId}:${(await sha256Hex(ids.join(','))).slice(0, 32)}`;
 
@@ -572,6 +595,7 @@ export async function requeueRecipients(
 // ---------------------------------------------------------------------
 
 export type RecipientRow = {
+  id: string;
   email: string;
   name: string | null;
   status: string;
@@ -589,7 +613,7 @@ export async function getCampaignRecipients(
   const LIMIT = 2000;
   const { data, error } = await supabase
     .from('email_campaign_recipients')
-    .select('email, name, status, error, sent_at, claimed_at')
+    .select('id, email, name, status, error, sent_at, claimed_at')
     .eq('campaign_id', campaignId)
     .order('status', { ascending: true })
     .order('email', { ascending: true })
@@ -597,4 +621,82 @@ export async function getCampaignRecipients(
   if (error) return { ok: false, message: error.message };
   const rows = data ?? [];
   return { ok: true, rows: rows.slice(0, LIMIT), truncated: rows.length > LIMIT };
+}
+
+// ---------------------------------------------------------------------
+// Reenviar a un destinatario
+// ---------------------------------------------------------------------
+
+/**
+ * Reenvía el correo EXACTO de la campaña a un solo destinatario (p. ej. a
+ * quien no le llegó). Sin [PRUEBA]. Solo si está 'sent' o 'failed' (no choca
+ * con un envío en curso). Deja constancia en la columna `error`.
+ */
+export async function resendCampaignTo(
+  campaignId: string,
+  recipientId: string
+): Promise<SimpleResult> {
+  const admin = await assertAdmin();
+  if (!UUID_RE.test(campaignId) || !UUID_RE.test(recipientId)) {
+    return { ok: false, message: 'Datos inválidos.' };
+  }
+  const supabase = await createClient();
+  const { data: campaign, error: cErr } = await supabase
+    .from('email_campaigns')
+    .select('*')
+    .eq('id', campaignId)
+    .single();
+  if (cErr || !campaign) return { ok: false, message: 'No se encontró la campaña.' };
+  const { data: rec, error: rErr } = await supabase
+    .from('email_campaign_recipients')
+    .select('id, campaign_id, email, name, status')
+    .eq('id', recipientId)
+    .single();
+  if (rErr || !rec || rec.campaign_id !== campaignId) {
+    return { ok: false, message: 'El destinatario no pertenece a esta campaña.' };
+  }
+  if (rec.status !== 'sent' && rec.status !== 'failed') {
+    return { ok: false, message: 'Solo se puede reenviar a quien está en estado Enviado o Fallido.' };
+  }
+
+  const item = renderCampaignItem(campaign, rec);
+  const res = await sendEmailBatch(
+    [item],
+    `resend:${campaignId}:${recipientId}:${crypto.randomUUID()}`
+  );
+  const r0 = res.ok ? res.results[0] : undefined;
+  const failure = !res.ok ? res.error : !r0 ? 'Sin resultado de Resend' : !r0.ok ? r0.error : null;
+
+  if (failure !== null || !r0 || !r0.ok) {
+    // Un 'sent' no se degrada; un 'failed' queda 'failed' con el error nuevo.
+    if (rec.status === 'failed') {
+      await supabase
+        .from('email_campaign_recipients')
+        .update({ error: String(failure).slice(0, 500) })
+        .eq('id', recipientId)
+        .eq('status', 'failed');
+    }
+    return { ok: false, message: `No se pudo reenviar a ${rec.email}: ${failure}` };
+  }
+
+  const now = new Date().toISOString();
+  const { error: upErr } = await supabase
+    .from('email_campaign_recipients')
+    .update({
+      status: 'sent',
+      resend_id: r0.id || null,
+      sent_at: now,
+      error: `Reenviado el ${now} por ${admin.email}`,
+      claimed_at: null
+    })
+    .eq('id', recipientId);
+  await syncCampaign(supabase, campaignId);
+  const idTxt = r0.id || '(sin id: ' + (r0.note ?? '') + ')';
+  if (upErr) {
+    return {
+      ok: true,
+      message: `Reenviado a ${rec.email} (id de Resend: ${idTxt}), pero no se pudo registrar: ${upErr.message}`
+    };
+  }
+  return { ok: true, message: `Reenviado a ${rec.email}. id de Resend: ${idTxt}` };
 }
