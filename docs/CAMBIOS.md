@@ -14,6 +14,17 @@ Formato de cada entrada:
 
 ---
 
+## 2026-10-04 — Correos: enviar la prueba a personas específicas
+
+**Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad
+**Qué cambió:** en Admin → Correos, junto a "Enviarme una prueba", hay un buscador (nombre o correo, sobre todos los asistentes sin importar la categoría) para elegir hasta 5 personas y el botón "Enviar prueba a N personas", con confirmación que lista nombres y correos. Cada persona recibe el correo con SU nombre y SU correo en `{{nombre}}`/`{{correo}}`, con "[PRUEBA]" en el asunto. No crea campaña ni destinatarios, y no aparece en el historial.
+**Seguridad:** la acción `sendTestToRecipients` verifica admin, valida el formulario, recalcula la audiencia en el servidor y rechaza todo (sin enviar nada) si algún correo no está en ella; máximo 5, sin duplicados. Se envía en un solo lote con `Idempotency-Key` única por clic (`test-multi:<uuid>`). La plantilla se reutiliza (`renderTestItem`, compartida con la prueba al admin).
+**Archivos:** `app/admin/emails/actions.ts`, `app/admin/emails/EmailsClient.tsx`, `docs/CAMBIOS.md`.
+**Cómo verificar:** en /admin/emails buscar una persona, agregarla, "Enviar prueba a 1 persona", confirmar y revisar su bandeja y el id de Resend en el mensaje.
+**Notas / pendientes:** el envío es real a esas personas (solo con [PRUEBA] en el asunto). Sin migración.
+
+---
+
 ## 2026-10-04 — Correos: variable {{correo}}, mapa "Cómo llegar" y recuadro destacado
 
 **Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad
