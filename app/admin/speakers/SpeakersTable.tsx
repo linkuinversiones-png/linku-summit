@@ -148,7 +148,14 @@ function SortableRow({
         )}
       </td>
       <td className="px-4 py-3">
-        <p className="font-semibold text-linku-text">{s.name}</p>
+        <p className="font-semibold text-linku-text">
+          {s.name}
+          {s.listed === false && (
+            <span className="ml-2 rounded-full border border-linku-border-2 px-2 py-0.5 text-[10px] font-semibold text-linku-text-muted">
+              Solo agenda
+            </span>
+          )}
+        </p>
         <p className="text-[11px] text-linku-text-dim">{s.slug}</p>
       </td>
       <td className="px-4 py-3 text-linku-text-muted">

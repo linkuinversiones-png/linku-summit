@@ -15,6 +15,8 @@ export type SpeakerRow = {
   confirmed: boolean;
   sort_order: number;
   active: boolean;
+  /** false = solo en la agenda (no en la portada). Puede faltar si la migración 0026 no está aplicada. */
+  listed?: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -57,7 +59,11 @@ export async function getActiveSpeakers(
     .select('*')
     .eq('active', true)
     .order('sort_order', { ascending: true });
-  return ((data ?? []) as SpeakerRow[]).map((r) => toPublic(r, locale));
+  // Se filtra en JS (no en la query) para funcionar aunque la migración 0026
+  // aún no esté aplicada: sin la columna, `listed` es undefined y se muestra.
+  return ((data ?? []) as SpeakerRow[])
+    .filter((r) => r.listed !== false)
+    .map((r) => toPublic(r, locale));
 }
 
 export async function getAllSpeakersAdmin(): Promise<SpeakerRow[]> {
