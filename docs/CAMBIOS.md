@@ -14,6 +14,16 @@ Formato de cada entrada:
 
 ---
 
+## 2026-10-07 — Correos: línea `@redes` con íconos de Instagram y LinkedIn
+
+**Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad
+**Qué cambió:** en el mensaje de Admin → Correos, una línea que sea exactamente `@redes` (sola) se convierte en una fila centrada de íconos (Instagram y LinkedIn de LinkU, 44x44, cada uno con su enlace) y debajo la línea pequeña "@linkusummit · LinkU Ventures". En texto plano sale "Instagram: url" y "LinkedIn: url". Un `@redes` dentro de un párrafo con más texto no se convierte. Los enlaces están en `CAMPAIGN_SOCIAL`. La ayuda del formulario lista la regla.
+**Archivos:** `lib/email/templates.ts`, `app/admin/emails/EmailsClient.tsx`, `public/email/icono-instagram.png`, `public/email/icono-linkedin.png`, `docs/CAMBIOS.md`.
+**Cómo verificar:** en Admin → Correos escribir `@redes` en su propia línea y ver la vista previa; `npx tsc --noEmit`.
+**Notas / pendientes:** los íconos deben estar publicados en www.linkusummit.com/email/ (se publican con el deploy) para verse en el correo real.
+
+---
+
 ## 2026-10-07 — Correos: formato con secciones, varios botones y cierre editable
 
 **Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad

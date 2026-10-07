@@ -250,6 +250,7 @@ export default function EmailsClient({
               <li><code>^ Texto</code> párrafo centrado (cada línea con ^)</li>
               <li><code>[Texto del botón](https://enlace)</code> botón, solo en su línea (puedes poner varios; solo https)</li>
               <li><code>---</code> línea separadora</li>
+              <li><code>@redes</code> solo en su línea: íconos de Instagram y LinkedIn de LinkU, con enlace</li>
               <li><code>**negrita**</code> dentro de un párrafo</li>
             </ul>
           </div>
