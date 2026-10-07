@@ -211,6 +211,117 @@ export const CAMPAIGN_MAP = {
 /** Las imágenes del correo deben ser URL absolutas (Gmail/Outlook no aceptan relativas ni base64). */
 export const EMAIL_IMAGE_BASE = 'https://www.linkusummit.com/email';
 
+/** Cierre por defecto de las campañas (null en campañas viejas = este). */
+export const DEFAULT_CLOSING = 'Nos vemos en Medellín.';
+
+/** Escapa y aplica **negrita** (solo pares completos de **). */
+function inlineHtml(s: string): string {
+  return escapeHtml(s).replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>');
+}
+/** Quita los ** (versión texto plano). */
+function inlineText(s: string): string {
+  return s.replace(/\*\*([^*]+?)\*\*/g, '$1');
+}
+
+/**
+ * Formato ligero del mensaje. Todo se escapa: nunca se interpreta HTML.
+ * Por línea: "# " encabezado de sección, "## " subtítulo, "> " frase
+ * destacada, "^ " párrafo centrado, "[Texto](https://url)" botón, "---"
+ * separador; lo demás es párrafo. Líneas seguidas del mismo tipo forman un
+ * solo bloque (con <br />). Devuelve HTML, texto plano y un resumen (preheader).
+ */
+function renderBody(body: string): { html: string; text: string; preview: string } {
+  const html: string[] = [];
+  const text: string[] = [];
+  const preview: string[] = [];
+
+  type Kind = 'p' | 'quote' | 'center';
+  let run: { kind: Kind; lines: string[] } | null = null;
+  const flush = () => {
+    if (!run) return;
+    const inner = run.lines.map(inlineHtml).join('<br />');
+    if (run.kind === 'quote') {
+      html.push(
+        `<p style="margin:10px 0 20px 0;font-size:19px;line-height:1.5;font-weight:700;color:#0d1020;text-align:center;font-family:${FONT};">${inner}</p>`
+      );
+    } else {
+      html.push(
+        `<p class="txt" style="margin:0 0 16px 0;font-size:16px;line-height:1.65;color:#3a3d4d;${run.kind === 'center' ? 'text-align:center;' : ''}">${inner}</p>`
+      );
+    }
+    text.push(run.lines.map(inlineText).join('\n'));
+    preview.push(run.lines.map(inlineText).join(' '));
+    run = null;
+  };
+  const add = (kind: Kind, line: string) => {
+    if (run && run.kind !== kind) flush();
+    if (!run) run = { kind, lines: [] };
+    run.lines.push(line);
+  };
+
+  for (const block of body.split(/\n[ \t]*\n/)) {
+    for (const raw of block.split('\n')) {
+      const line = raw.trim();
+      if (!line) continue;
+      let m: RegExpMatchArray | null;
+      if (/^-{3,}$/.test(line)) {
+        flush();
+        html.push(
+          `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:26px 0;"><tr><td style="line-height:0;font-size:0;"><img src="{{IMG}}/separador.png" width="508" alt="" style="display:block;width:100%;height:6px;" /></td></tr></table>`
+        );
+        text.push('────────');
+      } else if ((m = line.match(/^##\s+(.+)$/))) {
+        flush();
+        html.push(
+          `<p style="margin:22px 0 6px 0;font-size:18px;line-height:1.35;font-weight:700;color:#0d1020;text-align:left;font-family:${FONT};">${inlineHtml(m[1])}</p>`
+        );
+        text.push(inlineText(m[1]));
+        preview.push(inlineText(m[1]));
+      } else if ((m = line.match(/^#\s+(.+)$/))) {
+        flush();
+        const t = inlineText(m[1]).toUpperCase();
+        html.push(
+          `<p style="margin:34px 0 14px 0;font-size:13px;letter-spacing:2px;font-weight:700;color:#ff5a5f;text-align:center;font-family:${FONT};">${escapeHtml(t)}</p>`
+        );
+        text.push(`\n${t}`);
+        preview.push(t);
+      } else if ((m = line.match(/^>\s+(.+)$/))) {
+        add('quote', m[1]);
+      } else if ((m = line.match(/^\^\s+(.+)$/))) {
+        add('center', m[1]);
+      } else if ((m = line.match(/^\[([^\]]+)\]\(([^)\s]+)\)$/)) && isHttps(m[2])) {
+        flush();
+        const url = m[2];
+        html.push(
+          `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:18px auto 8px auto;">
+       <tr><td align="center" bgcolor="#ff5a5f" style="background-color:#ff5a5f;border-radius:10px;">
+        <a href="${escapeHtml(url)}" style="display:inline-block;padding:14px 30px;font-family:${FONT};font-size:16px;font-weight:700;line-height:1.2;color:#ffffff;text-decoration:none;border-radius:10px;">${escapeHtml(m[1])}</a>
+       </td></tr>
+      </table>`
+        );
+        text.push(`${m[1]}: ${url}`);
+      } else {
+        add('p', line);
+      }
+    }
+    flush();
+  }
+  flush();
+  return {
+    html: html.join('\n      '),
+    text: text.join('\n\n'),
+    preview: preview.join(' ')
+  };
+}
+
+function isHttps(u: string): boolean {
+  try {
+    return new URL(u).protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 const FONT = "'Poppins','Gilroy','Helvetica Neue',Helvetica,Arial,sans-serif";
 
 export function campaignEmail(input: {
@@ -229,6 +340,8 @@ export function campaignEmail(input: {
   boxTitle?: string | null;
   boxIntro?: string | null;
   boxLines?: string | null;
+  /** Frase de cierre: null/undefined = "Nos vemos en Medellín."; vacío = sin cierre. */
+  closing?: string | null;
   /** Solo para la vista previa del admin: base de las imágenes (p. ej. "/email"). */
   imageBase?: string;
 }): { subject: string; html: string; text: string } {
@@ -269,18 +382,15 @@ export function campaignEmail(input: {
   const ctaLabel = (input.ctaLabel ?? '').trim();
   const hasCta = Boolean(ctaUrl && ctaLabel);
 
-  // Párrafos separados por línea en blanco; los saltos simples se respetan.
-  const paragraphsHtml = body
-    .split(/\n[ \t]*\n/)
-    .map((p) => p.trim())
-    .filter(Boolean)
-    .map(
-      (p) =>
-        `<p class="txt" style="margin:0 0 16px 0;font-size:16px;line-height:1.65;color:#3a3d4d;">${escapeHtml(p).replace(/\n/g, '<br />')}</p>`
-    )
-    .join('\n      ');
+  // Cuerpo con formato ligero (encabezados, subtítulos, botones, etc.).
+  const rendered = renderBody(body);
+  const bodyHtml = rendered.html.replace(/\{\{IMG\}\}/g, img);
+  const closing =
+    input.closing === null || input.closing === undefined
+      ? DEFAULT_CLOSING
+      : pz(input.closing).replace(/\s+/g, ' ').trim();
 
-  const preheader = escapeHtml(body.replace(/\s+/g, ' ').slice(0, 110));
+  const preheader = escapeHtml(rendered.preview.replace(/\s+/g, ' ').slice(0, 110));
 
   // Botón "bulletproof": tabla con celda coloreada (funciona en Outlook).
   const ctaHtml = hasCta
@@ -401,7 +511,7 @@ export function campaignEmail(input: {
         ${escapeHtml(title)}
       </h1>
 
-      ${paragraphsHtml}
+      ${bodyHtml}
 
       ${mapHtml}
 
@@ -415,9 +525,9 @@ export function campaignEmail(input: {
        </td></tr>
       </table>
 
-      <p class="txt" style="margin:26px 0 8px 0;font-size:17px;line-height:1.5;color:#0d1020;text-align:center;font-weight:700;">
-        Nos vemos en Medellín.
-      </p>
+      ${closing ? `<p class="txt" style="margin:26px 0 8px 0;font-size:17px;line-height:1.5;color:#0d1020;text-align:center;font-weight:700;">
+        ${escapeHtml(closing)}
+      </p>` : '<div style="height:18px;line-height:18px;font-size:0;">&nbsp;</div>'}
 
       <p class="pie" style="margin:0 0 34px 0;font-size:14px;line-height:1.75;color:#6b6e7d;text-align:center;">
         ¿Tienes alguna duda? Escríbele a ${escapeHtml(c.name)}:<br />
@@ -473,7 +583,7 @@ export function campaignEmail(input: {
     '',
     title,
     '',
-    body,
+    rendered.text,
     input.includeMap
       ? `\nCÓMO LLEGAR\n${M.place}\nGoogle Maps: ${M.googleMapsUrl}\nWaze: ${M.wazeUrl}`
       : '',
@@ -489,7 +599,7 @@ export function campaignEmail(input: {
       : '',
     hasCta ? `\n${ctaLabel}: ${ctaUrl}` : '',
     '',
-    'Nos vemos en Medellín.',
+    closing,
     '',
     `¿Tienes alguna duda? Escríbele a ${c.name}:`,
     c.email,

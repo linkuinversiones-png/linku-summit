@@ -11,6 +11,7 @@ import {
   firstNameOf,
   loadAudience,
   validateCampaignInput,
+  DEFAULT_CLOSING_TEXT,
   type CampaignInput
 } from '@/lib/email/campaigns';
 
@@ -77,7 +78,8 @@ function renderTestItem(
     includeMap: value.includeMap,
     boxTitle: value.boxTitle,
     boxIntro: value.boxIntro,
-    boxLines: value.boxLines
+    boxLines: value.boxLines,
+    closing: value.closing
   });
   return {
     to: email,
@@ -201,6 +203,9 @@ export async function createCampaign(input: CampaignInput): Promise<CreateResult
   const usesNewFields = Boolean(
     v.value.includeMap || v.value.boxTitle || v.value.boxIntro || v.value.boxLines
   );
+  // Cierre (migración 0027): solo se guarda si es distinto al por defecto
+  // (null = "Nos vemos en Medellín."); vacío = sin cierre.
+  const usesClosing = v.value.closing !== DEFAULT_CLOSING_TEXT;
 
   const supabase = await createClient();
   const aud = await loadAudience(supabase);
@@ -227,6 +232,7 @@ export async function createCampaign(input: CampaignInput): Promise<CreateResult
             box_lines: v.value.boxLines || null
           }
         : {}),
+      ...(usesClosing ? { closing: v.value.closing } : {}),
       audience: { tiers: v.value.tiers },
       status: 'draft',
       total_recipients: 0,
@@ -236,6 +242,13 @@ export async function createCampaign(input: CampaignInput): Promise<CreateResult
     .select('id')
     .single();
   if (cErr || !campaign) {
+    if (usesClosing && /closing/i.test(cErr?.message ?? '')) {
+      return {
+        ok: false,
+        message:
+          'La frase de cierre editable todavía no está activada en la base de datos: falta aplicar la migración 0027_correos_cierre.sql (se aplica sola al publicar). Deja el cierre por defecto o espera la publicación. No se envió nada.'
+      };
+    }
     if (usesNewFields && /include_map|box_title|box_intro|box_lines|schema cache/i.test(cErr?.message ?? '')) {
       return {
         ok: false,
@@ -361,6 +374,8 @@ type CampaignRecord = {
   box_title: string | null;
   box_intro: string | null;
   box_lines: string | null;
+  /** null = campaña vieja: cierre por defecto. */
+  closing?: string | null;
   reply_to: string;
 };
 
@@ -384,7 +399,9 @@ function renderCampaignItem(
     includeMap: Boolean(campaign.include_map),
     boxTitle: campaign.box_title,
     boxIntro: campaign.box_intro,
-    boxLines: campaign.box_lines
+    boxLines: campaign.box_lines,
+    // null (campañas viejas) = cierre por defecto en la plantilla.
+    closing: campaign.closing ?? null
   });
   return {
     to: r.email,

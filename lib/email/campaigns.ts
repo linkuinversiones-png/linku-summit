@@ -7,6 +7,8 @@ import type { SupabaseClient } from '@supabase/supabase-js';
  */
 
 export const DEFAULT_REPLY_TO = 'miguel.salazar@linku-ventures.co';
+/** Cierre por defecto (mismo texto que usa la plantilla). */
+export const DEFAULT_CLOSING_TEXT = 'Nos vemos en Medellín.';
 export const BATCH_SIZE = 100;
 /** Un destinatario en 'sending' más de este tiempo se considera cortado. */
 export const STALE_MINUTES = 10;
@@ -41,6 +43,8 @@ export type CampaignInput = {
   boxTitle: string;
   boxIntro: string;
   boxLines: string;
+  /** Frase de cierre; vacío = sin cierre. Por defecto "Nos vemos en Medellín.". */
+  closing: string;
 };
 
 export type AudienceEntry = {
@@ -74,6 +78,7 @@ export function validateCampaignInput(
   const boxTitle = (i.boxTitle ?? '').replace(/[\r\n]+/g, ' ').trim();
   const boxIntro = (i.boxIntro ?? '').trim();
   const boxLines = (i.boxLines ?? '').trim();
+  const closing = (i.closing ?? '').replace(/[\r\n]+/g, ' ').trim();
 
   if (!subject) return { ok: false, message: 'Escribe el asunto.' };
   if (subject.length > 150) return { ok: false, message: 'El asunto es muy largo (máx. 150).' };
@@ -81,6 +86,7 @@ export function validateCampaignInput(
   if (boxTitle.length > 80) return { ok: false, message: 'El título del recuadro es muy largo (máx. 80).' };
   if (boxIntro.length > 1000) return { ok: false, message: 'El texto del recuadro es muy largo (máx. 1000).' };
   if (boxLines.length > 1500) return { ok: false, message: 'Las líneas del recuadro son muy largas (máx. 1500).' };
+  if (closing.length > 150) return { ok: false, message: 'La frase de cierre es muy larga (máx. 150).' };
   if (!body) return { ok: false, message: 'Escribe el mensaje.' };
   if (body.length > 20000) return { ok: false, message: 'El mensaje es muy largo.' };
   if (!EMAIL_RE.test(replyTo)) return { ok: false, message: 'El correo "Responder a" no es válido.' };
@@ -100,7 +106,7 @@ export function validateCampaignInput(
   const tiers = Array.from(new Set((i.tiers ?? []).filter((t) => typeof t === 'string' && t)));
   return {
     ok: true,
-    value: { subject, title, body, ctaLabel, ctaUrl, replyTo, tiers, includeMap, boxTitle, boxIntro, boxLines }
+    value: { subject, title, body, ctaLabel, ctaUrl, replyTo, tiers, includeMap, boxTitle, boxIntro, boxLines, closing }
   };
 }
 
