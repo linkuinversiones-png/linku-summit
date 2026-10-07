@@ -14,6 +14,28 @@ Formato de cada entrada:
 
 ---
 
+## 2026-10-07 — Correos: formato con secciones, varios botones y cierre editable
+
+**Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad
+**Qué cambió:** el mensaje de Admin → Correos ahora admite un formato ligero (el HTML sigue sin interpretarse; todo se escapa) y el cierre ya no es fijo.
+Formato (al inicio de la línea; los bloques se separan con línea en blanco; líneas seguidas del mismo tipo forman un solo bloque):
+- `# TÍTULO` encabezado de sección (coral, centrado, mayúsculas, 13px).
+- `## Subtítulo` subtítulo en negrita 18px, a la izquierda (el texto de la línea siguiente queda como párrafo).
+- `> Frase` frase destacada, centrada, 19px negrita (varias líneas = una sola frase con salto).
+- `^ Texto` párrafo centrado (la línea lleva el `^`).
+- `[Texto](https://url)` solo en su línea = botón coral centrado; se permiten varios; solo https (si no, se muestra como texto).
+- `---` solo en su línea = separador (imagen `separador.png`).
+- `**negrita**` dentro de párrafos. `{{nombre}}` y `{{correo}}` funcionan en todo.
+La versión de texto plano queda legible (encabezados en mayúsculas, botones "Texto: URL", separador como línea). La ayuda del formulario lista estas reglas y la vista previa las muestra.
+Nuevo campo "Frase de cierre" (por defecto "Nos vemos en Medellín."; vacío = no se muestra). Se guarda en la campaña y se usa en el envío masivo y el reenvío; las campañas viejas (null) siguen con el cierre por defecto.
+**Migración:** `supabase/migrations/0027_correos_cierre.sql` (`alter table public.email_campaigns add column if not exists closing text;`, idempotente). Si el cierre es el de por defecto, crear campañas funciona sin la migración; con un cierre distinto, error claro hasta que se aplique.
+**Archivos:** `lib/email/templates.ts` (`renderBody`, `DEFAULT_CLOSING`, parámetro `closing`), `lib/email/campaigns.ts` (campo `closing`, validación máx. 150), `app/admin/emails/actions.ts` (prueba, creación, `renderCampaignItem`/reenvío), `app/admin/emails/EmailsClient.tsx` (campo y ayuda), `supabase/migrations/0027_correos_cierre.sql`, `docs/CAMBIOS.md`.
+**Cómo verificar:** Admin → Correos: pegar un mensaje con `# `, `## `, `> `, `^ `, `[botón](https://...)`, `---` y ver la vista previa; cambiar/vaciar la frase de cierre; enviarse una prueba. Reenviar un destinatario de una campaña vieja debe mantener "Nos vemos en Medellín.".
+**Ajuste:** `>` y `^` exigen un espacio después del marcador (igual que `#` y `##`), así que textos como ">50 personas" siguen siendo párrafos normales.
+**Notas / pendientes:** no cambia lotes/idempotencia ni el correo de boleta. Los enlaces de ejemplo (`URL_REDES`, `URL_ENCUESTA`) son marcadores: reemplazar antes de enviar.
+
+---
+
 ## 2026-10-05 — Correos: botón "Reenviar" por destinatario
 
 **Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad

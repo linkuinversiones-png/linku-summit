@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Loader2, Send, FlaskConical, AlertTriangle, CheckCircle2, X, Users } from 'lucide-react';
 import { campaignEmail } from '@/lib/email/templates';
 import {
+  DEFAULT_CLOSING_TEXT,
   DEFAULT_REPLY_TO,
   filterAudience,
   validateCampaignInput,
@@ -38,6 +39,7 @@ export default function EmailsClient({
   const [boxTitle, setBoxTitle] = useState('');
   const [boxIntro, setBoxIntro] = useState('');
   const [boxLines, setBoxLines] = useState('');
+  const [closing, setClosing] = useState(DEFAULT_CLOSING_TEXT);
   const [replyTo, setReplyTo] = useState(DEFAULT_REPLY_TO);
   const [selected, setSelected] = useState<Set<string>>(() => new Set(tiers.map((t) => t.slug)));
 
@@ -67,7 +69,8 @@ export default function EmailsClient({
     includeMap,
     boxTitle,
     boxIntro,
-    boxLines
+    boxLines,
+    closing
   };
 
   // Vista previa con un nombre de ejemplo (se renderiza en iframe aislado).
@@ -85,9 +88,10 @@ export default function EmailsClient({
         includeMap,
         boxTitle,
         boxIntro,
-        boxLines
+        boxLines,
+        closing
       }),
-    [subject, title, body, ctaLabel, ctaUrl, includeMap, boxTitle, boxIntro, boxLines]
+    [subject, title, body, ctaLabel, ctaUrl, includeMap, boxTitle, boxIntro, boxLines, closing]
   );
 
   function toggleTier(slug: string) {
@@ -233,13 +237,22 @@ export default function EmailsClient({
           <label className={LABEL} htmlFor="em-body">Mensaje</label>
           <textarea id="em-body" className={`${INPUT} min-h-[220px]`} value={body}
             disabled={sending} onChange={(e) => setBody(e.target.value)} />
-          <p className="text-xs text-linku-text-dim">
-            Texto plano. Deja una línea en blanco para separar párrafos; los saltos de línea se
-            respetan. Escribe <code>{'{{nombre}}'}</code> donde quieras el primer nombre de cada
-            persona (ej. &quot;Hola {'{{nombre}}'},&quot;). Si no tenemos su nombre, se omite y
-            queda &quot;Hola,&quot;. Escribe <code>{'{{correo}}'}</code> para poner el correo de
-            cada persona. No se interpreta HTML.
-          </p>
+          <div className="space-y-1 text-xs text-linku-text-dim">
+            <p>
+              Texto plano; no se interpreta HTML. Separa los bloques con una línea en blanco.
+              Escribe <code>{'{{nombre}}'}</code> (primer nombre) o <code>{'{{correo}}'}</code>{' '}
+              donde quieras. Formato opcional, al inicio de la línea:
+            </p>
+            <ul className="list-disc space-y-0.5 pl-5">
+              <li><code># TÍTULO</code> encabezado de sección (coral, centrado, mayúsculas)</li>
+              <li><code>## Subtítulo</code> subtítulo en negrita (seguido de su texto en la línea de abajo)</li>
+              <li><code>&gt; Frase</code> frase destacada, centrada y en grande</li>
+              <li><code>^ Texto</code> párrafo centrado (cada línea con ^)</li>
+              <li><code>[Texto del botón](https://enlace)</code> botón, solo en su línea (puedes poner varios; solo https)</li>
+              <li><code>---</code> línea separadora</li>
+              <li><code>**negrita**</code> dentro de un párrafo</li>
+            </ul>
+          </div>
         </div>
 
         <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-linku-border-2 bg-linku-bg-3 px-3.5 py-2.5 text-sm text-linku-text">
@@ -286,6 +299,15 @@ export default function EmailsClient({
             <input id="em-cta-url" className={INPUT} value={ctaUrl} placeholder="https://"
               disabled={sending} onChange={(e) => setCtaUrl(e.target.value)} />
           </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className={LABEL} htmlFor="em-closing">Frase de cierre</label>
+          <input id="em-closing" className={INPUT} value={closing} maxLength={150}
+            disabled={sending} onChange={(e) => setClosing(e.target.value)} />
+          <p className="text-xs text-linku-text-dim">
+            Va al final, antes del contacto. Déjala vacía para no mostrar ninguna.
+          </p>
         </div>
 
         <div className="space-y-1.5">
