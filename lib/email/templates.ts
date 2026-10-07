@@ -208,6 +208,22 @@ export const CAMPAIGN_MAP = {
   imageFile: 'mapa-country.png'
 };
 
+/** Redes sociales de LinkU para la línea `@redes` del mensaje (cambiar solo aquí). Imágenes en public/email/. */
+export const CAMPAIGN_SOCIAL = [
+  {
+    name: 'Instagram',
+    alt: 'Instagram de LinkU Summit',
+    url: 'https://www.instagram.com/linkusummit/',
+    imageFile: 'icono-instagram.png'
+  },
+  {
+    name: 'LinkedIn',
+    alt: 'LinkedIn de LinkU Ventures',
+    url: 'https://www.linkedin.com/company/linku-ventures/',
+    imageFile: 'icono-linkedin.png'
+  }
+];
+
 /** Las imágenes del correo deben ser URL absolutas (Gmail/Outlook no aceptan relativas ni base64). */
 export const EMAIL_IMAGE_BASE = 'https://www.linkusummit.com/email';
 
@@ -227,7 +243,7 @@ function inlineText(s: string): string {
  * Formato ligero del mensaje. Todo se escapa: nunca se interpreta HTML.
  * Por línea: "# " encabezado de sección, "## " subtítulo, "> " frase
  * destacada, "^ " párrafo centrado, "[Texto](https://url)" botón, "---"
- * separador; lo demás es párrafo. Líneas seguidas del mismo tipo forman un
+ * separador, "@redes" (sola en su línea) fila de íconos de redes; lo demás es párrafo. Líneas seguidas del mismo tipo forman un
  * solo bloque (con <br />). Devuelve HTML, texto plano y un resumen (preheader).
  */
 function renderBody(body: string): { html: string; text: string; preview: string } {
@@ -270,6 +286,17 @@ function renderBody(body: string): { html: string; text: string; preview: string
           `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:26px 0;"><tr><td style="line-height:0;font-size:0;"><img src="{{IMG}}/separador.png" width="508" alt="" style="display:block;width:100%;height:6px;" /></td></tr></table>`
         );
         text.push('────────');
+      } else if (line === '@redes') {
+        flush();
+        const cells = CAMPAIGN_SOCIAL.map(
+          (s, i) =>
+            `<td style="padding:0 ${i === 0 ? '7px 0 0' : '0 0 7px'};line-height:0;font-size:0;"><a href="${escapeHtml(s.url)}" target="_blank" style="text-decoration:none;"><img src="{{IMG}}/${s.imageFile}" width="44" height="44" alt="${escapeHtml(s.alt)}" style="display:block;width:44px;height:44px;border:0;outline:none;" /></a></td>`
+        ).join('');
+        html.push(
+          `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:18px auto 4px auto;"><tr>${cells}</tr></table>
+      <p style="margin:6px 0 8px 0;font-size:13px;line-height:1.5;color:#6b6e7d;text-align:center;font-family:${FONT};">@linkusummit · LinkU Ventures</p>`
+        );
+        text.push(CAMPAIGN_SOCIAL.map((s) => `${s.name}: ${s.url}`).join('\n'));
       } else if ((m = line.match(/^##\s+(.+)$/))) {
         flush();
         html.push(
