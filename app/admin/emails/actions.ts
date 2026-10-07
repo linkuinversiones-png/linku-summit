@@ -79,7 +79,8 @@ function renderTestItem(
     boxTitle: value.boxTitle,
     boxIntro: value.boxIntro,
     boxLines: value.boxLines,
-    closing: value.closing
+    closing: value.closing,
+    customDesign: value.customDesign
   });
   return {
     to: email,
@@ -206,6 +207,8 @@ export async function createCampaign(input: CampaignInput): Promise<CreateResult
   // Cierre (migración 0027): solo se guarda si es distinto al por defecto
   // (null = "Nos vemos en Medellín."); vacío = sin cierre.
   const usesClosing = v.value.closing !== DEFAULT_CLOSING_TEXT;
+  // Diseño propio (migración 0028): solo se guarda si se marca la casilla.
+  const usesCustomDesign = v.value.customDesign;
 
   const supabase = await createClient();
   const aud = await loadAudience(supabase);
@@ -233,6 +236,7 @@ export async function createCampaign(input: CampaignInput): Promise<CreateResult
           }
         : {}),
       ...(usesClosing ? { closing: v.value.closing } : {}),
+      ...(usesCustomDesign ? { custom_design: true } : {}),
       audience: { tiers: v.value.tiers },
       status: 'draft',
       total_recipients: 0,
@@ -242,6 +246,13 @@ export async function createCampaign(input: CampaignInput): Promise<CreateResult
     .select('id')
     .single();
   if (cErr || !campaign) {
+    if (usesCustomDesign && /custom_design/i.test(cErr?.message ?? '')) {
+      return {
+        ok: false,
+        message:
+          'El modo "Diseño propio" todavía no está activado en la base de datos: falta aplicar la migración 0028_correos_diseno_propio.sql (se aplica sola al publicar). Desmarca la casilla o espera la publicación. No se envió nada.'
+      };
+    }
     if (usesClosing && /closing/i.test(cErr?.message ?? '')) {
       return {
         ok: false,
@@ -376,6 +387,8 @@ type CampaignRecord = {
   box_lines: string | null;
   /** null = campaña vieja: cierre por defecto. */
   closing?: string | null;
+  /** true = "Diseño propio" (sin plantilla LinkU); ausente/null = plantilla normal. */
+  custom_design?: boolean | null;
   reply_to: string;
 };
 
@@ -401,7 +414,8 @@ function renderCampaignItem(
     boxIntro: campaign.box_intro,
     boxLines: campaign.box_lines,
     // null (campañas viejas) = cierre por defecto en la plantilla.
-    closing: campaign.closing ?? null
+    closing: campaign.closing ?? null,
+    customDesign: Boolean(campaign.custom_design)
   });
   return {
     to: r.email,

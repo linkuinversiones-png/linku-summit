@@ -45,6 +45,8 @@ export type CampaignInput = {
   boxLines: string;
   /** Frase de cierre; vacío = sin cierre. Por defecto "Nos vemos en Medellín.". */
   closing: string;
+  /** "Diseño propio": correo sin plantilla LinkU (solo el cuerpo + nota legal). */
+  customDesign: boolean;
 };
 
 export type AudienceEntry = {
@@ -79,6 +81,7 @@ export function validateCampaignInput(
   const boxIntro = (i.boxIntro ?? '').trim();
   const boxLines = (i.boxLines ?? '').trim();
   const closing = (i.closing ?? '').replace(/[\r\n]+/g, ' ').trim();
+  const customDesign = Boolean(i.customDesign);
 
   if (!subject) return { ok: false, message: 'Escribe el asunto.' };
   if (subject.length > 150) return { ok: false, message: 'El asunto es muy largo (máx. 150).' };
@@ -106,7 +109,7 @@ export function validateCampaignInput(
   const tiers = Array.from(new Set((i.tiers ?? []).filter((t) => typeof t === 'string' && t)));
   return {
     ok: true,
-    value: { subject, title, body, ctaLabel, ctaUrl, replyTo, tiers, includeMap, boxTitle, boxIntro, boxLines, closing }
+    value: { subject, title, body, ctaLabel, ctaUrl, replyTo, tiers, includeMap, boxTitle, boxIntro, boxLines, closing, customDesign }
   };
 }
 
