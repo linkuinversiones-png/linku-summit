@@ -14,6 +14,19 @@ Formato de cada entrada:
 
 ---
 
+## 2026-10-07 — Correos: imágenes en el mensaje y modo "Diseño propio"
+
+**Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad
+**Qué cambió:** en Admin → Correos el mensaje admite imágenes y hay un modo para enviar un correo diseñado como imágenes.
+- `![texto alternativo](https://imagen)` sola en su línea = imagen a todo el ancho; `[![texto alternativo](https://imagen)](https://enlace)` = la misma imagen como enlace (se abre en pestaña nueva). Solo https (si no, la línea se muestra como texto) y todo escapado. En la plantilla de LinkU la imagen lleva bordes redondeados de 10px y margen vertical. Texto plano: `[Imagen: alt]` y, con enlace, `alt: url`. La ayuda del formulario lista las reglas.
+- Casilla nueva "Usar solo mi diseño (sin la plantilla de LinkU)": se omiten banners, frase, título, contacto y pie; queda un HTML mínimo (fondo #0d0d14, contenedor de 600px, 100% en móvil, preheader oculto) con el cuerpo y la nota legal debajo. Las imágenes van sin bordes redondeados ni márgenes y cada una en su propia tabla de una fila (`line-height:0;font-size:0;padding:0`), por lo que las franjas se ven como una sola pieza; párrafos y botones se muestran con texto claro (#d9d9e2). Se guarda en la campaña (`custom_design`) y la usan el envío masivo, el reenvío y las pruebas; la vista previa indica el modo.
+- Correo post-evento: las 8 franjas del diseño están en `public/email/post-evento/` (se usan con `https://www.linkusummit.com/email/post-evento/<archivo>`).
+**Archivos:** `lib/email/templates.ts`, `lib/email/campaigns.ts`, `app/admin/emails/actions.ts`, `app/admin/emails/EmailsClient.tsx`, `supabase/migrations/0028_correos_diseno_propio.sql`, `public/email/post-evento/*.jpg`, `docs/CAMBIOS.md`.
+**Cómo verificar:** en Admin → Correos pegar las líneas de imagen, marcar la casilla y revisar la vista previa; enviarse una prueba; `npx tsc --noEmit`.
+**Notas / pendientes:** migración 0028 (`alter table public.email_campaigns add column if not exists custom_design boolean not null default false;`), idempotente; se aplica sola al publicar. Sin la casilla todo funciona igual aunque falte la columna; con la casilla y sin columna sale un error claro y no se envía nada. Las imágenes del correo real solo cargan tras el deploy (URL absoluta en www.linkusummit.com).
+
+---
+
 ## 2026-10-07 — Correos: línea `@redes` con íconos de Instagram y LinkedIn
 
 **Quién:** Miguel Salazar (con Claude) · **Tipo:** funcionalidad

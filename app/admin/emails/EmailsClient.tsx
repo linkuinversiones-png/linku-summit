@@ -40,6 +40,7 @@ export default function EmailsClient({
   const [boxIntro, setBoxIntro] = useState('');
   const [boxLines, setBoxLines] = useState('');
   const [closing, setClosing] = useState(DEFAULT_CLOSING_TEXT);
+  const [customDesign, setCustomDesign] = useState(false);
   const [replyTo, setReplyTo] = useState(DEFAULT_REPLY_TO);
   const [selected, setSelected] = useState<Set<string>>(() => new Set(tiers.map((t) => t.slug)));
 
@@ -70,7 +71,8 @@ export default function EmailsClient({
     boxTitle,
     boxIntro,
     boxLines,
-    closing
+    closing,
+    customDesign
   };
 
   // Vista previa con un nombre de ejemplo (se renderiza en iframe aislado).
@@ -89,9 +91,10 @@ export default function EmailsClient({
         boxTitle,
         boxIntro,
         boxLines,
-        closing
+        closing,
+        customDesign
       }),
-    [subject, title, body, ctaLabel, ctaUrl, includeMap, boxTitle, boxIntro, boxLines, closing]
+    [subject, title, body, ctaLabel, ctaUrl, includeMap, boxTitle, boxIntro, boxLines, closing, customDesign]
   );
 
   function toggleTier(slug: string) {
@@ -251,9 +254,22 @@ export default function EmailsClient({
               <li><code>[Texto del botón](https://enlace)</code> botón, solo en su línea (puedes poner varios; solo https)</li>
               <li><code>---</code> línea separadora</li>
               <li><code>@redes</code> solo en su línea: íconos de Instagram y LinkedIn de LinkU, con enlace</li>
+              <li><code>![texto alternativo](https://imagen)</code> imagen a todo el ancho, sola en su línea (solo https)</li>
+              <li><code>[![texto alternativo](https://imagen)](https://enlace)</code> imagen que es un enlace, sola en su línea</li>
               <li><code>**negrita**</code> dentro de un párrafo</li>
             </ul>
           </div>
+        </div>
+
+        <div className="space-y-1">
+          <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-linku-border-2 bg-linku-bg-3 px-3.5 py-2.5 text-sm text-linku-text">
+            <input type="checkbox" checked={customDesign} disabled={sending}
+              onChange={(e) => setCustomDesign(e.target.checked)} />
+            Usar solo mi diseño (sin la plantilla de LinkU)
+          </label>
+          <p className="text-xs text-linku-text-dim">
+            Para correos diseñados como imágenes. Se omiten banners, frase, título, contacto y pie; se mantiene la nota legal.
+          </p>
         </div>
 
         <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-linku-border-2 bg-linku-bg-3 px-3.5 py-2.5 text-sm text-linku-text">
@@ -489,7 +505,9 @@ export default function EmailsClient({
         <h2 className="text-sm font-bold uppercase tracking-[0.18em] text-linku-coral">
           Vista previa
         </h2>
-        <p className="mt-1 text-xs text-linku-text-dim">Con el nombre de ejemplo &quot;Carolina&quot;.</p>
+        <p className="mt-1 text-xs text-linku-text-dim">Con el nombre de ejemplo &quot;Carolina&quot;.
+          {customDesign && <strong className="text-linku-coral"> Modo: diseño propio (sin plantilla de LinkU).</strong>}
+        </p>
         <iframe title="Vista previa del correo" srcDoc={preview.html} sandbox=""
           className="mt-4 h-[640px] w-full rounded-xl border border-linku-border bg-[#050814]" />
       </div>

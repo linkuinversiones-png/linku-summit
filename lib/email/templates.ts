@@ -243,13 +243,27 @@ function inlineText(s: string): string {
  * Formato ligero del mensaje. Todo se escapa: nunca se interpreta HTML.
  * Por línea: "# " encabezado de sección, "## " subtítulo, "> " frase
  * destacada, "^ " párrafo centrado, "[Texto](https://url)" botón, "---"
- * separador, "@redes" (sola en su línea) fila de íconos de redes; lo demás es párrafo. Líneas seguidas del mismo tipo forman un
+ * separador, "@redes" (sola en su línea) fila de íconos de redes,
+ * "![alt](https://img)" imagen a todo el ancho y "[![alt](https://img)](https://url)"
+ * imagen con enlace (solo https; solas en su línea); lo demás es párrafo. Líneas seguidas del mismo tipo forman un
  * solo bloque (con <br />). Devuelve HTML, texto plano y un resumen (preheader).
  */
-function renderBody(body: string): { html: string; text: string; preview: string } {
-  const html: string[] = [];
+function renderBody(
+  body: string,
+  opts: { bare?: boolean } = {}
+): { html: string; text: string; preview: string } {
+  const bare = Boolean(opts.bare);
   const text: string[] = [];
   const preview: string[] = [];
+  // Cada bloque se guarda con su tipo: en modo "diseño propio" las imágenes
+  // van sin márgenes ni espacio entre ellas y el resto de bloques se pinta
+  // con colores claros (fondo oscuro) dentro de una fila con relleno.
+  const items: { img: boolean; html: string }[] = [];
+  const html = {
+    push(h: string) {
+      items.push({ img: false, html: h });
+    }
+  };
 
   type Kind = 'p' | 'quote' | 'center';
   let run: { kind: Kind; lines: string[] } | null = null;
@@ -280,7 +294,25 @@ function renderBody(body: string): { html: string; text: string; preview: string
       const line = raw.trim();
       if (!line) continue;
       let m: RegExpMatchArray | null;
-      if (/^-{3,}$/.test(line)) {
+      if (
+        ((m = line.match(/^\[!\[([^\]]*)\]\(([^)\s]+)\)\]\(([^)\s]+)\)$/)) && isHttps(m[2]) && isHttps(m[3])) ||
+        ((m = line.match(/^!\[([^\]]*)\]\(([^)\s]+)\)$/)) && isHttps(m[2]))
+      ) {
+        flush();
+        const alt = m[1].trim();
+        const src = m[2];
+        const href = m[3] ?? '';
+        const imgTag = `<img src="${escapeHtml(src)}" width="${bare ? 600 : 508}" alt="${escapeHtml(alt)}" style="display:block;width:100%;height:auto;border:0;outline:none;${bare ? '' : 'border-radius:10px;'}" />`;
+        const inner = href
+          ? `<a href="${escapeHtml(href)}" target="_blank" style="display:block;text-decoration:none;">${imgTag}</a>`
+          : imgTag;
+        const table = bare
+          ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr><td style="line-height:0;font-size:0;padding:0">${inner}</td></tr></table>`
+          : `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:18px 0;"><tr><td style="line-height:0;font-size:0;">${inner}</td></tr></table>`;
+        items.push({ img: true, html: table });
+        text.push(`[Imagen: ${alt}]${href ? `\n${alt}: ${href}` : ''}`);
+        if (alt) preview.push(alt);
+      } else if (/^-{3,}$/.test(line)) {
         flush();
         html.push(
           `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:26px 0;"><tr><td style="line-height:0;font-size:0;"><img src="{{IMG}}/separador.png" width="508" alt="" style="display:block;width:100%;height:6px;" /></td></tr></table>`
@@ -334,8 +366,16 @@ function renderBody(body: string): { html: string; text: string; preview: string
     flush();
   }
   flush();
+  const out = items.map((it) => {
+    if (!bare || it.img) return it.html;
+    const light = it.html
+      .replace(/#3a3d4d/g, '#d9d9e2')
+      .replace(/#0d1020/g, '#ffffff')
+      .replace(/#6b6e7d/g, '#9a9aa5');
+    return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td class="px" style="padding:6px 28px;font-family:${FONT};color:#d9d9e2;">${light}</td></tr></table>`;
+  });
   return {
-    html: html.join('\n      '),
+    html: out.join(bare ? '\n' : '\n      '),
     text: text.join('\n\n'),
     preview: preview.join(' ')
   };
@@ -371,6 +411,8 @@ export function campaignEmail(input: {
   closing?: string | null;
   /** Solo para la vista previa del admin: base de las imágenes (p. ej. "/email"). */
   imageBase?: string;
+  /** "Diseño propio": sin plantilla LinkU (banners, frase, título, contacto, pie); solo cuerpo + nota legal. */
+  customDesign?: boolean;
 }): { subject: string; html: string; text: string } {
   const img = input.imageBase ?? EMAIL_IMAGE_BASE;
   const em = input.email ?? '';
@@ -410,7 +452,7 @@ export function campaignEmail(input: {
   const hasCta = Boolean(ctaUrl && ctaLabel);
 
   // Cuerpo con formato ligero (encabezados, subtítulos, botones, etc.).
-  const rendered = renderBody(body);
+  const rendered = renderBody(body, { bare: Boolean(input.customDesign) });
   const bodyHtml = rendered.html.replace(/\{\{IMG\}\}/g, img);
   const closing =
     input.closing === null || input.closing === undefined
@@ -481,6 +523,65 @@ export function campaignEmail(input: {
   const c = CAMPAIGN_CONTACT;
   const LEGAL_TEXT =
     'Recibes este correo porque te registraste a LinkU Capital Summit 2026.\nLinkU Ventures S.A.S. · NIT 901387738-6 · Medellín, Colombia';
+
+  // Modo "diseño propio": HTML mínimo, solo el cuerpo y la nota legal.
+  if (input.customDesign) {
+    const pre = escapeHtml(
+      (rendered.preview || rendered.text).replace(/\s+/g, ' ').trim().slice(0, 110)
+    );
+    const customHtml = `<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="color-scheme" content="dark light" />
+<meta name="supported-color-schemes" content="dark light" />
+<title>${escapeHtml(subject)}</title>
+<style type="text/css">
+  body,table,td,a { -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; }
+  table,td { mso-table-lspace:0pt; mso-table-rspace:0pt; }
+  img { -ms-interpolation-mode:bicubic; border:0; outline:none; text-decoration:none; }
+  body { margin:0 !important; padding:0 !important; width:100% !important; }
+  a { color:#ff5a5f; }
+  @media only screen and (max-width:620px) {
+    .contenedor { width:100% !important; max-width:100% !important; }
+    .px { padding-left:20px !important; padding-right:20px !important; }
+  }
+</style>
+</head>
+<body style="margin:0;padding:0;background-color:#0d0d14;">
+
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;">
+  ${pre}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
+</div>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#0d0d14;">
+ <tr>
+  <td align="center" style="padding:0;">
+
+   <table role="presentation" class="contenedor" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background-color:#0d0d14;">
+    <tr><td style="padding:0;">
+${bodyHtml}
+    </td></tr>
+   </table>
+
+   <table role="presentation" class="contenedor" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;">
+    <tr>
+     <td class="px" style="padding:18px 26px 24px 26px;font-family:${FONT};font-size:11px;line-height:1.7;color:#9a9aa5;text-align:center;">
+       Recibes este correo porque te registraste a LinkU Capital Summit 2026.<br />
+       LinkU Ventures S.A.S. · NIT 901387738-6 · Medellín, Colombia
+     </td>
+    </tr>
+   </table>
+
+  </td>
+ </tr>
+</table>
+</body>
+</html>`;
+    return { subject, html: customHtml, text: `${rendered.text}\n\n${LEGAL_TEXT}`.replace(/\n{3,}/g, '\n\n') };
+  }
 
   const html = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="es">
